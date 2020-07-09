@@ -90,7 +90,9 @@ function unsignedLEB128(n: number): number[] {
 function encodeName(str: string): number[] {
   return [
     ...encodeU32(str.length),
-    ...[...str].map(s => s.charCodeAt(0))
+
+    // not sure if works for cjk chars (TODO: check later)
+    ...((new TextEncoder()).encode(str))
   ]
 }
 
