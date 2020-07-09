@@ -103,7 +103,7 @@ export function genCode(): Uint8Array {
 
     ...encodeSection(SectionTypeCode.type,
       encodeVector([
-        encodeFuncType([], [ValueType.i32]),
+        encodeFuncType([ValueType.i32, ValueType.i32], [ValueType.i32]),
       ])
     ),
 
@@ -115,18 +115,23 @@ export function genCode(): Uint8Array {
     ]),
 
 
-
     ...encodeSection(SectionTypeCode.code,
       encodeVector([
         encodeContainer([
           // no locals for now
-          ...encodeVector([]),
+          ...encodeVector([
+            // [2, ValueType.i32]
+          ]),
 
           // code expression
           ...[
-            // push 42 to stack
-            Opcode.i32_const,
-            ...encodeU32(2048),
+            Opcode.local_get,
+            ...encodeU32(0),
+
+            Opcode.local_get,
+            ...encodeU32(1),
+
+            Opcode.i32_add,
 
             Opcode.end
           ]
@@ -137,7 +142,7 @@ export function genCode(): Uint8Array {
     ...encodeSection(SectionTypeCode.export,
       encodeVector([
         [
-          ...encodeName("returnLife"),
+          ...encodeName("add"),
           ExportTypeCode.func,
           // ...encodeU32(0),
           0
