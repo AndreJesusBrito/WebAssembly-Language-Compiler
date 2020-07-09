@@ -73,5 +73,6 @@ export function getTokens(input: string): Token[] {
 
   }
 
+  tokensFound.push(Token.EOT);
   return tokensFound;
 }

@@ -10,6 +10,8 @@ export enum TokenType {
   numberLiteral,
   stringLiteral,
   booleanLiteral,
+
+  EOT,
 }
 
 export class Token {
@@ -17,6 +19,8 @@ export class Token {
   private _type: TokenType;
   private _linePos: number;
   private _lineCharPos: number;
+
+  public static EOT: Token = new Token("", TokenType.EOT, 0,0);
 
   constructor(content: string, type: TokenType, linePos: number, lineCharPos: number) {
     this._content = content;
