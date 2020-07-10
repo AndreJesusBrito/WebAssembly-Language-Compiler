@@ -1,9 +1,10 @@
 import { SyntaxRule } from "./SyntaxRule.ts";
+import { TerminalGroup } from "./TerminalGroup.ts";
 import { Token } from "../LexicalAnalysis/Token.ts";
 import { TokenType } from "../LexicalAnalysis/Token.ts";
 
 
-type SyntaxSymbol = string | SyntaxRule;
+type SyntaxSymbol = string | SyntaxRule | TerminalGroup;
 
 
 const rules: {
@@ -20,32 +21,39 @@ const rules: {
   value: new SyntaxRule("value"),
 };
 
-rules.program.setDerivation([rules.exp], "(", "sumOp", "id");
+const group: {
+  [key: string]: TerminalGroup
+} = {
+  sumOp: new TerminalGroup(["+", "-"]),
+  mulOp: new TerminalGroup(["*", "/", "\\", "%"]),
+};
+
+rules.program.setDerivation([rules.exp], "(", ...group.sumOp, "id");
 // rules.program.setDerivation([], "eot");
 
-rules.exp.setDerivation([rules.addExp], "(", "sumOp", "id");
+rules.exp.setDerivation([rules.addExp], "(", ...group.sumOp, "id");
 
 
-rules.addExp.setDerivation([rules.mulExp, rules.addExpPrime], "(", "sumOp", "id");
+rules.addExp.setDerivation([rules.mulExp, rules.addExpPrime], "(", ...group.sumOp, "id");
 
-rules.addExpPrime.setDerivation(["sumOp", rules.mulExp, rules.addExpPrime], "sumOp");
+rules.addExpPrime.setDerivation([group.sumOp, rules.mulExp, rules.addExpPrime], ...group.sumOp);
 rules.addExpPrime.setDerivation([], ")", "eot");
 
 
-rules.mulExp.setDerivation([rules.exponencialExp, rules.mulExpPrime], "(", "sumOp", "id");
+rules.mulExp.setDerivation([rules.exponencialExp, rules.mulExpPrime], "(", ...group.sumOp, "id");
 
-rules.mulExpPrime.setDerivation(["mulOp", rules.exponencialExp, rules.mulExpPrime], "mulOp");
-rules.mulExpPrime.setDerivation([], ")", "sumOp", "eot");
+rules.mulExpPrime.setDerivation([group.mulOp, rules.exponencialExp, rules.mulExpPrime], ...group.mulOp);
+rules.mulExpPrime.setDerivation([], ")", ...group.sumOp, "eot");
 
 
-rules.exponencialExp.setDerivation([rules.value, rules.exponencialExpPrime], "(", "sumOp", "id");
+rules.exponencialExp.setDerivation([rules.value, rules.exponencialExpPrime], "(", ...group.sumOp, "id");
 
 rules.exponencialExpPrime.setDerivation(["**", rules.value, rules.exponencialExp], "**");
-rules.exponencialExpPrime.setDerivation([], ")", "mulOp", "sumOp", "eot");
+rules.exponencialExpPrime.setDerivation([], ")", ...group.mulOp, ...group.sumOp, "eot");
 
 
 rules.value.setDerivation(["(", rules.exp, ")"], "(");
-rules.value.setDerivation(["sumOp", rules.value], "sumOp");
+rules.value.setDerivation([group.sumOp, rules.value], ...group.sumOp);
 rules.value.setDerivation(["id"], "id");
 
 
@@ -58,12 +66,6 @@ export function parse(tokens: Token[]): boolean {
   let currentPos = 0;
 
   while (stack.length > 0 && currentPos < tokens.length) {
-    // console.log(stack.map(e => {
-    //   return (e instanceof SyntaxRule) ? e.name : e;
-    // }));
-    // console.log(tokens.slice(currentPos), "\n\n\n");
-
-
     let x: SyntaxSymbol = stack[stack.length-1];
     let a: string = getTokenSymbol(tokens[currentPos]);
 
@@ -75,12 +77,16 @@ export function parse(tokens: Token[]): boolean {
       //   return false;
 
       stack.push(...ruleRes);
-    } else if (x === a) {
+    }
+    else if (x === a || x instanceof TerminalGroup) {
       if (a == "eot")
         return true;
 
       currentPos++;
-      console.assert(a === stack.pop());
+      stack.pop()
+
+      console.assert(a === x || x instanceof TerminalGroup && x.contains(a));
+
     } else {
       console.log("in loop");
       return false; // Unexpected token
@@ -98,19 +104,6 @@ export function getTokenSymbol(token: Token): string {
 
     case TokenType.IDENTIFIER:
       return "id";
-
-    case TokenType.OPERATOR:
-      switch (token.content) {
-        case "+":
-        case "-":
-          return "sumOp";
-
-        case "*":
-        case "/":
-        case "%":
-        case "\\":
-          return "mulOp";
-      }
   }
 
   return token.content;

@@ -1,5 +1,6 @@
+import { TerminalGroup } from "./TerminalGroup.ts";
 
-type SyntaxSymbol = string | SyntaxRule;
+type SyntaxSymbol = string | SyntaxRule | TerminalGroup;
 
 export class SyntaxRule {
   private derivations: Map<string, SyntaxSymbol[]>;
@@ -15,7 +16,6 @@ export class SyntaxRule {
     return this._name;
   }
 
-
   public getDerivation(terminal: string): SyntaxSymbol[] {
     const derivation = this.derivations.get(terminal);
     if (derivation instanceof Array) {
@@ -28,7 +28,7 @@ export class SyntaxRule {
   public setDerivation(rule: SyntaxSymbol[], ...terminals: string[]): void {
     for (const terminal of terminals) {
       if (this.derivations.get(terminal) instanceof Array) {
-        throw Error("'" + terminal + "' repeated terminal for rule " + this._name);
+        console.warn("'" + terminal + "' repeated terminal for rule " + this._name);
       }
 
       this.derivations.set(terminal, rule);
