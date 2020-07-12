@@ -61,29 +61,29 @@ rules.value.setDerivation(["id"], "id");
 
 
 export function parse(tokens: Token[]): boolean {
-  const stack: SyntaxSymbol[] = ["eot", rules.program];
+  const grammarStack: SyntaxSymbol[] = ["eot", rules.program];
 
   let currentPos = 0;
 
-  while (stack.length > 0 && currentPos < tokens.length) {
-    let currentSymbol: SyntaxSymbol = stack[stack.length-1];
+  while (grammarStack.length > 0 && currentPos < tokens.length) {
+    let currentSymbol: SyntaxSymbol = grammarStack[grammarStack.length-1];
     let currentToken: Token = tokens[currentPos];
 
     if (currentSymbol instanceof SyntaxRule) {
       const ruleRes: SyntaxSymbol[] = currentSymbol.getDerivation(getTokenSymbol(currentToken));
-      stack.pop();
+      grammarStack.pop();
 
       // if (ruleRes == null)
       //   return false;
 
-      stack.push(...ruleRes);
+      grammarStack.push(...ruleRes);
     }
     else if (currentSymbol === getTokenSymbol(currentToken) || currentSymbol instanceof TerminalGroup) {
       if (currentToken.type === TokenType.EOT)
         return true;
 
       currentPos++;
-      stack.pop()
+      grammarStack.pop()
 
       console.assert(
         getTokenSymbol(currentToken) === currentSymbol
