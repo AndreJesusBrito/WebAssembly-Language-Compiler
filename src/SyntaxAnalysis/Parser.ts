@@ -66,11 +66,11 @@ export function parse(tokens: Token[]): boolean {
   let currentPos = 0;
 
   while (stack.length > 0 && currentPos < tokens.length) {
-    let x: SyntaxSymbol = stack[stack.length-1];
+    let currentSymbol: SyntaxSymbol = stack[stack.length-1];
     let currentToken: Token = tokens[currentPos];
 
-    if (x instanceof SyntaxRule) {
-      const ruleRes: SyntaxSymbol[] = x.getDerivation(getTokenSymbol(currentToken));
+    if (currentSymbol instanceof SyntaxRule) {
+      const ruleRes: SyntaxSymbol[] = currentSymbol.getDerivation(getTokenSymbol(currentToken));
       stack.pop();
 
       // if (ruleRes == null)
@@ -78,14 +78,18 @@ export function parse(tokens: Token[]): boolean {
 
       stack.push(...ruleRes);
     }
-    else if (x === getTokenSymbol(currentToken) || x instanceof TerminalGroup) {
+    else if (currentSymbol === getTokenSymbol(currentToken) || currentSymbol instanceof TerminalGroup) {
       if (currentToken.type === TokenType.EOT)
         return true;
 
       currentPos++;
       stack.pop()
 
-      console.assert(getTokenSymbol(currentToken) === x || x instanceof TerminalGroup && x.contains(getTokenSymbol(currentToken)));
+      console.assert(
+        getTokenSymbol(currentToken) === currentSymbol
+        || currentSymbol instanceof TerminalGroup
+        && currentSymbol.contains(getTokenSymbol(currentToken))
+      );
 
     } else {
       console.log("in loop");
