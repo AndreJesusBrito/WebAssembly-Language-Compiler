@@ -6,8 +6,8 @@ export enum TokenType {
   RIGHT_PARENT,
   OPERATOR,
 
-  keyword,
-  numberLiteral,
+  KEYWORD,
+  NUMBER_LITERAL,
   stringLiteral,
   booleanLiteral,
 

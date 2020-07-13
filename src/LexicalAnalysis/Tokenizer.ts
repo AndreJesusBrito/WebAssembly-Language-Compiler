@@ -3,6 +3,7 @@ import { Token, TokenType } from "./Token.ts";
 
 const matchers = new Map<TokenType, RegExp>();
 {
+  matchers.set(TokenType.NUMBER_LITERAL, /^(0b[01]+|0o[0-7]+|0x[\da-fA-F]+|(\d+\.|\.\d+|\d+)\d*(E(\+|-)?\d+)?)/);
   matchers.set(TokenType.IDENTIFIER, /^\w+/); //TODO add all chars
   matchers.set(TokenType.OPERATOR, /^(\+|-|\*\*|\*|\/|\\|%)/);
 
