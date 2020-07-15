@@ -28,25 +28,25 @@ const group: {
   mulOp: new TerminalGroup(["*", "/", "\\", "%"]),
 };
 
-rules.program.setDerivation([rules.exp], "(", ...group.sumOp, "id");
+rules.program.setDerivation([rules.exp], "(", ...group.sumOp, "number");
 // rules.program.setDerivation([], "eot");
 
-rules.exp.setDerivation([rules.addExp], "(", ...group.sumOp, "id");
+rules.exp.setDerivation([rules.addExp], "(", ...group.sumOp, "number");
 
 
-rules.addExp.setDerivation([rules.mulExp, rules.addExpPrime], "(", ...group.sumOp, "id");
+rules.addExp.setDerivation([rules.mulExp, rules.addExpPrime], "(", ...group.sumOp, "number");
 
 rules.addExpPrime.setDerivation([group.sumOp, rules.mulExp, rules.addExpPrime], ...group.sumOp);
 rules.addExpPrime.setDerivation([], ")", "eot");
 
 
-rules.mulExp.setDerivation([rules.exponencialExp, rules.mulExpPrime], "(", ...group.sumOp, "id");
+rules.mulExp.setDerivation([rules.exponencialExp, rules.mulExpPrime], "(", ...group.sumOp, "number");
 
 rules.mulExpPrime.setDerivation([group.mulOp, rules.exponencialExp, rules.mulExpPrime], ...group.mulOp);
 rules.mulExpPrime.setDerivation([], ")", ...group.sumOp, "eot");
 
 
-rules.exponencialExp.setDerivation([rules.value, rules.exponencialExpPrime], "(", ...group.sumOp, "id");
+rules.exponencialExp.setDerivation([rules.value, rules.exponencialExpPrime], "(", ...group.sumOp, "number");
 
 rules.exponencialExpPrime.setDerivation(["**", rules.value, rules.exponencialExp], "**");
 rules.exponencialExpPrime.setDerivation([], ")", ...group.mulOp, ...group.sumOp, "eot");
@@ -54,8 +54,7 @@ rules.exponencialExpPrime.setDerivation([], ")", ...group.mulOp, ...group.sumOp,
 
 rules.value.setDerivation(["(", rules.exp, ")"], "(");
 rules.value.setDerivation([group.sumOp, rules.value], ...group.sumOp);
-rules.value.setDerivation(["id"], "id");
-
+rules.value.setDerivation(["number"], "number");
 
 
 
@@ -118,6 +117,9 @@ export function getTokenSymbol(token: Token): string {
 
     case TokenType.IDENTIFIER:
       return "id";
+
+    case TokenType.NUMBER_LITERAL:
+      return "number";
   }
 
   return token.content;
