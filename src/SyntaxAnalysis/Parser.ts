@@ -62,6 +62,7 @@ rules.value.setDerivation(["id"], "id");
 
 export function parse(tokens: Token[]): boolean {
   const grammarStack: SyntaxSymbol[] = ["eot", rules.program];
+  const operatorStack: Token[] = [];
 
   let currentPos = 0;
 
@@ -79,11 +80,20 @@ export function parse(tokens: Token[]): boolean {
       grammarStack.push(...ruleRes);
     }
     else if (currentSymbol === getTokenSymbol(currentToken) || currentSymbol instanceof TerminalGroup) {
+      // parsing successfull, returns ast
       if (currentToken.type === TokenType.EOT)
         return true;
 
+
+      switch (currentToken.type) {
+        case TokenType.OPERATOR:
+          operatorStack.push(currentToken);
+          break;
+
+      }
+
       currentPos++;
-      grammarStack.pop()
+      grammarStack.pop();
 
       console.assert(
         getTokenSymbol(currentToken) === currentSymbol
