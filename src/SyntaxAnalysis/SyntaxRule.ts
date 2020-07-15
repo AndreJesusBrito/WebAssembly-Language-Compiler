@@ -1,6 +1,6 @@
 import { TerminalGroup } from "./TerminalGroup.ts";
+import { SyntaxSymbol, RuleDerivation } from "./types.ts";
 
-type SyntaxSymbol = string | SyntaxRule | TerminalGroup;
 
 export class SyntaxRule {
   private derivations: Map<string, SyntaxSymbol[]>;

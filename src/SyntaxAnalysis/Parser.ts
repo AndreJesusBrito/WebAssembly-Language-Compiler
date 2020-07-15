@@ -2,9 +2,9 @@ import { SyntaxRule } from "./SyntaxRule.ts";
 import { TerminalGroup } from "./TerminalGroup.ts";
 import { Token } from "../LexicalAnalysis/Token.ts";
 import { TokenType } from "../LexicalAnalysis/Token.ts";
+import { SyntaxSymbol } from "./types.ts";
 
 
-type SyntaxSymbol = string | SyntaxRule | TerminalGroup;
 
 
 const rules: {
