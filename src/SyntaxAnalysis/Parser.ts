@@ -5,57 +5,7 @@ import { TokenType } from "../LexicalAnalysis/Token.ts";
 import { SyntaxSymbol, RuleDerivation } from "./types.ts";
 
 
-
-
-const rules: {
-  [key: string]: SyntaxRule
-} = {
-  program: new SyntaxRule("program"),
-  exp: new SyntaxRule("exp"),
-  exponencialExp: new SyntaxRule("exponencialExp"),
-  exponencialExpPrime: new SyntaxRule("exponencialExpPrime"),
-  mulExp: new SyntaxRule("mulExp"),
-  mulExpPrime: new SyntaxRule("mulExpPrime"),
-  addExp: new SyntaxRule("addExp"),
-  addExpPrime: new SyntaxRule("addExpPrime"),
-  value: new SyntaxRule("value"),
-};
-
-const group: {
-  [key: string]: TerminalGroup
-} = {
-  sumOp: new TerminalGroup(["+", "-"]),
-  mulOp: new TerminalGroup(["*", "/", "\\", "%"]),
-};
-
-rules.program.setDerivation([rules.exp], [], "(", ...group.sumOp, "number");
-// rules.program.setDerivation([], "eot");
-
-rules.exp.setDerivation([rules.addExp], [], "(", ...group.sumOp, "number");
-
-
-rules.addExp.setDerivation([rules.mulExp, rules.addExpPrime], [], "(", ...group.sumOp, "number");
-
-rules.addExpPrime.setDerivation([group.sumOp, rules.mulExp, rules.addExpPrime], [], ...group.sumOp);
-rules.addExpPrime.setDerivation([], [], ")", "eot");
-
-
-rules.mulExp.setDerivation([rules.exponencialExp, rules.mulExpPrime], [], "(", ...group.sumOp, "number");
-
-rules.mulExpPrime.setDerivation([group.mulOp, rules.exponencialExp, rules.mulExpPrime], [], ...group.mulOp);
-rules.mulExpPrime.setDerivation([], [], ")", ...group.sumOp, "eot");
-
-
-rules.exponencialExp.setDerivation([rules.value, rules.exponencialExpPrime], [], "(", ...group.sumOp, "number");
-
-rules.exponencialExpPrime.setDerivation(["**", rules.value, rules.exponencialExp], [], "**");
-rules.exponencialExpPrime.setDerivation([], [], ")", ...group.mulOp, ...group.sumOp, "eot");
-
-
-rules.value.setDerivation(["(", rules.exp, ")"], [], "(");
-rules.value.setDerivation([group.sumOp, rules.value], [], ...group.sumOp);
-rules.value.setDerivation(["number"], [], "number");
-
+import { rules } from "./rules.ts";
 
 
 
