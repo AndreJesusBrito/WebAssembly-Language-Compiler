@@ -5,6 +5,7 @@ import { TokenType } from "../LexicalAnalysis/Token.ts";
 import { SyntaxSymbol, RuleDerivation, ActionObj } from "./types.ts";
 
 import { BaseNode } from "../TreeNodes/BaseNode.ts";
+import { NumberLiteralNode } from "../TreeNodes/NumberLiteralNode.ts";
 import { EmptyProgramNode } from "../TreeNodes/EmptyProgramNode.ts";
 
 import { rules } from "./rules.ts";
@@ -71,6 +72,9 @@ export function parse(tokens: Token[]): BaseNode {
           operatorStack.push(currentToken);
           break;
 
+        case TokenType.NUMBER_LITERAL:
+          nodeStack.push(new NumberLiteralNode(currentToken));
+          break;
       }
 
       currentPos++;
