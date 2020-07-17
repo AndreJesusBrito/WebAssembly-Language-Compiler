@@ -1,6 +1,6 @@
 import {BaseNode} from "./BaseNode.ts"
 
-export class ExpressionNode extends BaseNode {
+export abstract class ExpressionNode extends BaseNode {
   constructor() {
     super();
   }
