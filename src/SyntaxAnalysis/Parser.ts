@@ -10,7 +10,6 @@ import { EmptyProgramNode } from "../TreeNodes/EmptyProgramNode.ts";
 
 import { rules } from "./rules.ts";
 
-
 export function parse(tokens: Token[]): BaseNode {
   const actionScheduler = new Map<number, ActionObj[]>();
   const grammarStack: SyntaxSymbol[] = ["eot", rules.program];
@@ -90,12 +89,12 @@ export function parse(tokens: Token[]): BaseNode {
 
     } else {
       console.log("in loop");
-      return false; // Unexpected token
+      return new EmptyProgramNode(); // Unexpected token
     }
   }
 
   console.log("out of loop");
-  return false;
+  return new EmptyProgramNode();
 }
 
 export function getTokenSymbol(token: Token): string {

@@ -11,6 +11,7 @@ import { IntDivisionOperationNode } from "../TreeNodes/IntDivisionOperationNode.
 import { NumberUnaryNegationNode } from "../TreeNodes/NumberUnaryNegationNode.ts";
 import { PowerOperationNode } from "../TreeNodes/PowerOperationNode.ts";
 
+import { EmptyExpression } from "../TreeNodes/EmptyExpression.ts";
 
 export const rules: {
   [key: string]: SyntaxRule
@@ -44,8 +45,8 @@ function fnPreviousIndex(currentIndex: number): number {
 }
 
 function createBinOperatorNode(grammarStack: SyntaxSymbol[], operatorStack: Token[], nodeStack: BaseNode[]): void {
-  const op2 = nodeStack.pop() || false;
-  const op1 = nodeStack.pop() || false;
+  const op2 = nodeStack.pop() || new EmptyExpression();
+  const op1 = nodeStack.pop() || new EmptyExpression();
 
   switch (operatorStack.pop()?.content) {
     case '+':
@@ -72,7 +73,7 @@ function createBinOperatorNode(grammarStack: SyntaxSymbol[], operatorStack: Toke
 }
 
 function createNumberUnaryNegationNode(grammarStack: SyntaxSymbol[], operatorStack: Token[], nodeStack: BaseNode[]) {
-  const number = nodeStack.pop() || false;
+  const number = nodeStack.pop() || new EmptyExpression();
   nodeStack.push(new NumberUnaryNegationNode(number));
 }
 
