@@ -2,36 +2,68 @@ import { SyntaxRule } from "./SyntaxRule.ts";
 import { TerminalGroup } from "./TerminalGroup.ts";
 import { Token } from "../LexicalAnalysis/Token.ts";
 import { TokenType } from "../LexicalAnalysis/Token.ts";
-import { SyntaxSymbol, RuleDerivation } from "./types.ts";
+import { SyntaxSymbol, RuleDerivation, ActionObj } from "./types.ts";
 
+import { BaseNode } from "../TreeNodes/BaseNode.ts";
+import { EmptyProgramNode } from "../TreeNodes/EmptyProgramNode.ts";
 
 import { rules } from "./rules.ts";
 
 
-
-export function parse(tokens: Token[]): boolean {
+export function parse(tokens: Token[]): BaseNode {
+  const actionScheduler = new Map<number, ActionObj[]>();
   const grammarStack: SyntaxSymbol[] = ["eot", rules.program];
   const operatorStack: Token[] = [];
+  const nodeStack: BaseNode[] = [];
 
   let currentPos = 0;
 
   while (grammarStack.length > 0 && currentPos < tokens.length) {
+    console.log(grammarStack.map(r => {
+      if (r instanceof SyntaxRule) {
+        return r.name;
+      }
+      return r;
+    }).join(" "));
+
+
+    // run actions
+    const actions = actionScheduler.get(grammarStack.length - 1);
+    if (actions) {
+      while (actions.length > 0) {
+        actions.pop()?.func(grammarStack, operatorStack, nodeStack);
+      }
+    }
+
+
     let currentSymbol: SyntaxSymbol = grammarStack[grammarStack.length-1];
     let currentToken: Token = tokens[currentPos];
 
     if (currentSymbol instanceof SyntaxRule) {
-      const ruleRes: RuleDerivation = currentSymbol.getDerivation(getTokenSymbol(currentToken));
+      const temp = getTokenSymbol(currentToken)
+      const ruleRes: RuleDerivation = currentSymbol.getDerivation(temp);
+      // console.log(currentSymbol.name, ruleRes.actions);
       grammarStack.pop();
 
-      // if (ruleRes == null)
-      //   return false;
+      // schedule actions
+      for (const action of ruleRes.actions) {
+
+        // index to schedule (implicit -1 by previous pop)
+        const index = action.index(grammarStack.length);
+
+        let renameTomorow = actionScheduler.get(index) || [];
+
+        renameTomorow.push(action);
+
+        actionScheduler.set(index, renameTomorow);
+      }
 
       grammarStack.push(...ruleRes.derivationSymbols);
     }
     else if (currentSymbol === getTokenSymbol(currentToken) || currentSymbol instanceof TerminalGroup) {
       // parsing successfull, returns ast
       if (currentToken.type === TokenType.EOT)
-        return true;
+        return nodeStack.pop() || new EmptyProgramNode();
 
 
       switch (currentToken.type) {

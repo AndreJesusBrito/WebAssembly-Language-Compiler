@@ -1,4 +1,5 @@
 import { TerminalGroup } from "./TerminalGroup.ts";
+import { Token, TokenType } from "../LexicalAnalysis/Token.ts";
 import { SyntaxSymbol, RuleDerivation, ActionObj } from "./types.ts";
 
 
@@ -21,7 +22,7 @@ export class SyntaxRule {
     if (derivation) {
       return {
         derivationSymbols: [...derivation.derivationSymbols].reverse(),
-        actions: [],
+        actions: derivation.actions,
       };
     } else {
       throw SyntaxError("Unexpected token '" + terminal + "' at rule " + this._name);
@@ -33,10 +34,9 @@ export class SyntaxRule {
       if (this.derivations.get(terminal) instanceof Array) {
         console.warn("'" + terminal + "' repeated terminal for rule " + this._name);
       }
-
       this.derivations.set(terminal, {
         derivationSymbols: rule,
-        actions: [],
+        actions: actions,
       });
     }
   }
