@@ -25,7 +25,9 @@ export function parse(tokens: Token[]): BaseNode {
         return r.name;
       }
       return r;
-    }).join(" "));
+    }).join(" "),
+    // "\n" + tokens.slice(currentPos)
+    );
 
 
     // run actions
