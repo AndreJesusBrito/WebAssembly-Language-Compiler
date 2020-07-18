@@ -73,6 +73,7 @@ function createBinOperatorNode(grammarStack: SyntaxSymbol[], operatorStack: Toke
 }
 
 function createNumberUnaryNegationNode(grammarStack: SyntaxSymbol[], operatorStack: Token[], nodeStack: BaseNode[]) {
+  console.assert(operatorStack.pop()?.content === '-');
   const number = nodeStack.pop() || new EmptyExpression();
   nodeStack.push(new NumberUnaryNegationNode(number));
 }
