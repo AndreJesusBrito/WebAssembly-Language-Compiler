@@ -1,13 +1,30 @@
 import { ExpressionNode } from "./ExpressionNode.ts";
-import { Token } from "../LexicalAnalysis/Token.ts";
+import { Token, TokenType } from "../LexicalAnalysis/Token.ts";
 import { IVisitorAST } from "./IVisitorAST.ts";
 
 export class NumberLiteralNode extends ExpressionNode {
-  private val: Token;
+  private token: Token;
+  private value: number;
 
   constructor(token: Token) {
+    console.assert(token.type === TokenType.NUMBER_LITERAL);
     super();
-    this.val = token;
+    this.token = token;
+
+    this.value = this.parseInt();
+
+  }
+
+  private parseInt(): number {
+    const str = this.token.content;
+    if (str.length > 1 && str[0] === '0' && str[1].match(/\d/)) {
+      throw SyntaxError("Invalid Token: numbers starting with 0 are forbidden. Use 0o prefix for octal instead.")
+    }
+    return Number(this.token.content);
+  }
+
+  public get literalValue() : number {
+    return this.value;
   }
 
   public visit(visitor: IVisitorAST) {
@@ -15,6 +32,6 @@ export class NumberLiteralNode extends ExpressionNode {
   }
 
   public toString(): string {
-    return this.val.content;
+    return this.value.toString();
   }
 }
