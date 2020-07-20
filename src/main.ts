@@ -1,8 +1,11 @@
-import { parse } from "https://deno.land/std/flags/mod.ts";
+import { parse as parseArgs } from "https://deno.land/std/flags/mod.ts";
 import { getTokens } from "./LexicalAnalysis/Tokenizer.ts";
+import { Token } from "./LexicalAnalysis/Token.ts";
+import { parse, getTokenSymbol } from "./SyntaxAnalysis/Parser.ts";
+import { BinaryFormatCodeGenerator } from "./CodeGeneration/genCode.ts";
 
 const { args } = Deno;
-const parsedArgs = parse(args);
+const parsedArgs = parseArgs(args);
 
 if (!parsedArgs._[0]) {
   console.log("Error: No input file");
@@ -12,24 +15,21 @@ if (!parsedArgs._[0]) {
 const decoder = new TextDecoder('utf-8');
 const file = await Deno.open(parsedArgs._[0].toString());
 
-// const magicModuleHeader = [0x00, 0x61, 0x73, 0x6d];
-// const moduleVersion = [0x01, 0x00, 0x00, 0x00];
-
 
 const bytes = await Deno.readAll(file);
 const text = decoder.decode(bytes);
 
 
-const tokens = getTokens(text);
+const tokens: Token[] = getTokens(text);
+
+const ast = parse(tokens);
 
 
+const outputFilename: string = parsedArgs.o || "out.wasm";
 
 console.log(tokens);
+const generator = new BinaryFormatCodeGenerator(ast);
 
-// let outputFilename: string = parsedArgs.o || "out.wasm";
+const code: Uint8Array = generator.generate();
 
-// await Deno.writeFile(outputFilename, new Uint8Array([
-//   ...magicModuleHeader,
-//   ...moduleVersion,
-//   // ...bytes,
-// ]));
+await Deno.writeFile(outputFilename, code);
