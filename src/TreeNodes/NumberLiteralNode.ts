@@ -11,7 +11,7 @@ export class NumberLiteralNode extends ExpressionNode {
   }
 
   public visit(visitor: IVisitorAST) {
-    visitor.visitNumberLiteralNode(this);
+    return visitor.visitNumberLiteralNode(this);
   }
 
   public toString(): string {

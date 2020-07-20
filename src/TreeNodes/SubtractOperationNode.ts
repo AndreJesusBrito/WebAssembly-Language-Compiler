@@ -7,6 +7,6 @@ export class SubtractOperationNode extends BinaryOperator {
   }
 
   public visit(visitor: IVisitorAST) {
-    visitor.visitSubtractOperationNode(this);
+    return visitor.visitSubtractOperationNode(this);
   }
 }

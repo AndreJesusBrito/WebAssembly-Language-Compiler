@@ -8,6 +8,6 @@ export class NumberUnaryNegationNode extends UnaryOperator {
   }
 
   public visit(visitor: IVisitorAST) {
-    visitor.visitNumberUnaryNegationNode(this);
+    return visitor.visitNumberUnaryNegationNode(this);
   }
 }

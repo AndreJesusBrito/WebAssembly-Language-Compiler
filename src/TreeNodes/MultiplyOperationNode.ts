@@ -8,6 +8,6 @@ export class MultiplyOperationNode extends BinaryOperator {
   }
 
   public visit(visitor: IVisitorAST) {
-    visitor.visitMultiplyOperationNode(this);
+    return visitor.visitMultiplyOperationNode(this);
   }
 }

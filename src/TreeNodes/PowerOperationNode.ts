@@ -8,6 +8,6 @@ export class PowerOperationNode extends BinaryOperator {
   }
 
   public visit(visitor: IVisitorAST) {
-    visitor.visitPowerOperationNode(this);
+    return visitor.visitPowerOperationNode(this);
   }
 }

@@ -10,6 +10,6 @@ export class AddOperationNode extends BinaryOperator {
 
 
   public visit(visitor: IVisitorAST) {
-    visitor.visitAddOperationNode(this);
+    return visitor.visitAddOperationNode(this);
   }
 }

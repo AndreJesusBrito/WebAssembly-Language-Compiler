@@ -8,6 +8,6 @@ export class IntDivisionOperationNode extends BinaryOperator {
   }
 
   public visit(visitor: IVisitorAST) {
-    visitor.visitIntDivisionOperationNode(this);
+    return visitor.visitIntDivisionOperationNode(this);
   }
 }
