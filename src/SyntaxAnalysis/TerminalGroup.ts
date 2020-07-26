@@ -5,7 +5,7 @@ export class TerminalGroup {
 
   constructor(terminals: string[]) {
     this.terminals = new Set(terminals);
-    console.assert(this.terminals.size === terminals.length);
+    console.assert(this.terminals.size === terminals.length, "terminal group constructor");
   }
 
   [Symbol.iterator]() {

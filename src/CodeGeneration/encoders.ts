@@ -34,12 +34,12 @@ export function encodeFuncType(paramsVec: any[], resultVec: any[]): number[] {
 
 export function encodeI32(n: number) {
   const result = signedLEB128(n);
-  console.assert(result.length <= Math.ceil(32 / 7));
+  console.assert(result.length <= Math.ceil(32 / 7), "encoding i32");
   return result;
 }
 export function encodeU32(n: number) {
   const result = unsignedLEB128(n);
-  console.assert(result.length <= Math.ceil(32 / 7));
+  console.assert(result.length <= Math.ceil(32 / 7), "encoding u32");
   return result;
 }
 

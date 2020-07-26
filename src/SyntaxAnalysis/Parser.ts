@@ -84,7 +84,8 @@ export function parse(tokens: Token[]): BaseNode {
       console.assert(
         getTokenSymbol(currentToken) === currentSymbol
         || currentSymbol instanceof TerminalGroup
-        && currentSymbol.contains(getTokenSymbol(currentToken))
+        && currentSymbol.contains(getTokenSymbol(currentToken)),
+        "pop token"
       );
 
     } else {

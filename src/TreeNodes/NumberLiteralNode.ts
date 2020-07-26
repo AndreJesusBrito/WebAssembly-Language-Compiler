@@ -7,7 +7,7 @@ export class NumberLiteralNode extends ExpressionNode {
   private value: number;
 
   constructor(token: Token) {
-    console.assert(token.type === TokenType.NUMBER_LITERAL);
+    console.assert(token.type === TokenType.NUMBER_LITERAL, "NumberLiteralNode constructor");
     super();
     this.token = token;
 
