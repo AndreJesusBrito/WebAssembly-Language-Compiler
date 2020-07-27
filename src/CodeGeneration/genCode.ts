@@ -10,6 +10,7 @@ import {
 } from "./encoders.ts";
 
 import { IVisitorAST } from "../TreeNodes/IVisitorAST.ts";
+import { BaseNode } from "../TreeNodes/BaseNode.ts";
 
 import { StatementNode } from "../TreeNodes/StatementNode.ts";
 import { StatementBlockNode } from "../TreeNodes/StatementBlockNode.ts";
@@ -17,20 +18,21 @@ import { StatementSingleNode } from "../TreeNodes/StatementSingleNode.ts";
 
 import { NumberLiteralNode } from "../TreeNodes/NumberLiteralNode.ts";
 import { NumberUnaryNegationNode } from "../TreeNodes/NumberUnaryNegationNode.ts";
+
 import { AddOperationNode } from "../TreeNodes/AddOperationNode.ts";
 import { SubtractOperationNode } from "../TreeNodes/SubtractOperationNode.ts";
 import { MultiplyOperationNode } from "../TreeNodes/MultiplyOperationNode.ts";
 import { IntDivisionOperationNode } from "../TreeNodes/IntDivisionOperationNode.ts";
 import { PowerOperationNode } from "../TreeNodes/PowerOperationNode.ts";
-import { BaseNode } from "../TreeNodes/BaseNode.ts";
 
 
-
-const magicModuleHeader = [0x00, 0x61, 0x73, 0x6d];
-const moduleVersion = [0x01, 0x00, 0x00, 0x00];
 
 export class BinaryFormatCodeGenerator implements IVisitorAST {
-  private ast: BaseNode;
+  protected ast: BaseNode;
+
+  protected magicModuleHeader: number[] = [0x00, 0x61, 0x73, 0x6d];
+  protected moduleVersion: number[] = [0x01, 0x00, 0x00, 0x00];
+
 
   constructor (ast: BaseNode) {
     this.ast = ast;
@@ -118,8 +120,8 @@ export class BinaryFormatCodeGenerator implements IVisitorAST {
 
   public generate(): Uint8Array {
     return Uint8Array.from([
-      ...magicModuleHeader,
-      ...moduleVersion,
+      ...this.magicModuleHeader,
+      ...this.moduleVersion,
 
       ...encodeSection(SectionTypeCode.type,
         encodeVector([
