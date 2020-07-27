@@ -1,5 +1,8 @@
 import { NumberLiteralNode } from "./NumberLiteralNode.ts";
 
+import { StatementSingleNode } from "./StatementSingleNode.ts";
+import { StatementBlockNode } from "./StatementBlockNode.ts";
+
 import { NumberUnaryNegationNode } from "./NumberUnaryNegationNode.ts";
 
 import { AddOperationNode } from "./AddOperationNode.ts";
@@ -14,6 +17,8 @@ export interface IVisitorAST {
   // literals
   visitNumberLiteralNode(node: NumberLiteralNode): any;
 
+  visitStatementSingleNode(node: StatementSingleNode): any;
+  visitStatementBlockNode(node: StatementBlockNode): any;
 
   // unary operators
   visitNumberUnaryNegationNode(node: NumberUnaryNegationNode): any;

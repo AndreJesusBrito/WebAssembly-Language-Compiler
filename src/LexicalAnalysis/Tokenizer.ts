@@ -9,6 +9,11 @@ const matchers = new Map<TokenType, RegExp>();
 
   matchers.set(TokenType.LEFT_PARENT, /^\(/);
   matchers.set(TokenType.RIGHT_PARENT, /^\)/);
+
+  matchers.set(TokenType.LEFT_CURLY_BRAQUET, /^{/);
+  matchers.set(TokenType.RIGHT_CURLY_BRAQUET, /^}/);
+
+  matchers.set(TokenType.SEMICOLON, /^;/);
 }
 
 export function getTokens(input: string): Token[] {

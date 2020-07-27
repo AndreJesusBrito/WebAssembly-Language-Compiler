@@ -10,6 +10,11 @@ import {
 } from "./encoders.ts";
 
 import { IVisitorAST } from "../TreeNodes/IVisitorAST.ts";
+
+import { StatementNode } from "../TreeNodes/StatementNode.ts";
+import { StatementBlockNode } from "../TreeNodes/StatementBlockNode.ts";
+import { StatementSingleNode } from "../TreeNodes/StatementSingleNode.ts";
+
 import { NumberLiteralNode } from "../TreeNodes/NumberLiteralNode.ts";
 import { NumberUnaryNegationNode } from "../TreeNodes/NumberUnaryNegationNode.ts";
 import { AddOperationNode } from "../TreeNodes/AddOperationNode.ts";
@@ -29,6 +34,19 @@ export class BinaryFormatCodeGenerator implements IVisitorAST {
 
   constructor (ast: BaseNode) {
     this.ast = ast;
+  }
+
+  visitStatementSingleNode(node: StatementSingleNode): number[] {
+    return node.innerExpression.visit(this);
+  }
+
+  visitStatementBlockNode(node: StatementBlockNode): number[] {
+    const innerStmt = node.innerStatement;
+    
+    if (innerStmt) {
+      return this.genStatements(innerStmt);
+    }
+    return [];
   }
 
   visitNumberLiteralNode(node: NumberLiteralNode): number[] {
@@ -81,6 +99,23 @@ export class BinaryFormatCodeGenerator implements IVisitorAST {
     throw Error("** not implemented");
   }
 
+  private genStatements(firstStatement: StatementNode): number[] {
+    const code: number[] = [];
+
+    let currentStatement: StatementNode | null = firstStatement;
+    do {
+      code.push(...currentStatement.visit(this));
+
+      if (currentStatement.nextStatement) {
+        code.push(Opcode.drop);
+      }
+
+      currentStatement = currentStatement.nextStatement;
+    } while (currentStatement);
+
+    return code;
+  }
+
   public generate(): Uint8Array {
     return Uint8Array.from([
       ...magicModuleHeader,
@@ -106,13 +141,13 @@ export class BinaryFormatCodeGenerator implements IVisitorAST {
           encodeContainer([
             // no locals for now
             ...encodeVector([
-              // [2, ValueType.i32]
+              // [1, ValueType.i32]
             ]),
 
             // code expression
             ...[
-              ...this.ast.visit(this),
-
+              // @ts-ignore TEMP, only parsing statements directly
+              this.genStatements(this.ast),
               Opcode.end
             ]
           ])
