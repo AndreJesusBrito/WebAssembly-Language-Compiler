@@ -113,7 +113,7 @@ rules.program.setDerivation([rules.statement], [], "{", ";", "(", ...group.sumOp
 // rules.program.setDerivation([], "eot");
 
 rules.statement.setDerivation(
-  ["{", rules.statement, "}", rules.statementPrime],
+  ["{", rules.statementPrime, "}", rules.statementPrime],
   [{index: fnCurrentIndex, func: createStatementBlockNode}],
   "{"
 );
