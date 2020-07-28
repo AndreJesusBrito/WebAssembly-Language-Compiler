@@ -20,7 +20,7 @@ export const rules: {
 } = {
   program: new SyntaxRule("program"),
   statement: new SyntaxRule("statement"),
-  statementPrime: new SyntaxRule("statementPrime"),
+  nextStatement: new SyntaxRule("nextStatement"),
   statementBlock: new SyntaxRule("statementBlock"),
   statementBlockPrime: new SyntaxRule("statementBlockPrime"),
   varDefinition: new SyntaxRule("varDefinition"),
@@ -126,18 +126,18 @@ rules.program.setDerivation([rules.statement], [], ";", "{", "i32", "id", "(", "
 // rules.program.setDerivation([], "eot");
 
 rules.statement.setDerivation(
-  [rules.statementBlock, rules.statementPrime],
+  [rules.statementBlock, rules.nextStatement],
   [{index: fnCurrentIndex, func: createStatementBlockNode}],
   "{"
 );
-rules.statement.setDerivation([";", rules.statementPrime], [], ";");
+rules.statement.setDerivation([";", rules.nextStatement], [], ";");
 rules.statement.setDerivation(
-  [rules.expression, ";", rules.statementPrime],
+  [rules.expression, ";", rules.nextStatement],
   [{index: fnCurrentIndex, func: createStatementSingleNode}],
   "id", "+", "-", "(", "number"
 );
 rules.statement.setDerivation(
-  [rules.varDefinition, ";", rules.statementPrime],
+  [rules.varDefinition, ";", rules.nextStatement],
   [{index: fnCurrentIndex, func: createStatementSingleNode}],
   "i32"
 );
@@ -147,12 +147,12 @@ rules.statementBlockPrime.setDerivation([rules.statement, "}"], [], ";", "{", "i
 rules.statementBlockPrime.setDerivation(["}"], [], "}");
 
 
-rules.statementPrime.setDerivation(
+rules.nextStatement.setDerivation(
   [rules.statement],
   [{index: fnPreviousIndex, func: joinStatements}],
   ";", "{", "i32", "id", "+", "-", "(", "number"
 );
-rules.statementPrime.setDerivation([], [], "}", "eot");
+rules.nextStatement.setDerivation([], [], "}", "eot");
 
 
 rules.varDefinition.setDerivation(["i32", "id", rules.varDefinitionAssign], [], "i32");
