@@ -21,6 +21,8 @@ export const rules: {
   program: new SyntaxRule("program"),
   statement: new SyntaxRule("statement"),
   statementPrime: new SyntaxRule("statementPrime"),
+  statementBlock: new SyntaxRule("statementBlock"),
+  statementBlockPrime: new SyntaxRule("statementBlockPrime"),
   varDefinition: new SyntaxRule("varDefinition"),
   varDefinitionAssign: new SyntaxRule("varDefinitionAssign"),
   expression: new SyntaxRule("exp"),
@@ -124,7 +126,7 @@ rules.program.setDerivation([rules.statement], [], ";", "{", "i32", "id", "(", "
 // rules.program.setDerivation([], "eot");
 
 rules.statement.setDerivation(
-  ["{", rules.statementPrime, "}", rules.statementPrime],
+  [rules.statementBlock, rules.statementPrime],
   [{index: fnCurrentIndex, func: createStatementBlockNode}],
   "{"
 );
@@ -139,6 +141,11 @@ rules.statement.setDerivation(
   [{index: fnCurrentIndex, func: createStatementSingleNode}],
   "i32"
 );
+
+rules.statementBlock.setDerivation(["{", rules.statementBlockPrime], [], "{");
+rules.statementBlockPrime.setDerivation([rules.statement, "}"], [], ";", "{", "i32", "id", "(", "+", "-", "number");
+rules.statementBlockPrime.setDerivation(["}"], [], "}");
+
 
 rules.statementPrime.setDerivation(
   [rules.statement],
