@@ -33,7 +33,13 @@ export function parse(tokens: Token[]): BaseNode {
     const actions = actionScheduler.get(grammarStack.length - 1);
     if (actions) {
       while (actions.length > 0) {
-        actions.pop()?.func(grammarStack, operatorStack, nodeStack);
+        actions.pop()?.func({
+          grammarStack: grammarStack,
+          operatorStack: operatorStack,
+          nodeStack: nodeStack,
+          currentTokenPos: currentPos,
+          tokens: tokens,
+        });
       }
     }
 

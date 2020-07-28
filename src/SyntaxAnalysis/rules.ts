@@ -1,7 +1,6 @@
 import { SyntaxRule } from "./SyntaxRule.ts";
 import { TerminalGroup } from "./TerminalGroup.ts";
-import { SyntaxSymbol } from "./types.ts";
-import { Token } from "../LexicalAnalysis/Token.ts";
+import { ActionArgs } from "./types.ts";
 
 import { BaseNode } from "../TreeNodes/BaseNode.ts";
 import { AddOperationNode } from "../TreeNodes/AddOperationNode.ts";
@@ -51,12 +50,16 @@ function fnPreviousIndex(currentIndex: number): number {
   return currentIndex - 1;
 }
 
-function createStatementSingleNode(grammarStack: SyntaxSymbol[], operatorStack: Token[], nodeStack: BaseNode[]): void {
+function createStatementSingleNode(args: ActionArgs): void {
+  const {nodeStack} = args;
+
   const expression = nodeStack.pop() || new EmptyExpression();
   nodeStack.push(new StatementSingleNode(expression));
 }
 
-function createStatementBlockNode(grammarStack: SyntaxSymbol[], operatorStack: Token[], nodeStack: BaseNode[]): void {
+function createStatementBlockNode(args: ActionArgs): void {
+  const {nodeStack} = args
+
   const statement: BaseNode = nodeStack[nodeStack.length-1] || null;
 
   if (statement instanceof StatementNode) {
@@ -65,7 +68,9 @@ function createStatementBlockNode(grammarStack: SyntaxSymbol[], operatorStack: T
   }
 }
 
-function joinStatements(grammarStack: SyntaxSymbol[], operatorStack: Token[], nodeStack: BaseNode[]): void {
+function joinStatements(args: ActionArgs): void {
+  const { nodeStack } = args
+
   const nextStmt = nodeStack.pop();
   const previousStmt = nodeStack[nodeStack.length-1];
 
@@ -77,7 +82,9 @@ function joinStatements(grammarStack: SyntaxSymbol[], operatorStack: Token[], no
   }
 }
 
-function createBinOperatorNode(grammarStack: SyntaxSymbol[], operatorStack: Token[], nodeStack: BaseNode[]): void {
+function createBinOperatorNode(args: ActionArgs): void {
+  const {operatorStack, nodeStack} = args;
+
   const op2 = nodeStack.pop() || new EmptyExpression();
   const op1 = nodeStack.pop() || new EmptyExpression();
 
@@ -105,7 +112,9 @@ function createBinOperatorNode(grammarStack: SyntaxSymbol[], operatorStack: Toke
   }
 }
 
-function createNumberUnaryNegationNode(grammarStack: SyntaxSymbol[], operatorStack: Token[], nodeStack: BaseNode[]) {
+function createNumberUnaryNegationNode(args: ActionArgs) {
+  const { operatorStack, nodeStack } = args
+
   console.assert(operatorStack.pop()?.content === '-', "createNumberUnaryNegationNode check");
   const number = nodeStack.pop() || new EmptyExpression();
   nodeStack.push(new NumberUnaryNegationNode(number));
