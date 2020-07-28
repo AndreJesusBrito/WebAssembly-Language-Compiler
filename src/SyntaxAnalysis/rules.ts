@@ -22,6 +22,8 @@ export const rules: {
   program: new SyntaxRule("program"),
   statement: new SyntaxRule("statement"),
   statementPrime: new SyntaxRule("statementPrime"),
+  varDefinition: new SyntaxRule("varDefinition"),
+  varDefinitionAssign: new SyntaxRule("varDefinitionAssign"),
   expression: new SyntaxRule("exp"),
   exponencialExp: new SyntaxRule("exponencialExp"),
   exponencialExpPrime: new SyntaxRule("exponencialExpPrime"),
@@ -109,7 +111,7 @@ function createNumberUnaryNegationNode(grammarStack: SyntaxSymbol[], operatorSta
   nodeStack.push(new NumberUnaryNegationNode(number));
 }
 
-rules.program.setDerivation([rules.statement], [], "{", ";", "(", ...group.sumOp, "number");
+rules.program.setDerivation([rules.statement], [], ";", "{", "i32", "id", "(", "+", "-", "number");
 // rules.program.setDerivation([], "eot");
 
 rules.statement.setDerivation(
@@ -121,48 +123,59 @@ rules.statement.setDerivation([";", rules.statementPrime], [], ";");
 rules.statement.setDerivation(
   [rules.expression, ";", rules.statementPrime],
   [{index: fnCurrentIndex, func: createStatementSingleNode}],
-  "(", ...group.sumOp, "number"
+  "id", "+", "-", "(", "number"
+);
+rules.statement.setDerivation(
+  [rules.varDefinition, ";", rules.statementPrime],
+  [{index: fnCurrentIndex, func: createStatementSingleNode}],
+  "i32"
 );
 
 rules.statementPrime.setDerivation(
   [rules.statement],
   [{index: fnPreviousIndex, func: joinStatements}],
-  "{",  ";", "(", ...group.sumOp, "number"
+  ";", "{", "i32", "id", "+", "-", "(", "number"
 );
 rules.statementPrime.setDerivation([], [], "}", "eot");
 
 
-rules.expression.setDerivation([rules.addExp], [], "(", ...group.sumOp, "number");
+rules.varDefinition.setDerivation(["i32", "id", rules.varDefinitionAssign], [], "i32");
+
+rules.varDefinitionAssign.setDerivation(["=", rules.expression], [], "=");
+rules.varDefinitionAssign.setDerivation([], [], ";");
 
 
-rules.addExp.setDerivation([rules.mulExp, rules.addExpPrime], [], "(", ...group.sumOp, "number");
+rules.expression.setDerivation([rules.addExp], [], "id", "+", "-", "(", "number");
+
+
+rules.addExp.setDerivation([rules.mulExp, rules.addExpPrime], [], "id", "+", "-", "(", "number");
 
 rules.addExpPrime.setDerivation(
   [group.sumOp, rules.mulExp, rules.addExpPrime],
   [{ index: fnCurrentIndex, func: createBinOperatorNode }],
   ...group.sumOp,
 );
-rules.addExpPrime.setDerivation([], [], ")", ";", "}", "eot");
+rules.addExpPrime.setDerivation([], [], ";", ")");
 
 
-rules.mulExp.setDerivation([rules.exponencialExp, rules.mulExpPrime], [], "(", ...group.sumOp, "number");
+rules.mulExp.setDerivation([rules.exponencialExp, rules.mulExpPrime], [], "id", "+", "-", "(", "number");
 
 rules.mulExpPrime.setDerivation(
   [group.mulOp, rules.exponencialExp, rules.mulExpPrime],
   [{ index: fnCurrentIndex, func: createBinOperatorNode }],
   ...group.mulOp,
 );
-rules.mulExpPrime.setDerivation([], [], ")", ...group.sumOp, ";", "}", "eot");
+rules.mulExpPrime.setDerivation([], [], ";", ...group.sumOp, ")");
 
 
-rules.exponencialExp.setDerivation([rules.value, rules.exponencialExpPrime], [], "(", ...group.sumOp, "number");
+rules.exponencialExp.setDerivation([rules.value, rules.exponencialExpPrime], [], "id", "+", "-", "(", "number");
 
 rules.exponencialExpPrime.setDerivation(
   ["**", rules.value, rules.exponencialExpPrime],
   [{ index: fnPreviousIndex, func: createBinOperatorNode }],
   "**",
 );
-rules.exponencialExpPrime.setDerivation([], [], ")", ...group.mulOp, ...group.sumOp, ";", "}", "eot");
+rules.exponencialExpPrime.setDerivation([], [], ";", ...group.sumOp, ...group.mulOp, ")");
 
 
 rules.value.setDerivation(["(", rules.expression, ")"], [], "(");
