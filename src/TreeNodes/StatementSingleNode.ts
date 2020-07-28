@@ -3,7 +3,7 @@ import { IVisitorAST } from "./IVisitorAST.ts";
 import { ExpressionNode } from "./ExpressionNode.ts";
 
 export class StatementSingleNode extends StatementNode {
-  private _innerExpression: ExpressionNode;
+  protected _innerExpression: ExpressionNode;
 
   constructor(innerExpression: ExpressionNode) {
     super();

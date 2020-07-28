@@ -20,6 +20,8 @@ export interface IVisitorAST {
   visitStatementSingleNode(node: StatementSingleNode): any;
   visitStatementBlockNode(node: StatementBlockNode): any;
 
+  visitVarDeclarationNode(node: VarDeclarationNode): any;
+
   // unary operators
   visitNumberUnaryNegationNode(node: NumberUnaryNegationNode): any;
 

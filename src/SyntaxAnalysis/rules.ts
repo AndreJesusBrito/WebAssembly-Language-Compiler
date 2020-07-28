@@ -52,6 +52,22 @@ function fnPreviousIndex(currentIndex: number): number {
   return currentIndex - 1;
 }
 
+
+
+
+
+
+function createVarDefinitionNode(args: ActionArgs) {
+  // console.log("createVarDefinitionNode called");
+
+  const {nodeStack, tokens, currentTokenPos} = args;
+
+  // WARN: may be instable when direct assignment added
+  const varName = tokens[currentTokenPos-2];
+
+  nodeStack.push(new VarDeclarationNode(null, varName.content));
+}
+
 function createStatementSingleNode(args: ActionArgs): void {
   const {nodeStack} = args;
 
@@ -138,7 +154,7 @@ rules.statement.setDerivation(
 );
 rules.statement.setDerivation(
   [rules.varDefinition, ";", rules.nextStatement],
-  [{index: fnCurrentIndex, func: createStatementSingleNode}],
+  [{index: fnCurrentIndex, func: createVarDefinitionNode}],
   "i32"
 );
 
@@ -155,9 +171,17 @@ rules.nextStatement.setDerivation(
 rules.nextStatement.setDerivation([], [], "}", "eot");
 
 
-rules.varDefinition.setDerivation(["i32", "id", rules.varDefinitionAssign], [], "i32");
+rules.varDefinition.setDerivation(
+  ["i32", "id", rules.varDefinitionAssign],
+  [],
+  "i32"
+);
 
-rules.varDefinitionAssign.setDerivation(["=", rules.expression], [], "=");
+rules.varDefinitionAssign.setDerivation(
+  ["=", rules.expression],
+  [],
+  "="
+);
 rules.varDefinitionAssign.setDerivation([], [], ";");
 
 
