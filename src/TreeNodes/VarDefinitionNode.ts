@@ -2,7 +2,7 @@ import { StatementNode } from "./StatementNode.ts"
 import { IVisitorAST } from "./IVisitorAST.ts";
 import { ExpressionNode } from "./ExpressionNode.ts";
 
-export class VarDeclarationNode extends StatementNode {
+export class VarDefinitionNode extends StatementNode {
   public assignment: ExpressionNode | null = null;
 
   public variableName: string;
@@ -16,7 +16,7 @@ export class VarDeclarationNode extends StatementNode {
   }
 
   public visit(visitor: IVisitorAST): any {
-    return visitor.visitVarDeclarationNode(this);
+    return visitor.visitVarDefinitionNode(this);
   }
 
   public toString(): string {

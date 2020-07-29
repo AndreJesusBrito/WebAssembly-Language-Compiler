@@ -14,7 +14,7 @@ import { EmptyExpression } from "../TreeNodes/EmptyExpression.ts";
 import { StatementNode } from "../TreeNodes/StatementNode.ts";
 import { StatementSingleNode } from "../TreeNodes/StatementSingleNode.ts";
 import { StatementBlockNode } from "../TreeNodes/StatementBlockNode.ts";
-import { VarDeclarationNode } from "../TreeNodes/VarDefinitionNode.ts";
+import { VarDefinitionNode } from "../TreeNodes/VarDefinitionNode.ts";
 import { ExpressionNode } from "../TreeNodes/ExpressionNode.ts";
 
 export const rules: {
@@ -64,7 +64,7 @@ function createVarDefinitionNode(args: ActionArgs) {
 
   const varName = tokens[currentTokenPos-1];
 
-  nodeStack.push(new VarDeclarationNode(varName.content));
+  nodeStack.push(new VarDefinitionNode(varName.content));
 }
 
 function assignToVarDefinitionNode(args: ActionArgs) {
@@ -72,10 +72,10 @@ function assignToVarDefinitionNode(args: ActionArgs) {
 
   const assignExpression: BaseNode | undefined = nodeStack.pop();
 
-  const varDeclarationNode: BaseNode = nodeStack[nodeStack.length-1];
-  if (varDeclarationNode instanceof VarDeclarationNode && assignExpression instanceof ExpressionNode) {
-    varDeclarationNode.assignment = assignExpression;
-    varDeclarationNode.initialized = true;
+  const varDefinitionNode: BaseNode = nodeStack[nodeStack.length-1];
+  if (varDefinitionNode instanceof VarDefinitionNode && assignExpression instanceof ExpressionNode) {
+    varDefinitionNode.assignment = assignExpression;
+    varDefinitionNode.initialized = true;
   } else {
     throw Error("something went wrong here");
   }

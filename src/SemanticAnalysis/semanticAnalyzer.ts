@@ -9,14 +9,14 @@ import { PowerOperationNode } from "../TreeNodes/PowerOperationNode.ts";
 import { BaseNode } from "../TreeNodes/BaseNode.ts";
 import { StatementSingleNode } from "../TreeNodes/StatementSingleNode.ts";
 import { StatementBlockNode } from "../TreeNodes/StatementBlockNode.ts";
-import { VarDeclarationNode } from "../TreeNodes/VarDefinitionNode.ts";
+import { VarDefinitionNode } from "../TreeNodes/VarDefinitionNode.ts";
 import { StatementNode } from "../TreeNodes/StatementNode.ts";
 
 
 export class SemanticAnalyser implements IVisitorAST {
   protected ast: BaseNode;
 
-  protected frameStack: Map<String, VarDeclarationNode>[] = [new Map()];
+  protected frameStack: Map<String, VarDefinitionNode>[] = [new Map()];
 
   constructor(ast: BaseNode) {
     this.ast = ast;
@@ -34,7 +34,7 @@ export class SemanticAnalyser implements IVisitorAST {
     this.frameStack.pop();
   }
 
-  visitVarDeclarationNode(node: VarDeclarationNode): any {
+  visitVarDefinitionNode(node: VarDefinitionNode): any {
     if (node.assignment) {
       node.initialized = true;
     }
@@ -54,7 +54,7 @@ export class SemanticAnalyser implements IVisitorAST {
     throw Error("** not implemented");
   }
 
-  protected declareVariable(node: VarDeclarationNode) {
+  protected declareVariable(node: VarDefinitionNode) {
     const varName: string = node.variableName;
 
     if (this.frameStack[this.frameStack.length - 1].get(varName)) {
