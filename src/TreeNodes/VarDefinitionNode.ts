@@ -3,15 +3,14 @@ import { IVisitorAST } from "./IVisitorAST.ts";
 import { ExpressionNode } from "./ExpressionNode.ts";
 
 export class VarDeclarationNode extends StatementNode {
-  public assignment: ExpressionNode | null;
+  public assignment: ExpressionNode | null = null;
 
   public variableName: string;
   public initialized: boolean = false;
   public index: number = -1;
 
-  constructor(assignment: ExpressionNode | null, variableName: string) {
+  constructor(variableName: string) {
     super();
-    this.assignment = assignment;
 
     this.variableName = variableName;
   }
@@ -21,6 +20,6 @@ export class VarDeclarationNode extends StatementNode {
   }
 
   public toString(): string {
-    return "declared '" + this.variableName + "'\n" + (this._nextStatement?.toString() || "");
+    return "declared '" + this.variableName + "'" + (this.assignment ? " = " + this.assignment.toString() : "") + "\n" + (this._nextStatement?.toString() || "");
   }
 }

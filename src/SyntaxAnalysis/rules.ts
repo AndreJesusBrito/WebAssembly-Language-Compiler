@@ -14,6 +14,8 @@ import { EmptyExpression } from "../TreeNodes/EmptyExpression.ts";
 import { StatementNode } from "../TreeNodes/StatementNode.ts";
 import { StatementSingleNode } from "../TreeNodes/StatementSingleNode.ts";
 import { StatementBlockNode } from "../TreeNodes/StatementBlockNode.ts";
+import { VarDeclarationNode } from "../TreeNodes/VarDefinitionNode.ts";
+import { ExpressionNode } from "../TreeNodes/ExpressionNode.ts";
 
 export const rules: {
   [key: string]: SyntaxRule
@@ -58,14 +60,25 @@ function fnPreviousIndex(currentIndex: number): number {
 
 
 function createVarDefinitionNode(args: ActionArgs) {
-  // console.log("createVarDefinitionNode called");
-
   const {nodeStack, tokens, currentTokenPos} = args;
 
-  // WARN: may be instable when direct assignment added
-  const varName = tokens[currentTokenPos-2];
+  const varName = tokens[currentTokenPos-1];
 
-  nodeStack.push(new VarDeclarationNode(null, varName.content));
+  nodeStack.push(new VarDeclarationNode(varName.content));
+}
+
+function assignToVarDefinitionNode(args: ActionArgs) {
+  const {nodeStack} = args;
+
+  const assignExpression: BaseNode | undefined = nodeStack.pop();
+
+  const varDeclarationNode: BaseNode = nodeStack[nodeStack.length-1];
+  if (varDeclarationNode instanceof VarDeclarationNode && assignExpression instanceof ExpressionNode) {
+    varDeclarationNode.assignment = assignExpression;
+    varDeclarationNode.initialized = true;
+  } else {
+    throw Error("something went wrong here");
+  }
 }
 
 function createStatementSingleNode(args: ActionArgs): void {
@@ -76,7 +89,7 @@ function createStatementSingleNode(args: ActionArgs): void {
 }
 
 function createStatementBlockNode(args: ActionArgs): void {
-  const {nodeStack} = args
+  const {nodeStack} = args;
 
   const statement: BaseNode = nodeStack[nodeStack.length-1] || null;
 
@@ -154,7 +167,7 @@ rules.statement.setDerivation(
 );
 rules.statement.setDerivation(
   [rules.varDefinition, ";", rules.nextStatement],
-  [{index: fnCurrentIndex, func: createVarDefinitionNode}],
+  [],
   "i32"
 );
 
@@ -173,16 +186,20 @@ rules.nextStatement.setDerivation([], [], "}", "eot");
 
 rules.varDefinition.setDerivation(
   ["i32", "id", rules.varDefinitionAssign],
-  [],
+  [{ index: fnCurrentIndex, func: createVarDefinitionNode }],
   "i32"
 );
 
 rules.varDefinitionAssign.setDerivation(
   ["=", rules.expression],
-  [],
+  [{index: fnPreviousIndex, func: assignToVarDefinitionNode}],
   "="
 );
-rules.varDefinitionAssign.setDerivation([], [], ";");
+rules.varDefinitionAssign.setDerivation(
+  [],
+  [],
+  ";"
+);
 
 
 rules.expression.setDerivation([rules.addExp], [], "id", "+", "-", "(", "number");
