@@ -16,6 +16,7 @@ import { StatementSingleNode } from "../TreeNodes/StatementSingleNode.ts";
 import { StatementBlockNode } from "../TreeNodes/StatementBlockNode.ts";
 import { VarDefinitionNode } from "../TreeNodes/VarDefinitionNode.ts";
 import { ExpressionNode } from "../TreeNodes/ExpressionNode.ts";
+import { VarReferenceNode } from "../TreeNodes/VarReferenceNode.ts";
 
 export const rules: {
   [key: string]: SyntaxRule
@@ -80,6 +81,12 @@ function assignToVarDefinitionNode(args: ActionArgs) {
     throw Error("something went wrong here");
   }
 }
+
+function createVarReferenceNode(args: ActionArgs) {
+  const varName = args.tokens[args.currentTokenPos].content;
+  args.nodeStack.push(new VarReferenceNode(varName));
+}
+
 
 function createStatementSingleNode(args: ActionArgs): void {
   const {nodeStack} = args;
@@ -243,3 +250,8 @@ rules.value.setDerivation(
   "-"
 );
 rules.value.setDerivation(["number"], [], "number");
+rules.value.setDerivation(
+  ["id"],
+  [{index: fnCurrentIndex, func: createVarReferenceNode}],
+  "id"
+);
