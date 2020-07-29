@@ -61,7 +61,7 @@ export class BinaryFormatCodeGenerator implements IVisitorAST {
   }
 
   visitVarReferenceNode(node: VarReferenceNode): number[] {
-    if (!node.definitionNode) throw Error("something went wrong in variables");
+    if (!node.definitionNode) throw Error("something went wrong in variable " + node.variableName);
 
     return [
       Opcode.local_get,

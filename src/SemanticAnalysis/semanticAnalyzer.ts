@@ -42,6 +42,7 @@ export class SemanticAnalyser implements IVisitorAST {
   visitVarDefinitionNode(node: VarDefinitionNode): any {
     if (node.assignment) {
       node.initialized = true;
+      node.assignment.visit(this);
     }
 
     this.declareVariable(node);
@@ -56,10 +57,10 @@ export class SemanticAnalyser implements IVisitorAST {
     const variableFrameIndex = this.getVariableFrameIndex(node.variableName);
 
     if (variableFrameIndex === -1) {
-      throw Error("Variable '" + node.variableName + "' is not defined")
+      throw Error("Variable '" + node.variableName + "' is not defined");
     }
 
-    const definitionNode = this.frameStack[variableFrameIndex].get(node.variableName) || null
+    const definitionNode = this.frameStack[variableFrameIndex].get(node.variableName) || null;
 
     if (!definitionNode?.initialized) {
       // TODO: handle unitialized vars
