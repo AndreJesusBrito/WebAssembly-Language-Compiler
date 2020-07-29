@@ -8,6 +8,7 @@ export class VarDefinitionNode extends StatementNode {
   public variableName: string;
   public initialized: boolean = false;
   public index: number = -1;
+  public isGlobal: boolean = false;
 
   constructor(variableName: string) {
     super();
@@ -20,6 +21,6 @@ export class VarDefinitionNode extends StatementNode {
   }
 
   public toString(): string {
-    return "declared '" + this.variableName + "'" + (this.assignment ? " = " + this.assignment.toString() : "") + "\n" + (this._nextStatement?.toString() || "");
+    return "declared " + (this.isGlobal ? "global" : "local")  + " '" + this.variableName + "'" + (this.assignment ? " = " + this.assignment.toString() : "") + "\n" + (this._nextStatement?.toString() || "");
   }
 }

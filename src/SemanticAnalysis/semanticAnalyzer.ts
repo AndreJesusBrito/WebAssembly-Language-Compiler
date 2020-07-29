@@ -46,6 +46,10 @@ export class SemanticAnalyser implements IVisitorAST {
 
     this.declareVariable(node);
 
+    // check if is a global variable
+    // a declaration is always done at the top frame
+    // if is 1 then is a global
+    node.isGlobal = (this.frameStack.length === 1);
   }
 
   visitVarReferenceNode(node: VarReferenceNode): void {
