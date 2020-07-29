@@ -2,7 +2,7 @@ import { parse as parseArgs } from "https://deno.land/std/flags/mod.ts";
 import { getTokens } from "./LexicalAnalysis/Tokenizer.ts";
 import { Token } from "./LexicalAnalysis/Token.ts";
 import { parse, getTokenSymbol } from "./SyntaxAnalysis/Parser.ts";
-// import { BinaryFormatCodeGenerator } from "./CodeGeneration/genCode.ts";
+import { BinaryFormatCodeGenerator } from "./CodeGeneration/genCode.ts";
 import { SemanticAnalyser } from "./SemanticAnalysis/semanticAnalyzer.ts";
 
 const { args } = Deno;
@@ -25,6 +25,8 @@ const tokens: Token[] = getTokens(text);
 
 const ast = parse(tokens);
 
+const semanticAnalyzer = new SemanticAnalyser(ast);
+semanticAnalyzer.analyze();
 
 const outputFilename: string = parsedArgs.o || "out.wasm";
 
@@ -32,7 +34,5 @@ console.log(tokens);
 const generator = new BinaryFormatCodeGenerator(ast);
 
 const code: Uint8Array = generator.generate();
-const semanticAnalyzer = new SemanticAnalyser(ast);
 
 await Deno.writeFile(outputFilename, code);
-semanticAnalyzer.analyze();

@@ -59,7 +59,13 @@ export class SemanticAnalyser implements IVisitorAST {
       throw Error("Variable '" + node.variableName + "' is not defined")
     }
 
-    node.definitionNode = this.frameStack[variableFrameIndex].get(node.variableName) || null;
+    const definitionNode = this.frameStack[variableFrameIndex].get(node.variableName) || null
+
+    if (!definitionNode?.initialized) {
+      // TODO: handle unitialized vars
+    }
+
+    node.definitionNode = definitionNode;
   }
 
   // unary operators

@@ -24,6 +24,8 @@ import { SubtractOperationNode } from "../TreeNodes/SubtractOperationNode.ts";
 import { MultiplyOperationNode } from "../TreeNodes/MultiplyOperationNode.ts";
 import { IntDivisionOperationNode } from "../TreeNodes/IntDivisionOperationNode.ts";
 import { PowerOperationNode } from "../TreeNodes/PowerOperationNode.ts";
+import { VarDefinitionNode } from "../TreeNodes/VarDefinitionNode.ts";
+import { VarReferenceNode } from "../TreeNodes/VarReferenceNode.ts";
 
 
 
@@ -33,10 +35,40 @@ export class BinaryFormatCodeGenerator implements IVisitorAST {
   protected magicModuleHeader: number[] = [0x00, 0x61, 0x73, 0x6d];
   protected moduleVersion: number[] = [0x01, 0x00, 0x00, 0x00];
 
+  // TEMP while working with one function only
+  protected localsCount: number = 0;
+  protected varDefinitions: VarDefinitionNode[] = [];
 
   constructor (ast: BaseNode) {
     this.ast = ast;
   }
+
+
+  visitVarDefinitionNode(node: VarDefinitionNode): number[] {
+    const code: number[] = [];
+
+    node.index = this.localsCount++;
+
+    if (node.assignment) {
+      code.push(
+        ...node.assignment.visit(this),
+        Opcode.local_set,
+        ...encodeU32(node.index),
+      );
+    }
+
+    return code;
+  }
+
+  visitVarReferenceNode(node: VarReferenceNode): number[] {
+    if (!node.definitionNode) throw Error("something went wrong in variables");
+
+    return [
+      Opcode.local_get,
+      ...encodeU32(node.definitionNode.index),
+    ];
+  }
+
 
   visitStatementSingleNode(node: StatementSingleNode): number[] {
     return node.innerExpression.visit(this);
@@ -108,7 +140,8 @@ export class BinaryFormatCodeGenerator implements IVisitorAST {
     do {
       code.push(...currentStatement.visit(this));
 
-      if (currentStatement.nextStatement) {
+      // TEMP while not removing redudant expressions
+      if (currentStatement.nextStatement && currentStatement instanceof StatementSingleNode) {
         code.push(Opcode.drop);
       }
 
@@ -119,6 +152,20 @@ export class BinaryFormatCodeGenerator implements IVisitorAST {
   }
 
   public generate(): Uint8Array {
+
+    const code: number[] = [
+
+      // @ts-ignore TEMP, only parsing statements directly
+      this.genStatements(this.ast),
+
+      Opcode.end
+    ];
+
+    const locals = encodeVector([
+      [this.localsCount, ValueType.i32]
+    ]);
+
+
     return Uint8Array.from([
       ...this.magicModuleHeader,
       ...this.moduleVersion,
@@ -142,16 +189,10 @@ export class BinaryFormatCodeGenerator implements IVisitorAST {
         encodeVector([
           encodeContainer([
             // no locals for now
-            ...encodeVector([
-              // [1, ValueType.i32]
-            ]),
+            ...locals,
 
             // code expression
-            ...[
-              // @ts-ignore TEMP, only parsing statements directly
-              this.genStatements(this.ast),
-              Opcode.end
-            ]
+            ...code
           ])
         ])
       ),
