@@ -19,14 +19,6 @@ export function parse(tokens: Token[]): BaseNode {
   let currentPos = 0;
 
   while (grammarStack.length > 0 && currentPos < tokens.length) {
-    console.log(grammarStack.map(r => {
-      if (r instanceof SyntaxRule) {
-        return r.name;
-      }
-      return r;
-    }).join(" "),
-    // "\n" + tokens.slice(currentPos)
-    );
 
 
     // run actions
@@ -59,19 +51,27 @@ export function parse(tokens: Token[]): BaseNode {
         // index to schedule (implicit -1 by previous pop)
         const index = action.index(grammarStack.length);
 
-        let renameTomorow = actionScheduler.get(index) || [];
+        // get previous scheduled actions at index
+        let actionsAtIndex = actionScheduler.get(index);
 
-        renameTomorow.push(action);
+        // create a new one array if no actions
+        // have been added yet
+        if (!actionsAtIndex) {
+          actionsAtIndex = [];
+          actionScheduler.set(index, actionsAtIndex);
+        }
 
-        actionScheduler.set(index, renameTomorow);
+        // adds the new action
+        actionsAtIndex.push(action);
       }
 
       grammarStack.push(...ruleRes.derivationSymbols);
     }
     else if (currentSymbol === getTokenSymbol(currentToken) || currentSymbol instanceof TerminalGroup) {
       // parsing successfull, returns ast
-      if (currentToken.type === TokenType.EOT)
+      if (currentToken.type === TokenType.EOT) {
         return nodeStack.pop() || new EmptyProgramNode();
+      }
 
 
       switch (currentToken.type) {
