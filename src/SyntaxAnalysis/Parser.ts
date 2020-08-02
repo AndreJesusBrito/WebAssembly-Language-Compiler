@@ -51,18 +51,28 @@ export function parse(tokens: Token[]): BaseNode {
         // index to schedule (implicit -1 by previous pop)
         const index = action.index(grammarStack.length);
 
-        // get previous scheduled actions at index
-        let actionsAtIndex = actionScheduler.get(index);
-
-        // create a new one array if no actions
-        // have been added yet
-        if (!actionsAtIndex) {
-          actionsAtIndex = [];
-          actionScheduler.set(index, actionsAtIndex);
+        if (index === -1) {
+          action.func({
+            grammarStack: grammarStack,
+            operatorStack: operatorStack,
+            nodeStack: nodeStack,
+            currentTokenPos: currentPos,
+            tokens: tokens,
+          });
+        } else {
+          // get previous scheduled actions at index
+          let actionsAtIndex = actionScheduler.get(index);
+  
+          // create a new one array if no actions
+          // have been added yet
+          if (!actionsAtIndex) {
+            actionsAtIndex = [];
+            actionScheduler.set(index, actionsAtIndex);
+          }
+  
+          // adds the new action
+          actionsAtIndex.push(action);
         }
-
-        // adds the new action
-        actionsAtIndex.push(action);
       }
 
       grammarStack.push(...ruleRes.derivationSymbols);

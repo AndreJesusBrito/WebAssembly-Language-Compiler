@@ -55,6 +55,10 @@ function fnPreviousIndex(currentIndex: number): number {
   return currentIndex - 1;
 }
 
+function fnRunNow(currentIndex: number): number {
+  return -1;
+}
+
 
 
 
