@@ -18,6 +18,9 @@ import { VarDefinitionNode } from "../TreeNodes/VarDefinitionNode.ts";
 import { ExpressionNode } from "../TreeNodes/ExpressionNode.ts";
 import { VarReferenceNode } from "../TreeNodes/VarReferenceNode.ts";
 
+import { ReferenceNode } from "../TreeNodes/ReferenceNode.ts";
+import { AssignmentNode } from "../TreeNodes/AssignmentNode.ts";
+
 export const rules: {
   [key: string]: SyntaxRule
 } = {
@@ -29,6 +32,8 @@ export const rules: {
   varDefinition: new SyntaxRule("varDefinition"),
   varDefinitionAssign: new SyntaxRule("varDefinitionAssign"),
   expression: new SyntaxRule("exp"),
+  assignExpression: new SyntaxRule("assignExp"),
+  assignExpressionPrime: new SyntaxRule("assignExpPrime"),
   exponencialExp: new SyntaxRule("exponencialExp"),
   exponencialExpPrime: new SyntaxRule("exponencialExpPrime"),
   mulExp: new SyntaxRule("mulExp"),
@@ -41,6 +46,7 @@ export const rules: {
 export const group: {
   [key: string]: TerminalGroup
 } = {
+  assignOp: new TerminalGroup(["=", "+=", "-=", "*=", "/=", "\\=", "%="]),
   sumOp: new TerminalGroup(["+", "-"]),
   mulOp: new TerminalGroup(["*", "/", "\\", "%"]),
 };
@@ -86,8 +92,37 @@ function assignToVarDefinitionNode(args: ActionArgs) {
   }
 }
 
-function createVarReferenceNode(args: ActionArgs) {
-  const varName = args.tokens[args.currentTokenPos].content;
+function createAssignmentNode(args: ActionArgs) {
+  const { nodeStack, operatorStack } = args;
+
+
+  const expression = nodeStack.pop() || new EmptyExpression();
+
+  const identifier = nodeStack.pop() || new EmptyExpression();
+
+  if (!(identifier instanceof ReferenceNode)) {
+    throw Error("Syntax Error: Invalid left-hand side in assignment");
+  }
+
+  const operator = operatorStack.pop();
+  if (operator && operator.content.length > 1) {
+    // TODO implement operator assign shortcuts
+  }
+
+  nodeStack.push(new AssignmentNode(identifier, expression));
+}
+
+
+function createVarReferenceNodeFromCurrentToken(args: ActionArgs) {
+  createVarReferenceNode(args.currentTokenPos, args);
+}
+
+function createVarReferenceNodeFromPreviousToken(args: ActionArgs) {
+  createVarReferenceNode(args.currentTokenPos-1, args);
+}
+
+function createVarReferenceNode(tokenIndex: number, args: ActionArgs) {
+  const varName = args.tokens[tokenIndex].content;
   args.nodeStack.push(new VarReferenceNode(varName));
 }
 
@@ -117,7 +152,7 @@ function joinStatements(args: ActionArgs): void {
   const previousStmt = nodeStack[nodeStack.length-1];
 
   if (previousStmt instanceof StatementNode) {
-    // @ts-ignore might be a ts bug
+    // @ts-ignore TODO check if is a ts bug
     previousStmt.nextStatement = nextStmt;
   } else if (nextStmt !== undefined) {
     nodeStack.push(nextStmt);
@@ -213,7 +248,17 @@ rules.varDefinitionAssign.setDerivation(
 );
 
 
-rules.expression.setDerivation([rules.addExp], [], "id", "+", "-", "(", "number");
+rules.expression.setDerivation([rules.assignExpression], [], "id", "+", "-", "(", "number");
+
+
+rules.assignExpression.setDerivation([rules.addExp, rules.assignExpressionPrime], [], "id", "+", "-", "(", "number");
+
+rules.assignExpressionPrime.setDerivation(
+  [group.assignOp, rules.addExp, rules.assignExpressionPrime],
+  [{ index: fnPreviousIndex, func: createAssignmentNode }],
+  ...group.assignOp
+);
+rules.assignExpressionPrime.setDerivation([], [], ";", ")");
 
 
 rules.addExp.setDerivation([rules.mulExp, rules.addExpPrime], [], "id", "+", "-", "(", "number");
@@ -223,7 +268,7 @@ rules.addExpPrime.setDerivation(
   [{ index: fnCurrentIndex, func: createBinOperatorNode }],
   ...group.sumOp,
 );
-rules.addExpPrime.setDerivation([], [], ";", ")");
+rules.addExpPrime.setDerivation([], [], ";", ...group.assignOp, ")");
 
 
 rules.mulExp.setDerivation([rules.exponencialExp, rules.mulExpPrime], [], "id", "+", "-", "(", "number");
@@ -233,7 +278,7 @@ rules.mulExpPrime.setDerivation(
   [{ index: fnCurrentIndex, func: createBinOperatorNode }],
   ...group.mulOp,
 );
-rules.mulExpPrime.setDerivation([], [], ";", ...group.sumOp, ")");
+rules.mulExpPrime.setDerivation([], [], ";", ...group.assignOp, ...group.sumOp, ")");
 
 
 rules.exponencialExp.setDerivation([rules.value, rules.exponencialExpPrime], [], "id", "+", "-", "(", "number");
@@ -243,7 +288,7 @@ rules.exponencialExpPrime.setDerivation(
   [{ index: fnPreviousIndex, func: createBinOperatorNode }],
   "**",
 );
-rules.exponencialExpPrime.setDerivation([], [], ";", ...group.sumOp, ...group.mulOp, ")");
+rules.exponencialExpPrime.setDerivation([], [], ";", ...group.assignOp, ...group.sumOp, ...group.mulOp, ")");
 
 
 rules.value.setDerivation(["(", rules.expression, ")"], [], "(");
@@ -256,6 +301,6 @@ rules.value.setDerivation(
 rules.value.setDerivation(["number"], [], "number");
 rules.value.setDerivation(
   ["id"],
-  [{index: fnCurrentIndex, func: createVarReferenceNode}],
+  [{ index: fnCurrentIndex, func: createVarReferenceNodeFromCurrentToken}],
   "id"
 );

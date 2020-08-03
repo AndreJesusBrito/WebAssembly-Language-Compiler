@@ -12,6 +12,7 @@ import { StatementBlockNode } from "../TreeNodes/StatementBlockNode.ts";
 import { VarDefinitionNode } from "../TreeNodes/VarDefinitionNode.ts";
 import { StatementNode } from "../TreeNodes/StatementNode.ts";
 import { VarReferenceNode } from "../TreeNodes/VarReferenceNode.ts";
+import { AssignmentNode } from "../TreeNodes/AssignmentNode.ts";
 
 
 export class SemanticAnalyser implements IVisitorAST {
@@ -94,6 +95,11 @@ export class SemanticAnalyser implements IVisitorAST {
 
   visitPowerOperationNode(node: PowerOperationNode): void {
     throw Error("** not implemented");
+  }
+
+  visitAssignmentNode(node: AssignmentNode): void {
+    node.operand1.visit(this);
+    node.operand2.visit(this);
   }
 
   protected declareVariable(node: VarDefinitionNode): void {

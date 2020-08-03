@@ -13,6 +13,7 @@ import { MultiplyOperationNode } from "./MultiplyOperationNode.ts";
 import { IntDivisionOperationNode } from "./IntDivisionOperationNode.ts";
 import { PowerOperationNode } from "./PowerOperationNode.ts";
 import { VarReferenceNode } from "./VarReferenceNode.ts";
+import { AssignmentNode } from "./AssignmentNode.ts";
 
 
 
@@ -26,8 +27,10 @@ export interface IVisitorAST {
   visitVarDefinitionNode(node: VarDefinitionNode): any;
   visitVarReferenceNode(node: VarReferenceNode): any;
 
+
   // unary operators
   visitNumberUnaryNegationNode(node: NumberUnaryNegationNode): any;
+
 
   // binary operators
   visitAddOperationNode(node: AddOperationNode): any;
@@ -35,5 +38,7 @@ export interface IVisitorAST {
   visitMultiplyOperationNode(node: MultiplyOperationNode): any;
   visitIntDivisionOperationNode(node: IntDivisionOperationNode): any;
   visitPowerOperationNode(node: PowerOperationNode): any;
+
+  visitAssignmentNode(node: AssignmentNode): any;
 
 }

@@ -26,6 +26,7 @@ import { IntDivisionOperationNode } from "../TreeNodes/IntDivisionOperationNode.
 import { PowerOperationNode } from "../TreeNodes/PowerOperationNode.ts";
 import { VarDefinitionNode } from "../TreeNodes/VarDefinitionNode.ts";
 import { VarReferenceNode } from "../TreeNodes/VarReferenceNode.ts";
+import { AssignmentNode } from "../TreeNodes/AssignmentNode.ts";
 
 
 
@@ -132,6 +133,20 @@ export class BinaryFormatCodeGenerator implements IVisitorAST {
   visitPowerOperationNode(node: PowerOperationNode): any {
     throw Error("** not implemented");
   }
+
+  visitAssignmentNode(node: AssignmentNode): number[] {
+    // @ts-ignore TEMP while working with locals only
+    const localIndex: number = node.operand1.definitionNode.index;
+
+    return [
+      ...node.operand2.visit(this),
+      Opcode.local_set,
+      ...encodeU32(localIndex),
+
+      Opcode.local_get, ...encodeU32(localIndex),
+    ];
+  }
+
 
   private genStatements(firstStatement: StatementNode): number[] {
     const code: number[] = [];
