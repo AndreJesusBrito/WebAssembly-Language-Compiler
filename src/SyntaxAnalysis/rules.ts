@@ -20,6 +20,8 @@ import { VarReferenceNode } from "../TreeNodes/VarReferenceNode.ts";
 
 import { ReferenceNode } from "../TreeNodes/ReferenceNode.ts";
 import { AssignmentNode } from "../TreeNodes/AssignmentNode.ts";
+import { Token, TokenType } from "../LexicalAnalysis/Token.ts";
+import { BinaryOperator } from "../TreeNodes/BinaryOperator.ts";
 
 export const rules: {
   [key: string]: SyntaxRule
@@ -46,7 +48,7 @@ export const rules: {
 export const group: {
   [key: string]: TerminalGroup
 } = {
-  assignOp: new TerminalGroup(["=", "+=", "-=", "*=", "/=", "\\=", "%="]),
+  assignOp: new TerminalGroup(["=", "+=", "-=", "*=", "**=", "/=", "\\=", "%="]),
   sumOp: new TerminalGroup(["+", "-"]),
   mulOp: new TerminalGroup(["*", "/", "\\", "%"]),
 };
@@ -96,7 +98,7 @@ function createAssignmentNode(args: ActionArgs) {
   const { nodeStack, operatorStack } = args;
 
 
-  const expression = nodeStack.pop() || new EmptyExpression();
+  let expression = nodeStack.pop() || new EmptyExpression();
 
   const identifier = nodeStack.pop() || new EmptyExpression();
 
@@ -105,8 +107,35 @@ function createAssignmentNode(args: ActionArgs) {
   }
 
   const operator = operatorStack.pop();
+
+  // assign operation shortcuts
   if (operator && operator.content.length > 1) {
-    // TODO implement operator assign shortcuts
+    const binOpToken = new Token(
+      operator.content.slice(0,-1),
+      TokenType.OPERATOR,
+      operator.linePos,
+      operator.lineCharPos
+    );
+
+    // TODO change this later
+    const identifierToken = new Token(identifier.toString(), TokenType.IDENTIFIER, 0,0);
+
+
+    operatorStack.push(binOpToken);
+
+    // add operand 1
+    createVarReferenceNode(identifierToken, args);
+    // add operand 2
+    nodeStack.push(expression);
+
+    createBinOperatorNode(args);
+
+    const binOp = nodeStack.pop();
+    if (binOp instanceof BinaryOperator) {
+      expression = binOp;
+    } else {
+      throw new Error("something went wrong at assign bin operator");
+    }
   }
 
   nodeStack.push(new AssignmentNode(identifier, expression));

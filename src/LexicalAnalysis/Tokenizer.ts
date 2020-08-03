@@ -8,7 +8,7 @@ const matchers = new Map<TokenType, RegExp>();
   matchers.set(TokenType.KEYWORD, /^(i32|i64|f32|f64)/);
   matchers.set(TokenType.IDENTIFIER, /^(\w+)/); //TODO add all chars
 
-  matchers.set(TokenType.OPERATOR, /^(\+|-|\*\*|\*|\/|\\|%|=)/);
+  matchers.set(TokenType.OPERATOR, /^(\+=|-=|\*\*=|\*=|\/=|\\=|%=|\+|-|\*\*|\*|\/|\\|%|=)/);
 
   matchers.set(TokenType.LEFT_PARENT, /^\(/);
   matchers.set(TokenType.RIGHT_PARENT, /^\)/);
