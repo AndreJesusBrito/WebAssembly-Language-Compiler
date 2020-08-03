@@ -114,16 +114,20 @@ function createAssignmentNode(args: ActionArgs) {
 
 
 function createVarReferenceNodeFromCurrentToken(args: ActionArgs) {
-  createVarReferenceNode(args.currentTokenPos, args);
+  const token = args.tokens[args.currentTokenPos];
+  createVarReferenceNode(token, args);
 }
 
 function createVarReferenceNodeFromPreviousToken(args: ActionArgs) {
-  createVarReferenceNode(args.currentTokenPos-1, args);
+  const token = args.tokens[args.currentTokenPos - 1];
+  createVarReferenceNode(token, args);
 }
 
-function createVarReferenceNode(tokenIndex: number, args: ActionArgs) {
-  const varName = args.tokens[tokenIndex].content;
-  args.nodeStack.push(new VarReferenceNode(varName));
+function createVarReferenceNode(token: Token | null, args: ActionArgs) {
+  if (token) {
+    const varName = token.content;
+    args.nodeStack.push(new VarReferenceNode(varName));
+  }
 }
 
 
