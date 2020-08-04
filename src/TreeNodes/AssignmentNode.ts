@@ -7,6 +7,10 @@ export class AssignmentNode extends BinaryOperator {
 
   constructor(identifier: ReferenceNode, expression: ExpressionNode) {
     super(identifier, expression);
+
+    // the identifier in assign doesn't get the value
+    // is only used to referece the memory space
+    identifier.returnsValue = false;
   }
 
   public visit(visitor: IVisitorAST): any {

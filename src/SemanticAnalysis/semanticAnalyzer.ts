@@ -63,8 +63,8 @@ export class SemanticAnalyser implements IVisitorAST {
 
     const definitionNode = this.frameStack[variableFrameIndex].get(node.variableName) || null;
 
-    if (!definitionNode?.initialized) {
-      // TODO: handle unitialized vars
+    if (node.returnsValue && !definitionNode?.initialized) {
+      console.warn(node.variableName + " used but is not initialized");
     }
 
     node.definitionNode = definitionNode;
