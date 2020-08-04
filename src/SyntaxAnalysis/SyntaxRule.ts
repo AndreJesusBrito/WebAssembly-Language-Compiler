@@ -1,7 +1,4 @@
-import { TerminalGroup } from "./TerminalGroup.ts";
-import { Token, TokenType } from "../LexicalAnalysis/Token.ts";
 import { SyntaxSymbol, RuleDerivation, ActionObj } from "./types.ts";
-
 
 export class SyntaxRule {
   private derivations: Map<string, RuleDerivation>;
