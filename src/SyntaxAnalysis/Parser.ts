@@ -19,6 +19,17 @@ export function parse(tokens: Token[]): BaseNode {
   let currentPos = 0;
 
   while (grammarStack.length > 0 && currentPos < tokens.length) {
+    // console.log("---" + nodeStack.map(n => n.constructor.name).join("  ") + "---\n");
+
+
+    // console.log(grammarStack.map(r => {
+    //   if (r instanceof SyntaxRule) {
+    //     return r.name;
+    //   }
+    //   return r;
+    // }).join(" "),
+    // "\n" + tokens.slice(currentPos).map(t => t.content).join("  ")
+    // );
 
 
     // run actions
@@ -50,6 +61,8 @@ export function parse(tokens: Token[]): BaseNode {
 
         // index to schedule (implicit -1 by previous pop)
         const index = action.index(grammarStack.length);
+        // console.log("action added for " + currentSymbol.name + " at index = " + index);
+        // console.log(grammarStack );
 
         if (index === -1) {
           action.func({
