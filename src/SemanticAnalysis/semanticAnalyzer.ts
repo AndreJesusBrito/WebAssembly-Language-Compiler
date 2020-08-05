@@ -42,7 +42,7 @@ export class SemanticAnalyser implements IVisitorAST {
 
   visitVarDefinitionNode(node: VarDefinitionNode): any {
     if (node.assignment) {
-      node.initialized = true;
+      node.loadCount++;
       node.assignment.visit(this);
     }
 

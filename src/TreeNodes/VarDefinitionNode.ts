@@ -6,9 +6,11 @@ export class VarDefinitionNode extends StatementNode {
   public assignment: ExpressionNode | null = null;
 
   public variableName: string;
-  public initialized: boolean = false;
   public index: number = -1;
   public isGlobal: boolean = false;
+
+  public loadCount: number = 0;
+  public storeCount: number = 0;
 
   constructor(variableName: string) {
     super();
@@ -18,6 +20,10 @@ export class VarDefinitionNode extends StatementNode {
 
   public visit(visitor: IVisitorAST): any {
     return visitor.visitVarDefinitionNode(this);
+  }
+
+  public get initialized(): boolean {
+    return this.loadCount > 0;
   }
 
   public toString(): string {
