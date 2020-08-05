@@ -3,7 +3,7 @@ import { getTokens } from "./LexicalAnalysis/Tokenizer.ts";
 import { Token } from "./LexicalAnalysis/Token.ts";
 import { parse, getTokenSymbol } from "./SyntaxAnalysis/Parser.ts";
 import { BinaryFormatCodeGenerator } from "./CodeGeneration/genCode.ts";
-import { SemanticAnalyser } from "./SemanticAnalysis/semanticAnalyzer.ts";
+import { SemanticAnalyserPhase2 } from "./SemanticAnalysis/SemanticAnalyserPhase2.ts";
 
 const { args } = Deno;
 const parsedArgs = parseArgs(args);
@@ -25,7 +25,7 @@ const tokens: Token[] = getTokens(text);
 
 const ast = parse(tokens);
 
-const semanticAnalyzer = new SemanticAnalyser(ast);
+const semanticAnalyzer = new SemanticAnalyserPhase2(ast);
 semanticAnalyzer.analyze();
 
 const outputFilename: string = parsedArgs.o || "out.wasm";

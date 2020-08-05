@@ -15,7 +15,7 @@ import { VarReferenceNode } from "../TreeNodes/VarReferenceNode.ts";
 import { AssignmentNode } from "../TreeNodes/AssignmentNode.ts";
 
 
-export class SemanticAnalyser implements IVisitorAST {
+export class SemanticAnalyserPhase2 implements IVisitorAST {
   protected ast: BaseNode;
 
   protected frameStack: Map<String, VarDefinitionNode>[] = [new Map()];
