@@ -88,7 +88,6 @@ function assignToVarDefinitionNode(args: ActionArgs) {
   const varDefinitionNode: BaseNode = nodeStack[nodeStack.length-1];
   if (varDefinitionNode instanceof VarDefinitionNode && assignExpression instanceof ExpressionNode) {
     varDefinitionNode.assignment = assignExpression;
-    varDefinitionNode.initialized = true;
   } else {
     throw Error("something went wrong here");
   }
