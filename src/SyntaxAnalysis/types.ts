@@ -1,7 +1,10 @@
 import { SyntaxRule } from "./SyntaxRule.ts";
 import { TerminalGroup } from "./TerminalGroup.ts";
-import { BaseNode } from "../TreeNodes/BaseNode.ts";
 import { Token } from "../LexicalAnalysis/Token.ts";
+
+class BaseNode {
+
+}
 
 export type SyntaxSymbol = string | SyntaxRule | TerminalGroup;
 
