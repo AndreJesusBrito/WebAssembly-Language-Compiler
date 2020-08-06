@@ -42,7 +42,7 @@ export class SemanticAnalyserPhase2 implements IVisitorAST {
 
   visitVarDefinitionNode(node: VarDefinitionNode): any {
     if (node.assignment) {
-      node.loadCount++;
+      node.writeCount++;
       node.assignment.visit(this);
     }
 

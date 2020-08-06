@@ -9,8 +9,8 @@ export class VarDefinitionNode extends StatementNode {
   public index: number = -1;
   public isGlobal: boolean = false;
 
-  public loadCount: number = 0;
-  public storeCount: number = 0;
+  public readCount: number = 0;
+  public writeCount: number = 0;
 
   constructor(variableName: string) {
     super();
@@ -23,7 +23,7 @@ export class VarDefinitionNode extends StatementNode {
   }
 
   public get initialized(): boolean {
-    return this.loadCount > 0;
+    return this.writeCount > 0;
   }
 
   public toString(): string {
