@@ -15,10 +15,8 @@ import { VarReferenceNode } from "../TreeNodes/VarReferenceNode.ts";
 import { AssignmentNode } from "../TreeNodes/AssignmentNode.ts";
 
 
-export class SemanticAnalyserPhase2 implements IVisitorAST {
+export class SemanticAnalyserPhase3 implements IVisitorAST {
   protected ast: BaseNode;
-
-  protected frameStack: Map<String, VarDefinitionNode>[] = [new Map()];
 
   constructor(ast: BaseNode) {
     this.ast = ast;
@@ -31,45 +29,22 @@ export class SemanticAnalyserPhase2 implements IVisitorAST {
   }
 
   visitStatementBlockNode(node: StatementBlockNode): void {
-    this.frameStack.push(new Map());
-
     if (node.innerStatement) {
       this.visitStatements(node.innerStatement);
     }
-
-    this.frameStack.pop();
   }
 
   visitVarDefinitionNode(node: VarDefinitionNode): any {
     if (node.assignment) {
-      node.writeCount++;
       node.assignment.visit(this);
     }
 
     this.declareVariable(node);
-
-    // check if is a global variable
-    // a declaration is always done at the top frame
-    // if is 1 then is a global
-    node.isGlobal = (this.frameStack.length === 1);
   }
 
   visitVarReferenceNode(node: VarReferenceNode): void {
-    const variableFrameIndex = this.getVariableFrameIndex(node.variableName);
-
-    if (variableFrameIndex === -1) {
-      throw Error("Variable '" + node.variableName + "' is not defined");
-    }
-
-    const definitionNode = this.frameStack[variableFrameIndex].get(node.variableName);
-
-    if (definitionNode) {
-      // a new reference to the variable
-      definitionNode.readCount++;
-
-      node.definitionNode = definitionNode;
-    } else {
-      node.definitionNode = null;
+    if (node.returnsValue && !node.definitionNode?.initialized) {
+      console.warn("Variable '" + node.variableName + "' used but not initialized");
     }
   }
 
@@ -97,7 +72,8 @@ export class SemanticAnalyserPhase2 implements IVisitorAST {
   }
 
   visitPowerOperationNode(node: PowerOperationNode): void {
-    throw Error("** not implemented");
+    node.operand1.visit(this);
+    node.operand2.visit(this);
   }
 
   visitAssignmentNode(node: AssignmentNode): void {
@@ -106,22 +82,9 @@ export class SemanticAnalyserPhase2 implements IVisitorAST {
   }
 
   protected declareVariable(node: VarDefinitionNode): void {
-    const varName: string = node.variableName;
-
-    if (this.frameStack[this.frameStack.length - 1].get(varName)) {
-      throw new Error("Variable '" + varName + "' is already defined.");
+    if (node.readCount === 0) {
+      console.warn("Variable '" + node.variableName + "' is declared but never used");
     }
-    this.frameStack[this.frameStack.length - 1].set(varName, node);
-  }
-
-  protected getVariableFrameIndex(variableName: string): number {
-    let frameIndex = this.frameStack.length - 1;
-
-    while (frameIndex >= 0 && !this.frameStack[frameIndex].get(variableName)) {
-      frameIndex--;
-    }
-
-    return frameIndex;
   }
 
   protected visitStatements(firstStatement: StatementNode): void {
@@ -134,10 +97,6 @@ export class SemanticAnalyserPhase2 implements IVisitorAST {
   }
 
   public analyze(): void {
-
-    // TEMP while working only with one function (no globals)
-    this.frameStack.push(new Map());
-
     // @ts-ignore TEMP only passing statements for now.
     this.visitStatements(this.ast);
   }
