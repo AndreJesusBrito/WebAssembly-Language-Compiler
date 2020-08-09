@@ -14,6 +14,8 @@ export enum TokenType {
   SEMICOLON,
 
   KEYWORD,
+  PRIMITIVE_TYPE,
+
   NUMBER_LITERAL,
   stringLiteral,
   booleanLiteral,

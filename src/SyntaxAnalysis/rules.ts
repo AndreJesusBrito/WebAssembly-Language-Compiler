@@ -51,6 +51,7 @@ export const group: {
   assignOp: new TerminalGroup(["=", "+=", "-=", "*=", "**=", "/=", "\\=", "%="]),
   sumOp: new TerminalGroup(["+", "-"]),
   mulOp: new TerminalGroup(["*", "/", "\\", "%"]),
+  primitiveType: new TerminalGroup(["i32", "i64", "u32", "u64", "f32", "f64"]),
 };
 
 // left to right associativity
@@ -75,6 +76,8 @@ function fnRunNow(currentIndex: number): number {
 function createVarDefinitionNode(args: ActionArgs) {
   const {nodeStack, tokens, currentTokenPos} = args;
 
+  // const varType = tokens[currentTokenPos-2];
+  // console.log(varType);
   const varName = tokens[currentTokenPos-1];
 
   nodeStack.push(new VarDefinitionNode(varName.content));
@@ -229,7 +232,7 @@ function createNumberUnaryNegationNode(args: ActionArgs) {
   nodeStack.push(new NumberUnaryNegationNode(number));
 }
 
-rules.program.setDerivation([rules.statement], [], ";", "{", "i32", "id", "(", "+", "-", "number");
+rules.program.setDerivation([rules.statement], [], ";", "{", ...group.primitiveType, "id", "(", "+", "-", "number");
 // rules.program.setDerivation([], "eot");
 
 rules.statement.setDerivation(
@@ -246,26 +249,26 @@ rules.statement.setDerivation(
 rules.statement.setDerivation(
   [rules.varDefinition, ";", rules.nextStatement],
   [],
-  "i32"
+  ...group.primitiveType
 );
 
 rules.statementBlock.setDerivation(["{", rules.statementBlockPrime], [], "{");
-rules.statementBlockPrime.setDerivation([rules.statement, "}"], [], ";", "{", "i32", "id", "(", "+", "-", "number");
+rules.statementBlockPrime.setDerivation([rules.statement, "}"], [], ";", "{", ...group.primitiveType, "id", "(", "+", "-", "number");
 rules.statementBlockPrime.setDerivation(["}"], [], "}");
 
 
 rules.nextStatement.setDerivation(
   [rules.statement],
   [{index: fnPreviousIndex, func: joinStatements}],
-  ";", "{", "i32", "id", "+", "-", "(", "number"
+  ";", "{", ...group.primitiveType, "id", "+", "-", "(", "number"
 );
 rules.nextStatement.setDerivation([], [], "}", "eot");
 
 
 rules.varDefinition.setDerivation(
-  ["i32", "id", rules.varDefinitionAssign],
+  [group.primitiveType, "id", rules.varDefinitionAssign],
   [{ index: fnCurrentIndex, func: createVarDefinitionNode }],
-  "i32"
+  ...group.primitiveType
 );
 
 rules.varDefinitionAssign.setDerivation(
