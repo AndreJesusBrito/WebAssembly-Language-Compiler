@@ -38,7 +38,7 @@ function escapeComment(env: EnvStruct): boolean {
 
       // TODO check this later for all line breaks
       env.currentLine++;
-      env.currentLineChar = 0;
+      env.currentcolumn = 0;
 
       env.currentPos += i;
       return true;
@@ -61,7 +61,7 @@ function escapeComment(env: EnvStruct): boolean {
 
           if (currentChar.match(/\r\n|\r|\n/)) {
             env.currentLine++;
-            env.currentLineChar = 0;
+            env.currentcolumn = 0;
           }
         }
 
@@ -90,14 +90,14 @@ function escapeWhiteSpace(env: EnvStruct): boolean {
     if (linesBreaks) {
       env.currentLine += linesBreaks.length;
 
-      // new line so currentLineChar resets
-      env.currentLineChar = 1;
+      // new line so currentcolumn resets
+      env.currentcolumn = 1;
     }
 
     // set line char position at final whitespace after last line break
     const currentLineWhiteSpace = whiteSpace[0].match(/.+$/);
     if (currentLineWhiteSpace) {
-      env.currentLineChar += currentLineWhiteSpace[0].length;
+      env.currentcolumn += currentLineWhiteSpace[0].length;
     }
 
     return true;
@@ -114,11 +114,11 @@ function matchToken(env: EnvStruct): boolean {
         match[0],
         tokenType,
         env.currentLine,
-        env.currentLineChar,
+        env.currentcolumn,
       );
       env.tokensFound.push(token);
       env.currentPos += match[0].length;
-      env.currentLineChar += match[0].length;
+      env.currentcolumn += match[0].length;
 
       // token already matched
       return true;
@@ -133,7 +133,7 @@ interface EnvStruct {
   tokensFound: Token[],
   currentPos: number,
   currentLine: number,
-  currentLineChar: number,
+  currentcolumn: number,
 }
 
 export function getTokens(input: string): Token[] {
@@ -143,7 +143,7 @@ export function getTokens(input: string): Token[] {
     tokensFound: [],
     currentPos: 0,
     currentLine: 1,
-    currentLineChar: 1,
+    currentcolumn: 1,
   };
 
 
@@ -161,7 +161,7 @@ export function getTokens(input: string): Token[] {
     const matched = matchToken(env);
 
     if (!matched) {
-      throw Error(`Invalid token at ${env.currentLine}:${env.currentLineChar}`);
+      throw Error(`Invalid token at ${env.currentLine}:${env.currentcolumn}`);
     }
 
   }
