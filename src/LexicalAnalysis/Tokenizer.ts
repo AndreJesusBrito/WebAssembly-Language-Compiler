@@ -19,69 +19,90 @@ const matchers = new Map<TokenType, RegExp>();
   matchers.set(TokenType.SEMICOLON, /^;/);
 }
 
+function escapeWhiteSpace(env: EnvStruct): boolean {
+  let whiteSpace = env.input.match(/^\s+/);
+  if (whiteSpace) {
+    env.currentPos += whiteSpace[0].length;
+
+    // add lines breaks on whitespace escape
+    const linesBreaks = whiteSpace[0].match(/\r\n|\r|\n/g);
+    if (linesBreaks) {
+      env.currentLine += linesBreaks.length;
+
+      // new line so currentLineChar resets
+      env.currentLineChar = 1;
+    }
+
+    // set line char position at final whitespace after last line break
+    const currentLineWhiteSpace = whiteSpace[0].match(/.+$/);
+    if (currentLineWhiteSpace) {
+      env.currentLineChar += currentLineWhiteSpace[0].length;
+    }
+
+    return true;
+  }
+
+  return false;
+}
+
+function matchToken(env: EnvStruct): boolean {
+  for (const [tokenType, re] of matchers) {
+    const match = env.input.match(re);
+    if (match) {
+      const token = new Token(
+        match[0],
+        tokenType,
+        env.currentLine,
+        env.currentLineChar,
+      );
+      env.tokensFound.push(token);
+      env.currentPos += match[0].length;
+      env.currentLineChar += match[0].length;
+
+      // token already matched
+      return true;
+    }
+  }
+  return false;
+}
+
+interface EnvStruct {
+  input: string,
+
+  tokensFound: Token[],
+  currentPos: number,
+  currentLine: number,
+  currentLineChar: number,
+}
+
 export function getTokens(input: string): Token[] {
-  // tokens to return
-  const tokensFound: Token[] = [];
-  let currentPos: number = 0;
+  const env: EnvStruct = {
+    input: input,
 
-  let currentLine: number = 1;
-  let currentLineChar: number = 1;
+    tokensFound: [],
+    currentPos: 0,
+    currentLine: 1,
+    currentLineChar: 1,
+  };
 
 
-  while (input.length - currentPos > 0) {
-    input = input.substring(currentPos);
-    currentPos = 0;
+  while (env.input.length - env.currentPos > 0) {
+    env.input = env.input.substring(env.currentPos);
+    env.currentPos = 0;
 
     // ignore whitespace
-    let whiteSpace = input.match(/^\s+/);
-    if (whiteSpace) {
-      currentPos += whiteSpace[0].length;
+    if (escapeWhiteSpace(env)) continue;
 
-      // add lines breaks on whitespace escape
-      const linesBreaks = whiteSpace[0].match(/\r\n|\r|\n/g);
-      if (linesBreaks) {
-        currentLine += linesBreaks.length;
-
-        // new line so currentLineChar resets
-        currentLineChar = 1;
-      }
-
-      // set line char position at final whitespace after last line break
-      const currentLineWhiteSpace = whiteSpace[0].match(/.+$/);
-      if (currentLineWhiteSpace) {
-        currentLineChar += currentLineWhiteSpace[0].length;
-      }
-
-      continue;
-    }
 
     // match tokens
-    let matched: boolean = false;
-    for (const [tokenType, re] of matchers) {
-      const match = input.match(re);
-      if (match) {
-        const token = new Token(
-          match[0],
-          tokenType,
-          currentLine,
-          currentLineChar,
-        );
-        tokensFound.push(token);
-        currentPos += match[0].length;
-        currentLineChar += match[0].length;
-
-        // token already matched
-        matched = true;
-        break;
-      }
-    }
+    const matched = matchToken(env);
 
     if (!matched) {
-      throw Error(`Invalid token at ${currentLine}:${currentLineChar}`);
+      throw Error(`Invalid token at ${env.currentLine}:${env.currentLineChar}`);
     }
 
   }
 
-  tokensFound.push(Token.EOT);
-  return tokensFound;
+  env.tokensFound.push(Token.EOT);
+  return env.tokensFound;
 }
