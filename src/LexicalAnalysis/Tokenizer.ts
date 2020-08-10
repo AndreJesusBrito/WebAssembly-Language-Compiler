@@ -19,6 +19,33 @@ const matchers = new Map<TokenType, RegExp>();
   matchers.set(TokenType.SEMICOLON, /^;/);
 }
 
+function escapeComment(env: EnvStruct): boolean {
+  // const comment = env.input.match(/^((\/\*[^]+(?=\*\/))|(\/\/[^\r\n]+))/);
+
+  if (env.input.charAt(env.currentPos) === "/") {
+
+    // line comment
+    if (env.input.charAt(env.currentPos + 1) === "/") {
+      let i = 2;
+      let currentChar = env.input.charAt(env.currentPos + i);
+
+      // comment until line break or end of input
+      while (!currentChar.match(/\n|\r/) && currentChar.length > 0) {
+        i++;
+        currentChar = env.input.charAt(env.currentPos + i);
+      }
+
+      // TODO check this later for all line breaks
+      env.currentLine++;
+      env.currentLineChar = 0;
+
+      env.currentPos += i;
+      return true;
+    }
+
+  return false;
+}
+
 function escapeWhiteSpace(env: EnvStruct): boolean {
   let whiteSpace = env.input.match(/^\s+/);
   if (whiteSpace) {
@@ -93,6 +120,8 @@ export function getTokens(input: string): Token[] {
     // ignore whitespace
     if (escapeWhiteSpace(env)) continue;
 
+    // ignore comments
+    if (escapeComment(env)) continue;
 
     // match tokens
     const matched = matchToken(env);
