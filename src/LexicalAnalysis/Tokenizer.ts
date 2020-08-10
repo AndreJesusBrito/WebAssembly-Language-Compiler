@@ -24,10 +24,11 @@ function escapeComment(env: EnvStruct): boolean {
 
   if (env.input.charAt(env.currentPos) === "/") {
 
+    //------------------------------
     // line comment
     if (env.input.charAt(env.currentPos + 1) === "/") {
-      let i = 2;
-      let currentChar = env.input.charAt(env.currentPos + i);
+      let i: number = 2;
+      let currentChar: string = env.input.charAt(env.currentPos + i);
 
       // comment until line break or end of input
       while (!currentChar.match(/\n|\r/) && currentChar.length > 0) {
@@ -42,6 +43,39 @@ function escapeComment(env: EnvStruct): boolean {
       env.currentPos += i;
       return true;
     }
+
+    //------------------------------
+    // block comment
+    else if (env.input.charAt(env.currentPos+1) === "*") {
+      let i: number = 2;
+      let currentChar: string = env.input.charAt(env.currentPos + i);
+
+      // TODO correct the line and column pos
+      // until '/' is followed by an '*'
+      do {
+
+        // ignore all chars before a '*'
+        while (currentChar !== '*') {
+          i++;
+          currentChar = env.input.charAt(env.currentPos + i);
+
+          if (currentChar.match(/\r\n|\r|\n/)) {
+            env.currentLine++;
+            env.currentLineChar = 0;
+          }
+        }
+
+        // reads '*' / next char
+        i++;
+        currentChar = env.input.charAt(env.currentPos + i);
+
+      } while (currentChar !== '/');
+
+      env.currentPos += i + 1;
+
+      return true;
+    }
+  }
 
   return false;
 }
