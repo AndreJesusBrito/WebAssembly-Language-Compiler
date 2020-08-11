@@ -11,6 +11,11 @@ import { NumberUnaryNegationNode } from "../TreeNodes/NumberUnaryNegationNode.ts
 import { BooleanNegationNode } from "../TreeNodes/BooleanNegationNode.ts";
 import { PowerOperationNode } from "../TreeNodes/PowerOperationNode.ts";
 
+import { BooleanOrNode } from "../TreeNodes/BooleanOrNode.ts";
+import { BooleanXorNode } from "../TreeNodes/BooleanXorNode.ts";
+import { BooleanAndNode } from "../TreeNodes/BooleanAndNode.ts";
+
+
 import { EmptyExpression } from "../TreeNodes/EmptyExpression.ts";
 import { StatementNode } from "../TreeNodes/StatementNode.ts";
 import { StatementSingleNode } from "../TreeNodes/StatementSingleNode.ts";
@@ -23,6 +28,7 @@ import { ReferenceNode } from "../TreeNodes/ReferenceNode.ts";
 import { AssignmentNode } from "../TreeNodes/AssignmentNode.ts";
 import { Token, TokenType } from "../LexicalAnalysis/Token.ts";
 import { BinaryOperator } from "../TreeNodes/BinaryOperator.ts";
+
 
 export const rules: {
   [key: string]: SyntaxRule
@@ -37,6 +43,12 @@ export const rules: {
   expression: new SyntaxRule("exp"),
   assignExpression: new SyntaxRule("assignExp"),
   assignExpressionPrime: new SyntaxRule("assignExpPrime"),
+  booleanOrExp: new SyntaxRule("booleanOrExp"),
+  booleanOrExpPrime: new SyntaxRule("booleanOrExpPr"),
+  booleanXorExp: new SyntaxRule("booleanXorExp"),
+  booleanXorExpPrime: new SyntaxRule("booleanXorExpPrime"),
+  booleanAndExp: new SyntaxRule("booleanAndExp"),
+  booleanAndExpPrime: new SyntaxRule("booleanAndExpPrime"),
   exponencialExp: new SyntaxRule("exponencialExp"),
   exponencialExpPrime: new SyntaxRule("exponencialExpPrime"),
   mulExp: new SyntaxRule("mulExp"),
@@ -231,6 +243,19 @@ function createBinOperatorNode(args: ActionArgs): void {
     case '**':
       nodeStack.push(new PowerOperationNode(op1, op2));
       break;
+
+    case '||':
+      nodeStack.push(new BooleanOrNode(op1, op2));
+      break;
+
+    case '^^':
+      nodeStack.push(new BooleanXorNode(op1, op2));
+      break;
+
+    case '&&':
+      nodeStack.push(new BooleanAndNode(op1, op2));
+      break;
+
   }
 }
 
@@ -256,7 +281,7 @@ function createBooleanNegationNode(args: ActionArgs) {
   nodeStack.push(new BooleanNegationNode(booleanNode));
 }
 
-rules.program.setDerivation([rules.statement], [], ";", "{", ...group.primitiveType, "id", "(", "+", "-", "!", "number");
+rules.program.setDerivation([rules.statement], [], ";", "{", ...group.primitiveType, "id", "(", "+", "-", "!", "number", "true", "false",);
 // rules.program.setDerivation([], "eot");
 
 rules.statement.setDerivation(
@@ -310,14 +335,40 @@ rules.varDefinitionAssign.setDerivation(
 rules.expression.setDerivation([rules.assignExpression], [], "id", "+", "-", "!", "(", "number", "true", "false");
 
 
-rules.assignExpression.setDerivation([rules.addExp, rules.assignExpressionPrime], [], "id", "+", "-", "!", "(", "number", "true", "false");
+rules.assignExpression.setDerivation([rules.booleanOrExp, rules.assignExpressionPrime], [], "id", "+", "-", "!", "(", "number", "true", "false");
 
 rules.assignExpressionPrime.setDerivation(
-  [group.assignOp, rules.addExp, rules.assignExpressionPrime],
+  [group.assignOp, rules.booleanOrExp, rules.assignExpressionPrime],
   [{ index: fnPreviousIndex, func: createAssignmentNode }],
   ...group.assignOp
 );
 rules.assignExpressionPrime.setDerivation([], [], ";", ")");
+
+
+
+rules.booleanOrExp.setDerivation([rules.booleanXorExp, rules.booleanOrExpPrime], [], "id", "+", "-", "!", "(", "number", "true", "false")
+rules.booleanOrExpPrime.setDerivation(
+  ["||", rules.booleanXorExp, rules.booleanOrExpPrime],
+  [{ index: fnCurrentIndex, func: createBinOperatorNode }],
+  "||"
+);
+rules.booleanOrExpPrime.setDerivation([], [], ";", ...group.assignOp, ")");
+
+rules.booleanXorExp.setDerivation([rules.booleanAndExp, rules.booleanXorExpPrime], [], "id", "+", "-", "!", "(", "number", "true", "false")
+rules.booleanXorExpPrime.setDerivation(
+  ["^^", rules.booleanAndExp, rules.booleanXorExpPrime],
+  [{ index: fnCurrentIndex, func: createBinOperatorNode }],
+  "^^"
+);
+rules.booleanXorExpPrime.setDerivation([], [], ";", ...group.assignOp, "||", ")");
+
+rules.booleanAndExp.setDerivation([rules.addExp, rules.booleanAndExpPrime], [], "id", "+", "-", "!", "(", "number", "true", "false")
+rules.booleanAndExpPrime.setDerivation(
+  ["&&", rules.addExp, rules.booleanAndExpPrime],
+  [{ index: fnCurrentIndex, func: createBinOperatorNode }],
+  "&&"
+);
+rules.booleanAndExpPrime.setDerivation([], [], ";", ...group.assignOp, "||", "^^", ")");
 
 
 rules.addExp.setDerivation([rules.mulExp, rules.addExpPrime], [], "id", "+", "-", "!", "(", "number", "true", "false");
@@ -327,7 +378,7 @@ rules.addExpPrime.setDerivation(
   [{ index: fnCurrentIndex, func: createBinOperatorNode }],
   ...group.sumOp,
 );
-rules.addExpPrime.setDerivation([], [], ";", ...group.assignOp, ")");
+rules.addExpPrime.setDerivation([], [], ";", ...group.assignOp, "||", "^^", "&&", ")");
 
 
 rules.mulExp.setDerivation([rules.exponencialExp, rules.mulExpPrime], [], "id", "+", "-", "!", "(", "number", "true", "false");
@@ -337,7 +388,7 @@ rules.mulExpPrime.setDerivation(
   [{ index: fnCurrentIndex, func: createBinOperatorNode }],
   ...group.mulOp,
 );
-rules.mulExpPrime.setDerivation([], [], ";", ...group.assignOp, ...group.sumOp, ")");
+rules.mulExpPrime.setDerivation([], [], ";", ...group.assignOp, "||", "^^", "&&", ...group.sumOp, ")");
 
 
 rules.exponencialExp.setDerivation([rules.value, rules.exponencialExpPrime], [], "id", "+", "-", "!", "(", "number", "true", "false");
@@ -347,7 +398,7 @@ rules.exponencialExpPrime.setDerivation(
   [{ index: fnPreviousIndex, func: createBinOperatorNode }],
   "**",
 );
-rules.exponencialExpPrime.setDerivation([], [], ";", ...group.assignOp, ...group.sumOp, ...group.mulOp, ")");
+rules.exponencialExpPrime.setDerivation([], [], ";", ...group.assignOp, "||", "^^", "&&", ...group.sumOp, ...group.mulOp, ")");
 
 
 rules.value.setDerivation(["(", rules.expression, ")"], [], "(");

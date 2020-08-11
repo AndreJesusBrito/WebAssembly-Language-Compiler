@@ -30,6 +30,9 @@ import { PowerOperationNode } from "../TreeNodes/PowerOperationNode.ts";
 import { VarDefinitionNode } from "../TreeNodes/VarDefinitionNode.ts";
 import { VarReferenceNode } from "../TreeNodes/VarReferenceNode.ts";
 import { AssignmentNode } from "../TreeNodes/AssignmentNode.ts";
+import { BooleanOrNode } from "../TreeNodes/BooleanOrNode.ts";
+import { BooleanXorNode } from "../TreeNodes/BooleanXorNode.ts";
+import { BooleanAndNode } from "../TreeNodes/BooleanAndNode.ts";
 
 
 
@@ -150,6 +153,29 @@ export class BinaryFormatCodeGenerator implements IVisitorAST {
   }
   visitPowerOperationNode(node: PowerOperationNode): any {
     throw Error("** not implemented");
+  }
+
+
+  visitBooleanOrNode(node: BooleanOrNode): number[] {
+    return [
+      ...node.operand1.visit(this),
+      ...node.operand2.visit(this),
+      Opcode.i32_or,
+    ];
+  }
+  visitBooleanXorNode(node: BooleanXorNode): number[] {
+    return [
+      ...node.operand1.visit(this),
+      ...node.operand2.visit(this),
+      Opcode.i32_xor,
+    ];
+  }
+  visitBooleanAndNode(node: BooleanAndNode): number[] {
+    return [
+      ...node.operand1.visit(this),
+      ...node.operand2.visit(this),
+      Opcode.i32_and,
+    ];
   }
 
   visitAssignmentNode(node: AssignmentNode): number[] {

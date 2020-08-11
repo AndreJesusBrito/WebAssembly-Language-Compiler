@@ -14,6 +14,11 @@ import { SubtractOperationNode } from "./SubtractOperationNode.ts";
 import { MultiplyOperationNode } from "./MultiplyOperationNode.ts";
 import { IntDivisionOperationNode } from "./IntDivisionOperationNode.ts";
 import { PowerOperationNode } from "./PowerOperationNode.ts";
+
+import { BooleanOrNode } from "./BooleanOrNode.ts";
+import { BooleanXorNode } from "./BooleanXorNode.ts";
+import { BooleanAndNode } from "./BooleanAndNode.ts";
+
 import { VarReferenceNode } from "./VarReferenceNode.ts";
 import { AssignmentNode } from "./AssignmentNode.ts";
 
@@ -42,6 +47,10 @@ export interface IVisitorAST {
   visitMultiplyOperationNode(node: MultiplyOperationNode): any;
   visitIntDivisionOperationNode(node: IntDivisionOperationNode): any;
   visitPowerOperationNode(node: PowerOperationNode): any;
+
+  visitBooleanOrNode(node: BooleanOrNode): any;
+  visitBooleanXorNode(node: BooleanXorNode): any;
+  visitBooleanAndNode(node: BooleanAndNode): any;
 
   visitAssignmentNode(node: AssignmentNode): any;
 

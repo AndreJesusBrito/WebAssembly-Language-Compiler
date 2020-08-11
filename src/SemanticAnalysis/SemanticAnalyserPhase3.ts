@@ -15,6 +15,9 @@ import { VarDefinitionNode } from "../TreeNodes/VarDefinitionNode.ts";
 import { StatementNode } from "../TreeNodes/StatementNode.ts";
 import { VarReferenceNode } from "../TreeNodes/VarReferenceNode.ts";
 import { AssignmentNode } from "../TreeNodes/AssignmentNode.ts";
+import { BooleanOrNode } from "../TreeNodes/BooleanOrNode.ts";
+import { BooleanXorNode } from "../TreeNodes/BooleanXorNode.ts";
+import { BooleanAndNode } from "../TreeNodes/BooleanAndNode.ts";
 
 
 export class SemanticAnalyserPhase3 implements IVisitorAST {
@@ -82,6 +85,21 @@ export class SemanticAnalyserPhase3 implements IVisitorAST {
     node.operand1.visit(this);
     node.operand2.visit(this);
   }
+
+
+  visitBooleanOrNode(node: BooleanOrNode) {
+    node.operand1.visit(this);
+    node.operand2.visit(this);
+  }
+  visitBooleanXorNode(node: BooleanXorNode) {
+    node.operand1.visit(this);
+    node.operand2.visit(this);
+  }
+  visitBooleanAndNode(node: BooleanAndNode) {
+    node.operand1.visit(this);
+    node.operand2.visit(this);
+  }
+
 
   visitAssignmentNode(node: AssignmentNode): void {
     node.operand1.visit(this);

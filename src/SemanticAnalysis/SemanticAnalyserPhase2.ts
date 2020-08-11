@@ -17,6 +17,10 @@ import { VarReferenceNode } from "../TreeNodes/VarReferenceNode.ts";
 import { AssignmentNode } from "../TreeNodes/AssignmentNode.ts";
 import { BinaryOperator } from "../TreeNodes/BinaryOperator.ts";
 
+import { BooleanOrNode } from "../TreeNodes/BooleanOrNode.ts";
+import { BooleanXorNode } from "../TreeNodes/BooleanXorNode.ts";
+import { BooleanAndNode } from "../TreeNodes/BooleanAndNode.ts";
+
 
 export class SemanticAnalyserPhase2 implements IVisitorAST {
   protected ast: BaseNode;
@@ -115,6 +119,20 @@ export class SemanticAnalyserPhase2 implements IVisitorAST {
     throw Error("** not implemented");
   }
 
+
+  visitBooleanOrNode(node: BooleanOrNode) {
+    this.checkBooleanBinOperator(node);
+  }
+
+  visitBooleanXorNode(node: BooleanXorNode) {
+    this.checkBooleanBinOperator(node);
+  }
+  
+  visitBooleanAndNode(node: BooleanAndNode) {
+    this.checkBooleanBinOperator(node);
+  }
+
+
   visitAssignmentNode(node: AssignmentNode): void {
     node.operand1.visit(this);
     node.operand2.visit(this);
@@ -126,6 +144,16 @@ export class SemanticAnalyserPhase2 implements IVisitorAST {
 
     // TEMP TODO support other number types
     if (node.operand1.resultType !== "i32" || node.operand2.resultType !== "i32") {
+      throw new Error("Operands of type '" + node.operand1.resultType + "' and '" + node.operand2.resultType + "' are not defined for operator {TODO: ADD OPERATOR HERE}");
+    }
+  }
+
+  protected checkBooleanBinOperator(node: BinaryOperator): void {
+    node.operand1.visit(this);
+    node.operand2.visit(this);
+
+    // TEMP TODO support other number types
+    if (node.operand1.resultType !== "bool" || node.operand2.resultType !== "bool") {
       throw new Error("Operands of type '" + node.operand1.resultType + "' and '" + node.operand2.resultType + "' are not defined for operator {TODO: ADD OPERATOR HERE}");
     }
   }
