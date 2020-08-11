@@ -12,6 +12,11 @@ export class VarReferenceNode extends ReferenceNode {
     this.variableName = variableName;
   }
 
+
+  public get resultType(): string {
+    return this.definitionNode?.datatype || "";
+  }
+
   public visit(visitor: IVisitorAST): any {
     return visitor.visitVarReferenceNode(this);
   }

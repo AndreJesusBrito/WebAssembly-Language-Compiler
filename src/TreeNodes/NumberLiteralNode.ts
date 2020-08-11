@@ -12,7 +12,12 @@ export class NumberLiteralNode extends ExpressionNode {
     this.token = token;
 
     this.value = this.parseInt();
+  }
 
+
+  public get resultType(): string {
+    // TEMP TODO implement for all number types
+    return "i32";
   }
 
   private parseInt(): number {

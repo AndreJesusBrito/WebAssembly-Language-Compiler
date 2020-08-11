@@ -6,6 +6,11 @@ export class EmptyExpression extends ExpressionNode {
     super();
   }
 
+
+  public get resultType() : string {
+    return "";
+  }
+
   visit() {
     // do nothing
   }

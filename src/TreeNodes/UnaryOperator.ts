@@ -11,8 +11,13 @@ export abstract class UnaryOperator extends ExpressionNode {
   protected abstract getOperatorString(): string;
 
 
-  public get operand() : ExpressionNode {
+  public get operand(): ExpressionNode {
     return this._operand;
+  }
+
+  // TEMP TODO support all types
+  public get resultType(): string {
+    return this._operand.resultType;
   }
 
   public toString(): string {

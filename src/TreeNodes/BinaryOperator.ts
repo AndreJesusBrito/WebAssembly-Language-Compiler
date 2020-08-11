@@ -11,8 +11,13 @@ export abstract class BinaryOperator extends ExpressionNode {
     this._operand2 = operand2;
   }
 
+
   protected abstract getOperatorString(): string;
 
+  // TEMP TODO support all types
+  public get resultType(): string {
+    return this._operand1.resultType;
+  }
 
   public get operand1(): ExpressionNode {
     return this._operand1;

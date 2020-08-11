@@ -13,6 +13,11 @@ export class AssignmentNode extends BinaryOperator {
     identifier.returnsValue = false;
   }
 
+
+  public get resultType(): string {
+    return this.operand1.resultType;
+  }
+
   public visit(visitor: IVisitorAST): any {
     return visitor.visitAssignmentNode(this);
   }

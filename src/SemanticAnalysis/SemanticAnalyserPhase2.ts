@@ -13,6 +13,7 @@ import { VarDefinitionNode } from "../TreeNodes/VarDefinitionNode.ts";
 import { StatementNode } from "../TreeNodes/StatementNode.ts";
 import { VarReferenceNode } from "../TreeNodes/VarReferenceNode.ts";
 import { AssignmentNode } from "../TreeNodes/AssignmentNode.ts";
+import { BinaryOperator } from "../TreeNodes/BinaryOperator.ts";
 
 
 export class SemanticAnalyserPhase2 implements IVisitorAST {
@@ -44,6 +45,11 @@ export class SemanticAnalyserPhase2 implements IVisitorAST {
     if (node.assignment) {
       node.writeCount++;
       node.assignment.visit(this);
+
+      // check if assign result is compatible with the variable
+      if (node.datatype !== node.assignment.resultType) {
+        throw new Error("Value of type '" +  node.assignment.resultType  +  "' cannot be assigned to variable of type '" + node.datatype + "'");
+      }
     }
 
     this.declareVariable(node);
@@ -80,20 +86,16 @@ export class SemanticAnalyserPhase2 implements IVisitorAST {
 
   // binary operators
   visitAddOperationNode(node: AddOperationNode): any {
-    node.operand1.visit(this);
-    node.operand2.visit(this);
+    this.checkArithmeticBinOperator(node);
   }
   visitSubtractOperationNode(node: SubtractOperationNode): any {
-    node.operand1.visit(this);
-    node.operand2.visit(this);
+    this.checkArithmeticBinOperator(node);
   }
   visitMultiplyOperationNode(node: MultiplyOperationNode): any {
-    node.operand1.visit(this);
-    node.operand2.visit(this);
+    this.checkArithmeticBinOperator(node);
   }
   visitIntDivisionOperationNode(node: IntDivisionOperationNode): any {
-    node.operand1.visit(this);
-    node.operand2.visit(this);
+    this.checkArithmeticBinOperator(node);
   }
 
   visitPowerOperationNode(node: PowerOperationNode): void {
@@ -104,6 +106,17 @@ export class SemanticAnalyserPhase2 implements IVisitorAST {
     node.operand1.visit(this);
     node.operand2.visit(this);
   }
+
+  protected checkArithmeticBinOperator(node: BinaryOperator): void {
+    node.operand1.visit(this);
+    node.operand2.visit(this);
+
+    // TEMP TODO support other number types
+    if (node.operand1.resultType !== "i32" || node.operand2.resultType !== "i32") {
+      throw new Error("Operands of type '" + node.operand1.resultType + "' and '" + node.operand2.resultType + "' are not defined for operator {TODO: ADD OPERATOR HERE}");
+    }
+  }
+
 
   protected declareVariable(node: VarDefinitionNode): void {
     const varName: string = node.variableName;
