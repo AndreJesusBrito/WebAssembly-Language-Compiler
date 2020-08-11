@@ -6,16 +6,19 @@ export class VarDefinitionNode extends StatementNode {
   public assignment: ExpressionNode | null = null;
 
   public variableName: string;
+  public datatype: string;
+
   public index: number = -1;
   public isGlobal: boolean = false;
 
   public readCount: number = 0;
   public writeCount: number = 0;
 
-  constructor(variableName: string) {
+  constructor(variableName: string, datatype: string) {
     super();
 
     this.variableName = variableName;
+    this.datatype = datatype;
   }
 
   public visit(visitor: IVisitorAST): any {
@@ -27,6 +30,6 @@ export class VarDefinitionNode extends StatementNode {
   }
 
   public toString(): string {
-    return "declared " + (this.isGlobal ? "global" : "local")  + " '" + this.variableName + "'" + (this.assignment ? " = " + this.assignment.toString() : "") + "\n" + (this._nextStatement?.toString() || "");
+    return (this.isGlobal ? "global" : "local")  + " " + this.datatype + " '" + this.variableName + "'" + (this.assignment ? " = " + this.assignment.toString() : "") + "\n" + (this._nextStatement?.toString() || "");
   }
 }

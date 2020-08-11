@@ -76,11 +76,10 @@ function fnRunNow(currentIndex: number): number {
 function createVarDefinitionNode(args: ActionArgs) {
   const {nodeStack, tokens, currentTokenPos} = args;
 
-  // const varType = tokens[currentTokenPos-2];
-  // console.log(varType);
+  const varType = tokens[currentTokenPos-2];
   const varName = tokens[currentTokenPos-1];
 
-  nodeStack.push(new VarDefinitionNode(varName.content));
+  nodeStack.push(new VarDefinitionNode(varName.content, varType.content));
 }
 
 function assignToVarDefinitionNode(args: ActionArgs) {
