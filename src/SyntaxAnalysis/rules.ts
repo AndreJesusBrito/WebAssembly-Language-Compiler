@@ -139,6 +139,8 @@ function createAssignmentNode(args: ActionArgs) {
     }
   }
 
+  if (!(expression instanceof ExpressionNode)) throw new Error("expecting a expression node here");
+
   nodeStack.push(new AssignmentNode(identifier, expression));
 }
 
@@ -165,6 +167,9 @@ function createStatementSingleNode(args: ActionArgs): void {
   const {nodeStack} = args;
 
   const expression = nodeStack.pop() || new EmptyExpression();
+
+  if (!(expression instanceof ExpressionNode)) throw new Error("expecting a expression node here");
+
   nodeStack.push(new StatementSingleNode(expression));
 }
 
@@ -199,6 +204,11 @@ function createBinOperatorNode(args: ActionArgs): void {
   const op2 = nodeStack.pop() || new EmptyExpression();
   const op1 = nodeStack.pop() || new EmptyExpression();
 
+  if (!(op1 instanceof ExpressionNode)
+    || !(op2 instanceof ExpressionNode)
+  ) throw new Error("expecting a expression node here");
+
+
   switch (operatorStack.pop()?.content) {
     case '+':
       nodeStack.push(new AddOperationNode(op1, op2));
@@ -228,6 +238,9 @@ function createNumberUnaryNegationNode(args: ActionArgs) {
 
   console.assert(operatorStack.pop()?.content === '-', "createNumberUnaryNegationNode check");
   const number = nodeStack.pop() || new EmptyExpression();
+
+  if (!(number instanceof ExpressionNode)) throw new Error("expecting a expression node here");
+
   nodeStack.push(new NumberUnaryNegationNode(number));
 }
 
