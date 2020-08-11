@@ -1,5 +1,6 @@
 import { IVisitorAST } from "../TreeNodes/IVisitorAST.ts";
 import { NumberLiteralNode } from "../TreeNodes/NumberLiteralNode.ts";
+import { BooleanLiteralNode } from "../TreeNodes/BooleanLiteralNode.ts";
 import { NumberUnaryNegationNode } from "../TreeNodes/NumberUnaryNegationNode.ts";
 import { AddOperationNode } from "../TreeNodes/AddOperationNode.ts";
 import { SubtractOperationNode } from "../TreeNodes/SubtractOperationNode.ts";
@@ -26,6 +27,8 @@ export class SemanticAnalyserPhase2 implements IVisitorAST {
   }
 
   visitNumberLiteralNode(node: NumberLiteralNode): any {}
+
+  visitBooleanLiteralNode(node: BooleanLiteralNode): any {}
 
   visitStatementSingleNode(node: StatementSingleNode): any {
     node.innerExpression.visit(this);

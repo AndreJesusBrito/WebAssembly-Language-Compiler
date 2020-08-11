@@ -6,6 +6,7 @@ import { SyntaxSymbol, RuleDerivation, ActionObj } from "./types.ts";
 
 import { BaseNode } from "../TreeNodes/BaseNode.ts";
 import { NumberLiteralNode } from "../TreeNodes/NumberLiteralNode.ts";
+import { BooleanLiteralNode } from "../TreeNodes/BooleanLiteralNode.ts";
 import { EmptyProgramNode } from "../TreeNodes/EmptyProgramNode.ts";
 
 import { rules } from "./rules.ts";
@@ -91,6 +92,10 @@ export function parse(tokens: Token[]): BaseNode {
 
         case TokenType.NUMBER_LITERAL:
           nodeStack.push(new NumberLiteralNode(currentToken));
+          break;
+
+        case TokenType.BOOLEAN_LITERAL:
+          nodeStack.push(new BooleanLiteralNode(currentToken));
           break;
       }
 

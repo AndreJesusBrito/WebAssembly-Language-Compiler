@@ -1,4 +1,5 @@
 import { NumberLiteralNode } from "./NumberLiteralNode.ts";
+import { BooleanLiteralNode } from "./BooleanLiteralNode.ts";
 
 import { StatementSingleNode } from "./StatementSingleNode.ts";
 import { StatementBlockNode } from "./StatementBlockNode.ts";
@@ -20,6 +21,7 @@ import { AssignmentNode } from "./AssignmentNode.ts";
 export interface IVisitorAST {
   // literals
   visitNumberLiteralNode(node: NumberLiteralNode): any;
+  visitBooleanLiteralNode(node: BooleanLiteralNode): any;
 
   visitStatementSingleNode(node: StatementSingleNode): any;
   visitStatementBlockNode(node: StatementBlockNode): any;

@@ -17,6 +17,8 @@ import { StatementBlockNode } from "../TreeNodes/StatementBlockNode.ts";
 import { StatementSingleNode } from "../TreeNodes/StatementSingleNode.ts";
 
 import { NumberLiteralNode } from "../TreeNodes/NumberLiteralNode.ts";
+import { BooleanLiteralNode } from "../TreeNodes/BooleanLiteralNode.ts";
+
 import { NumberUnaryNegationNode } from "../TreeNodes/NumberUnaryNegationNode.ts";
 
 import { AddOperationNode } from "../TreeNodes/AddOperationNode.ts";
@@ -88,6 +90,13 @@ export class BinaryFormatCodeGenerator implements IVisitorAST {
     return [
       Opcode.i32_const,
       ...encodeI32(node.literalValue),
+    ];
+  }
+
+  visitBooleanLiteralNode(node: BooleanLiteralNode) {
+    return [
+      Opcode.i32_const,
+      node.value ? 1 : 0
     ];
   }
 

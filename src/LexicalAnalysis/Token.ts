@@ -17,8 +17,8 @@ export enum TokenType {
   PRIMITIVE_TYPE,
 
   NUMBER_LITERAL,
+  BOOLEAN_LITERAL,
   stringLiteral,
-  booleanLiteral,
 
   EOT,
 }
