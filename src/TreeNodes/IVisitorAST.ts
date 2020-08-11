@@ -7,6 +7,7 @@ import { StatementBlockNode } from "./StatementBlockNode.ts";
 import { VarDefinitionNode } from "./VarDefinitionNode.ts";
 
 import { NumberUnaryNegationNode } from "./NumberUnaryNegationNode.ts";
+import { BooleanNegationNode } from "./BooleanNegationNode.ts";
 
 import { AddOperationNode } from "./AddOperationNode.ts";
 import { SubtractOperationNode } from "./SubtractOperationNode.ts";
@@ -32,6 +33,7 @@ export interface IVisitorAST {
 
   // unary operators
   visitNumberUnaryNegationNode(node: NumberUnaryNegationNode): any;
+  visitBooleanNegationNode(node: BooleanNegationNode): any;
 
 
   // binary operators

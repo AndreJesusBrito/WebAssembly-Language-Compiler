@@ -20,6 +20,7 @@ import { NumberLiteralNode } from "../TreeNodes/NumberLiteralNode.ts";
 import { BooleanLiteralNode } from "../TreeNodes/BooleanLiteralNode.ts";
 
 import { NumberUnaryNegationNode } from "../TreeNodes/NumberUnaryNegationNode.ts";
+import { BooleanNegationNode } from "../TreeNodes/BooleanNegationNode.ts";
 
 import { AddOperationNode } from "../TreeNodes/AddOperationNode.ts";
 import { SubtractOperationNode } from "../TreeNodes/SubtractOperationNode.ts";
@@ -105,6 +106,14 @@ export class BinaryFormatCodeGenerator implements IVisitorAST {
   visitNumberUnaryNegationNode(node: NumberUnaryNegationNode): any {
     return [
       Opcode.i32_const, 0,
+      ...node.operand.visit(this),
+      Opcode.i32_sub,
+    ];
+  }
+
+  visitBooleanNegationNode(node: BooleanNegationNode): number[] {
+    return [
+      Opcode.i32_const, 1,
       ...node.operand.visit(this),
       Opcode.i32_sub,
     ];

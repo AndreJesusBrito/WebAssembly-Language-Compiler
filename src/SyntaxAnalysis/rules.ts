@@ -8,6 +8,7 @@ import { SubtractOperationNode } from "../TreeNodes/SubtractOperationNode.ts";
 import { MultiplyOperationNode } from "../TreeNodes/MultiplyOperationNode.ts";
 import { IntDivisionOperationNode } from "../TreeNodes/IntDivisionOperationNode.ts";
 import { NumberUnaryNegationNode } from "../TreeNodes/NumberUnaryNegationNode.ts";
+import { BooleanNegationNode } from "../TreeNodes/BooleanNegationNode.ts";
 import { PowerOperationNode } from "../TreeNodes/PowerOperationNode.ts";
 
 import { EmptyExpression } from "../TreeNodes/EmptyExpression.ts";
@@ -244,7 +245,18 @@ function createNumberUnaryNegationNode(args: ActionArgs) {
   nodeStack.push(new NumberUnaryNegationNode(number));
 }
 
-rules.program.setDerivation([rules.statement], [], ";", "{", ...group.primitiveType, "id", "(", "+", "-", "number");
+function createBooleanNegationNode(args: ActionArgs) {
+  const { operatorStack, nodeStack } = args;
+
+  console.assert(operatorStack.pop()?.content === '!', "createBooleanNegationNode check");
+  const booleanNode = nodeStack.pop() || new EmptyExpression();
+
+  if (!(booleanNode instanceof ExpressionNode)) throw new Error("expecting a expression node here");
+
+  nodeStack.push(new BooleanNegationNode(booleanNode));
+}
+
+rules.program.setDerivation([rules.statement], [], ";", "{", ...group.primitiveType, "id", "(", "+", "-", "!", "number");
 // rules.program.setDerivation([], "eot");
 
 rules.statement.setDerivation(
@@ -256,7 +268,7 @@ rules.statement.setDerivation([";", rules.nextStatement], [], ";");
 rules.statement.setDerivation(
   [rules.expression, ";", rules.nextStatement],
   [{index: fnCurrentIndex, func: createStatementSingleNode}],
-  "id", "+", "-", "(", "number", "true", "false"
+  "id", "+", "-", "!", "(", "number", "true", "false"
 );
 rules.statement.setDerivation(
   [rules.varDefinition, ";", rules.nextStatement],
@@ -265,14 +277,14 @@ rules.statement.setDerivation(
 );
 
 rules.statementBlock.setDerivation(["{", rules.statementBlockPrime], [], "{");
-rules.statementBlockPrime.setDerivation([rules.statement, "}"], [], ";", "{", ...group.primitiveType, "id", "(", "+", "-", "number", "true", "false");
+rules.statementBlockPrime.setDerivation([rules.statement, "}"], [], ";", "{", ...group.primitiveType, "id", "(", "+", "-", "!", "number", "true", "false");
 rules.statementBlockPrime.setDerivation(["}"], [], "}");
 
 
 rules.nextStatement.setDerivation(
   [rules.statement],
   [{index: fnPreviousIndex, func: joinStatements}],
-  ";", "{", ...group.primitiveType, "id", "+", "-", "(", "number", "true", "false"
+  ";", "{", ...group.primitiveType, "id", "+", "-", "!", "(", "number", "true", "false"
 );
 rules.nextStatement.setDerivation([], [], "}", "eot");
 
@@ -295,10 +307,10 @@ rules.varDefinitionAssign.setDerivation(
 );
 
 
-rules.expression.setDerivation([rules.assignExpression], [], "id", "+", "-", "(", "number", "true", "false");
+rules.expression.setDerivation([rules.assignExpression], [], "id", "+", "-", "!", "(", "number", "true", "false");
 
 
-rules.assignExpression.setDerivation([rules.addExp, rules.assignExpressionPrime], [], "id", "+", "-", "(", "number", "true", "false");
+rules.assignExpression.setDerivation([rules.addExp, rules.assignExpressionPrime], [], "id", "+", "-", "!", "(", "number", "true", "false");
 
 rules.assignExpressionPrime.setDerivation(
   [group.assignOp, rules.addExp, rules.assignExpressionPrime],
@@ -308,7 +320,7 @@ rules.assignExpressionPrime.setDerivation(
 rules.assignExpressionPrime.setDerivation([], [], ";", ")");
 
 
-rules.addExp.setDerivation([rules.mulExp, rules.addExpPrime], [], "id", "+", "-", "(", "number", "true", "false");
+rules.addExp.setDerivation([rules.mulExp, rules.addExpPrime], [], "id", "+", "-", "!", "(", "number", "true", "false");
 
 rules.addExpPrime.setDerivation(
   [group.sumOp, rules.mulExp, rules.addExpPrime],
@@ -318,7 +330,7 @@ rules.addExpPrime.setDerivation(
 rules.addExpPrime.setDerivation([], [], ";", ...group.assignOp, ")");
 
 
-rules.mulExp.setDerivation([rules.exponencialExp, rules.mulExpPrime], [], "id", "+", "-", "(", "number", "true", "false");
+rules.mulExp.setDerivation([rules.exponencialExp, rules.mulExpPrime], [], "id", "+", "-", "!", "(", "number", "true", "false");
 
 rules.mulExpPrime.setDerivation(
   [group.mulOp, rules.exponencialExp, rules.mulExpPrime],
@@ -328,7 +340,7 @@ rules.mulExpPrime.setDerivation(
 rules.mulExpPrime.setDerivation([], [], ";", ...group.assignOp, ...group.sumOp, ")");
 
 
-rules.exponencialExp.setDerivation([rules.value, rules.exponencialExpPrime], [], "id", "+", "-", "(", "number", "true", "false");
+rules.exponencialExp.setDerivation([rules.value, rules.exponencialExpPrime], [], "id", "+", "-", "!", "(", "number", "true", "false");
 
 rules.exponencialExpPrime.setDerivation(
   ["**", rules.value, rules.exponencialExpPrime],
@@ -344,6 +356,11 @@ rules.value.setDerivation(
   ["-", rules.value],
   [{ index: fnPreviousIndex, func: createNumberUnaryNegationNode }],
   "-"
+);
+rules.value.setDerivation(
+  ["!", rules.value],
+  [{ index: fnPreviousIndex, func: createBooleanNegationNode }],
+  "!"
 );
 rules.value.setDerivation(["number"], [], "number");
 rules.value.setDerivation(["true"], [], "true");
