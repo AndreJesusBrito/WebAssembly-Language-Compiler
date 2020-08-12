@@ -15,7 +15,7 @@ export class SyntaxRule {
       //   actions: derivation.actions,
       // };
     // } else {
-      throw SyntaxError("Unexpected token '" + terminal + "' at rule " + this);
+      throw Error("WIERD STUFF");
     // }
   }
 }
