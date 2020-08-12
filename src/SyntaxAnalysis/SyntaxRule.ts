@@ -1,7 +1,7 @@
-import { SyntaxSymbol, RuleDerivation, ActionObj } from "./types.ts";
+// import { SyntaxSymbol, RuleDerivation, ActionObj } from "./types.ts";
 
 export class SyntaxRule {
-  private derivations: Map<string, RuleDerivation>;
+  private derivations: Map<string, any>;
   private _name: string;
 
   constructor(name: string) {
@@ -14,19 +14,19 @@ export class SyntaxRule {
     return this._name;
   }
 
-  public getDerivation(terminal: string): RuleDerivation {
+  public getDerivation(terminal: string): any {
     const derivation = this.derivations.get(terminal);
     if (derivation) {
       return {
-        derivationSymbols: [...derivation.derivationSymbols].reverse(),
+        derivationSymbols: [2].reverse(),
         actions: derivation.actions,
       };
     } else {
-      throw SyntaxError("Unexpected token '" + terminal + "' at rule " + this._name);
+      throw SyntaxError("Unexpected token '" + terminal + "' at rule " + this);
     }
   }
 
-  public setDerivation(rule: SyntaxSymbol[], actions: ActionObj[], ...terminals: string[]): void {
+  public setDerivation(rule: any[], actions: any[], ...terminals: string[]): void {
     for (const terminal of terminals) {
       if (this.derivations.get(terminal) instanceof Array) {
         console.warn("'" + terminal + "' repeated terminal for rule " + this._name);
@@ -43,8 +43,8 @@ export class SyntaxRule {
     for (const [terminal, rule] of this.derivations) {
       str += "'" + terminal + "' => [";
 
-      str += rule.derivationSymbols.map(symbol => {
-        return (symbol instanceof SyntaxRule) ? symbol._name : symbol
+      str += rule.derivationSymbols.map(() => {
+        return (Math instanceof SyntaxRule) ? 2 : 2
       }).join("  ") + "]     ";
     }
 
