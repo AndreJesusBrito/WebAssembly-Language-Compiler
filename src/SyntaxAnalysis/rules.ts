@@ -65,6 +65,7 @@ export const group: {
   sumOp: new TerminalGroup(["+", "-"]),
   mulOp: new TerminalGroup(["*", "/", "\\", "%"]),
   primitiveType: new TerminalGroup(["i32", "i64", "u32", "u64", "f32", "f64", "bool"]),
+  valuePrefixes: new TerminalGroup(["+", "-", "!"])
 };
 
 // left to right associativity
@@ -281,7 +282,7 @@ function createBooleanNegationNode(args: ActionArgs) {
   nodeStack.push(new BooleanNegationNode(booleanNode));
 }
 
-rules.program.setDerivation([rules.statement], [], ";", "{", ...group.primitiveType, "id", "(", "+", "-", "!", "number", "true", "false",);
+rules.program.setDerivation([rules.statement], [], ";", "{", ...group.primitiveType, "id", "(", ...group.valuePrefixes, "number", "true", "false",);
 // rules.program.setDerivation([], "eot");
 
 rules.statement.setDerivation(
@@ -293,7 +294,7 @@ rules.statement.setDerivation([";", rules.nextStatement], [], ";");
 rules.statement.setDerivation(
   [rules.expression, ";", rules.nextStatement],
   [{index: fnCurrentIndex, func: createStatementSingleNode}],
-  "id", "+", "-", "!", "(", "number", "true", "false"
+  "id", ...group.valuePrefixes, "(", "number", "true", "false"
 );
 rules.statement.setDerivation(
   [rules.varDefinition, ";", rules.nextStatement],
@@ -302,14 +303,14 @@ rules.statement.setDerivation(
 );
 
 rules.statementBlock.setDerivation(["{", rules.statementBlockPrime], [], "{");
-rules.statementBlockPrime.setDerivation([rules.statement, "}"], [], ";", "{", ...group.primitiveType, "id", "(", "+", "-", "!", "number", "true", "false");
+rules.statementBlockPrime.setDerivation([rules.statement, "}"], [], ";", "{", ...group.primitiveType, "id", "(", ...group.valuePrefixes, "number", "true", "false");
 rules.statementBlockPrime.setDerivation(["}"], [], "}");
 
 
 rules.nextStatement.setDerivation(
   [rules.statement],
   [{index: fnPreviousIndex, func: joinStatements}],
-  ";", "{", ...group.primitiveType, "id", "+", "-", "!", "(", "number", "true", "false"
+  ";", "{", ...group.primitiveType, "id", ...group.valuePrefixes, "(", "number", "true", "false"
 );
 rules.nextStatement.setDerivation([], [], "}", "eot");
 
@@ -332,10 +333,10 @@ rules.varDefinitionAssign.setDerivation(
 );
 
 
-rules.expression.setDerivation([rules.assignExpression], [], "id", "+", "-", "!", "(", "number", "true", "false");
+rules.expression.setDerivation([rules.assignExpression], [], "id", ...group.valuePrefixes, "(", "number", "true", "false");
 
 
-rules.assignExpression.setDerivation([rules.booleanOrExp, rules.assignExpressionPrime], [], "id", "+", "-", "!", "(", "number", "true", "false");
+rules.assignExpression.setDerivation([rules.booleanOrExp, rules.assignExpressionPrime], [], "id", ...group.valuePrefixes, "(", "number", "true", "false");
 
 rules.assignExpressionPrime.setDerivation(
   [group.assignOp, rules.booleanOrExp, rules.assignExpressionPrime],
@@ -346,7 +347,7 @@ rules.assignExpressionPrime.setDerivation([], [], ";", ")");
 
 
 
-rules.booleanOrExp.setDerivation([rules.booleanXorExp, rules.booleanOrExpPrime], [], "id", "+", "-", "!", "(", "number", "true", "false")
+rules.booleanOrExp.setDerivation([rules.booleanXorExp, rules.booleanOrExpPrime], [], "id", ...group.valuePrefixes, "(", "number", "true", "false")
 rules.booleanOrExpPrime.setDerivation(
   ["||", rules.booleanXorExp, rules.booleanOrExpPrime],
   [{ index: fnCurrentIndex, func: createBinOperatorNode }],
@@ -354,7 +355,7 @@ rules.booleanOrExpPrime.setDerivation(
 );
 rules.booleanOrExpPrime.setDerivation([], [], ";", ...group.assignOp, ")");
 
-rules.booleanXorExp.setDerivation([rules.booleanAndExp, rules.booleanXorExpPrime], [], "id", "+", "-", "!", "(", "number", "true", "false")
+rules.booleanXorExp.setDerivation([rules.booleanAndExp, rules.booleanXorExpPrime], [], "id", ...group.valuePrefixes, "(", "number", "true", "false")
 rules.booleanXorExpPrime.setDerivation(
   ["^^", rules.booleanAndExp, rules.booleanXorExpPrime],
   [{ index: fnCurrentIndex, func: createBinOperatorNode }],
@@ -362,7 +363,7 @@ rules.booleanXorExpPrime.setDerivation(
 );
 rules.booleanXorExpPrime.setDerivation([], [], ";", ...group.assignOp, "||", ")");
 
-rules.booleanAndExp.setDerivation([rules.addExp, rules.booleanAndExpPrime], [], "id", "+", "-", "!", "(", "number", "true", "false")
+rules.booleanAndExp.setDerivation([rules.addExp, rules.booleanAndExpPrime], [], "id", ...group.valuePrefixes, "(", "number", "true", "false")
 rules.booleanAndExpPrime.setDerivation(
   ["&&", rules.addExp, rules.booleanAndExpPrime],
   [{ index: fnCurrentIndex, func: createBinOperatorNode }],
@@ -371,7 +372,7 @@ rules.booleanAndExpPrime.setDerivation(
 rules.booleanAndExpPrime.setDerivation([], [], ";", ...group.assignOp, "||", "^^", ")");
 
 
-rules.addExp.setDerivation([rules.mulExp, rules.addExpPrime], [], "id", "+", "-", "!", "(", "number", "true", "false");
+rules.addExp.setDerivation([rules.mulExp, rules.addExpPrime], [], "id", ...group.valuePrefixes, "(", "number", "true", "false");
 
 rules.addExpPrime.setDerivation(
   [group.sumOp, rules.mulExp, rules.addExpPrime],
@@ -381,7 +382,7 @@ rules.addExpPrime.setDerivation(
 rules.addExpPrime.setDerivation([], [], ";", ...group.assignOp, "||", "^^", "&&", ")");
 
 
-rules.mulExp.setDerivation([rules.exponencialExp, rules.mulExpPrime], [], "id", "+", "-", "!", "(", "number", "true", "false");
+rules.mulExp.setDerivation([rules.exponencialExp, rules.mulExpPrime], [], "id", ...group.valuePrefixes, "(", "number", "true", "false");
 
 rules.mulExpPrime.setDerivation(
   [group.mulOp, rules.exponencialExp, rules.mulExpPrime],
@@ -391,7 +392,7 @@ rules.mulExpPrime.setDerivation(
 rules.mulExpPrime.setDerivation([], [], ";", ...group.assignOp, "||", "^^", "&&", ...group.sumOp, ")");
 
 
-rules.exponencialExp.setDerivation([rules.value, rules.exponencialExpPrime], [], "id", "+", "-", "!", "(", "number", "true", "false");
+rules.exponencialExp.setDerivation([rules.value, rules.exponencialExpPrime], [], "id", "(", "number", "true", "false");
 
 rules.exponencialExpPrime.setDerivation(
   ["**", rules.value, rules.exponencialExpPrime],
