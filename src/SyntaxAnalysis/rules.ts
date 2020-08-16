@@ -392,7 +392,7 @@ rules.mulExpPrime.setDerivation(
 rules.mulExpPrime.setDerivation([], [], ";", ...group.assignOp, "||", "^^", "&&", ...group.sumOp, ")");
 
 
-rules.exponencialExp.setDerivation([rules.value, rules.exponencialExpPrime], [], "id", "(", "number", "true", "false");
+rules.exponencialExp.setDerivation([rules.value, rules.exponencialExpPrime], [], "id", ...group.valuePrefixes, "(", "number", "true", "false");
 
 rules.exponencialExpPrime.setDerivation(
   ["**", rules.value, rules.exponencialExpPrime],
