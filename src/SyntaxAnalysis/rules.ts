@@ -28,6 +28,7 @@ import { ReferenceNode } from "../TreeNodes/ReferenceNode.ts";
 import { AssignmentNode } from "../TreeNodes/AssignmentNode.ts";
 import { Token, TokenType } from "../LexicalAnalysis/Token.ts";
 import { BinaryOperator } from "../TreeNodes/BinaryOperator.ts";
+import { BitwiseNegationNode } from "../TreeNodes/BitwiseNegationNode.ts";
 
 
 export const rules: {
@@ -65,7 +66,7 @@ export const group: {
   sumOp: new TerminalGroup(["+", "-"]),
   mulOp: new TerminalGroup(["*", "/", "\\", "%"]),
   primitiveType: new TerminalGroup(["i32", "i64", "u32", "u64", "f32", "f64", "bool"]),
-  valuePrefixes: new TerminalGroup(["+", "-", "!"])
+  valuePrefixes: new TerminalGroup(["+", "-", "!", "~"])
 };
 
 // left to right associativity
@@ -282,6 +283,21 @@ function createBooleanNegationNode(args: ActionArgs) {
   nodeStack.push(new BooleanNegationNode(booleanNode));
 }
 
+function createBitwiseNegationNode(args: ActionArgs) {
+  const { operatorStack, nodeStack } = args;
+
+  console.assert(operatorStack.pop()?.content === '~', "createBitwiseNegationNode check");
+  const booleanNode = nodeStack.pop() || new EmptyExpression();
+
+  if (!(booleanNode instanceof ExpressionNode)) throw new Error("expecting a expression node here");
+
+  nodeStack.push(new BitwiseNegationNode(booleanNode));
+}
+
+
+
+
+
 rules.program.setDerivation([rules.statement], [], ";", "{", ...group.primitiveType, "id", "(", ...group.valuePrefixes, "number", "true", "false",);
 // rules.program.setDerivation([], "eot");
 
@@ -413,6 +429,11 @@ rules.value.setDerivation(
   ["!", rules.value],
   [{ index: fnPreviousIndex, func: createBooleanNegationNode }],
   "!"
+);
+rules.value.setDerivation(
+  ["~", rules.value],
+  [{ index: fnPreviousIndex, func: createBitwiseNegationNode }],
+  "~"
 );
 rules.value.setDerivation(["number"], [], "number");
 rules.value.setDerivation(["true"], [], "true");

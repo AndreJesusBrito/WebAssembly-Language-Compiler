@@ -21,6 +21,7 @@ import { BooleanAndNode } from "./BooleanAndNode.ts";
 
 import { VarReferenceNode } from "./VarReferenceNode.ts";
 import { AssignmentNode } from "./AssignmentNode.ts";
+import { BitwiseNegationNode } from "./BitwiseNegationNode.ts";
 
 
 
@@ -39,6 +40,7 @@ export interface IVisitorAST {
   // unary operators
   visitNumberUnaryNegationNode(node: NumberUnaryNegationNode): any;
   visitBooleanNegationNode(node: BooleanNegationNode): any;
+  visitBitwiseNegationNode(node: BitwiseNegationNode): any;
 
 
   // binary operators

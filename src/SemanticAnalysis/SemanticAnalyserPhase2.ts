@@ -3,6 +3,7 @@ import { NumberLiteralNode } from "../TreeNodes/NumberLiteralNode.ts";
 import { BooleanLiteralNode } from "../TreeNodes/BooleanLiteralNode.ts";
 import { NumberUnaryNegationNode } from "../TreeNodes/NumberUnaryNegationNode.ts";
 import { BooleanNegationNode } from "../TreeNodes/BooleanNegationNode.ts";
+import { BitwiseNegationNode } from "../TreeNodes/BitwiseNegationNode.ts";
 import { AddOperationNode } from "../TreeNodes/AddOperationNode.ts";
 import { SubtractOperationNode } from "../TreeNodes/SubtractOperationNode.ts";
 import { MultiplyOperationNode } from "../TreeNodes/MultiplyOperationNode.ts";
@@ -97,6 +98,14 @@ export class SemanticAnalyserPhase2 implements IVisitorAST {
 
     if (node.operand.resultType !== "bool") {
       throw new Error("unexpected boolean expression here");
+    }
+  }
+
+  visitBitwiseNegationNode(node: BitwiseNegationNode) {
+    node.operand.visit(this);
+
+    if (node.operand.resultType !== "i32") {
+      throw new Error("unexpected integer expression here");
     }
   }
 
