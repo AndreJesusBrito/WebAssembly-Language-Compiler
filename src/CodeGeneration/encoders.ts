@@ -44,21 +44,61 @@ export function encodeU32(n: number) {
 }
 
 export function signedLEB128(n: number): number[] {
-  const buffer = [];
+  let buffer = [];
   let done = false;
+  const negative = n < 0;
+
+  n = Math.abs(n);
 
   while (!done) {
-    let byte = n & 0x7f;
+    let byte = n & 0x7F;
     n >>>= 7;
 
-    done = (n === 0 && (byte & 0x40) === 0)
-      || (n === -1 && (byte & 0x40) !== 0);
+    done = n <= 0;
 
     if (!done) {
+      // add extend bit
       byte |= 0x80;
     }
 
     buffer.push(byte);
+  }
+
+  // set the sign bit.
+  // add one more byte to output if the sign
+  // bit conflicts with the magnitude bit.
+  const lastByte = buffer[buffer.length - 1];
+  if ((lastByte) >= 0x40) {
+    // add extension bit
+    buffer[buffer.length - 1] |= 0x80;
+
+    buffer.push(0);
+  }
+
+  if (negative) {
+    // 1's complement
+    buffer = buffer.map(function(byte): number {
+      return (byte & 0x80) + (~byte & 0x7F);
+    });
+
+    // 2's complement (add 1)
+    let i: number = 0;
+    let carry: boolean = true;
+    while (carry) {
+      const bytePlusOne: number = (buffer[i] & 0x7F) + 1;
+
+      buffer[i] = (buffer[i] & 0x80) + (bytePlusOne & 0x7F);
+
+      // if it carrys
+      if (bytePlusOne > 0x7F) {
+        i++;
+        carry = true;
+      }
+      else {
+        carry = false;
+      }
+    }
+
   }
 
   return buffer;
@@ -90,5 +130,5 @@ export function encodeName(str: string): number[] {
     // the problem could be from the name for exports
     // and not from encoding (TODO: check later)
     ...((new TextEncoder()).encode(str))
-  ]
+  ];
 }
