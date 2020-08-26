@@ -25,6 +25,7 @@ import { BooleanAndNode } from "../TreeNodes/BooleanAndNode.ts";
 import { BitwiseOrNode } from "../TreeNodes/BitwiseOrNode.ts";
 import { BitwiseXorNode } from "../TreeNodes/BitwiseXorNode.ts";
 import { BitwiseAndNode } from "../TreeNodes/BitwiseAndNode.ts";
+import { ConditionalOperatorNode } from "../TreeNodes/ConditionalOperatorNode.ts";
 
 
 export class SemanticAnalyserPhase2 implements IVisitorAST {
@@ -163,6 +164,23 @@ export class SemanticAnalyserPhase2 implements IVisitorAST {
   visitAssignmentNode(node: AssignmentNode): void {
     node.operand1.visit(this);
     node.operand2.visit(this);
+  }
+
+  visitConditionalOperatorNode(node: ConditionalOperatorNode) {
+    node.condition.visit(this);
+
+    if (node.condition.resultType !== "bool") {
+      throw Error("Conditional Operator's condition must result in a boolean. Got '" + node.condition.resultType + "' instead.");
+    }
+
+    node.firstExpression.visit(this);
+    node.elseExpression.visit(this);
+
+    // TODO check type compatibility more accurately
+    if (node.firstExpression.resultType !== node.elseExpression.resultType) {
+      throw Error("Conditional operator's options must result in compatible types. The types '"
+                 + node.firstExpression.resultType + "' and '" + node.elseExpression.resultType + "' are not compatible.");
+    }
   }
 
   protected checkArithmeticBinOperator(node: BinaryOperator): void {

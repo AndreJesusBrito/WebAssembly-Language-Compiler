@@ -25,6 +25,7 @@ import { BitwiseAndNode } from "./BitwiseAndNode.ts";
 
 import { VarReferenceNode } from "./VarReferenceNode.ts";
 import { AssignmentNode } from "./AssignmentNode.ts";
+import { ConditionalOperatorNode } from "./ConditionalOperatorNode.ts";
 import { BitwiseNegationNode } from "./BitwiseNegationNode.ts";
 
 
@@ -63,5 +64,9 @@ export interface IVisitorAST {
   visitBitwiseAndNode(node: BitwiseAndNode): any;
 
   visitAssignmentNode(node: AssignmentNode): any;
+
+
+
+  visitConditionalOperatorNode(node: ConditionalOperatorNode): any;
 
 }

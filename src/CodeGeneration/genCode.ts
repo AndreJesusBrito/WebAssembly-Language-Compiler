@@ -37,6 +37,7 @@ import { BooleanAndNode } from "../TreeNodes/BooleanAndNode.ts";
 import { BitwiseOrNode } from "../TreeNodes/BitwiseOrNode.ts";
 import { BitwiseXorNode } from "../TreeNodes/BitwiseXorNode.ts";
 import { BitwiseAndNode } from "../TreeNodes/BitwiseAndNode.ts";
+import { ConditionalOperatorNode } from "../TreeNodes/ConditionalOperatorNode.ts";
 
 
 
@@ -53,7 +54,6 @@ export class BinaryFormatCodeGenerator implements IVisitorAST {
   constructor (ast: BaseNode) {
     this.ast = ast;
   }
-
 
   visitVarDefinitionNode(node: VarDefinitionNode): number[] {
     const code: number[] = [];
@@ -222,6 +222,22 @@ export class BinaryFormatCodeGenerator implements IVisitorAST {
       ...encodeU32(localIndex),
 
       Opcode.local_get, ...encodeU32(localIndex),
+    ];
+  }
+
+  visitConditionalOperatorNode(node: ConditionalOperatorNode): number[] {
+    return [
+      ...node.condition.visit(this),
+
+      Opcode.if,
+      // TEMP TODO support all types
+      ValueType.i32,
+        ...node.firstExpression.visit(this),
+
+      Opcode.else,
+        ...node.elseExpression.visit(this),
+
+      Opcode.end,
     ];
   }
 
