@@ -19,6 +19,9 @@ import { AssignmentNode } from "../TreeNodes/AssignmentNode.ts";
 import { BooleanOrNode } from "../TreeNodes/BooleanOrNode.ts";
 import { BooleanXorNode } from "../TreeNodes/BooleanXorNode.ts";
 import { BooleanAndNode } from "../TreeNodes/BooleanAndNode.ts";
+import { BitwiseOrNode } from "../TreeNodes/BitwiseOrNode.ts";
+import { BitwiseXorNode } from "../TreeNodes/BitwiseXorNode.ts";
+import { BitwiseAndNode } from "../TreeNodes/BitwiseAndNode.ts";
 
 
 export class SemanticAnalyserPhase3 implements IVisitorAST {
@@ -100,6 +103,19 @@ export class SemanticAnalyserPhase3 implements IVisitorAST {
     node.operand2.visit(this);
   }
   visitBooleanAndNode(node: BooleanAndNode) {
+    node.operand1.visit(this);
+    node.operand2.visit(this);
+  }
+
+  visitBitwiseOrNode(node: BitwiseOrNode) {
+    node.operand1.visit(this);
+    node.operand2.visit(this);
+  }
+  visitBitwiseXorNode(node: BitwiseXorNode) {
+    node.operand1.visit(this);
+    node.operand2.visit(this);
+  }
+  visitBitwiseAndNode(node: BitwiseAndNode) {
     node.operand1.visit(this);
     node.operand2.visit(this);
   }

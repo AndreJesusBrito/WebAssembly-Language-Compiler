@@ -34,6 +34,9 @@ import { AssignmentNode } from "../TreeNodes/AssignmentNode.ts";
 import { BooleanOrNode } from "../TreeNodes/BooleanOrNode.ts";
 import { BooleanXorNode } from "../TreeNodes/BooleanXorNode.ts";
 import { BooleanAndNode } from "../TreeNodes/BooleanAndNode.ts";
+import { BitwiseOrNode } from "../TreeNodes/BitwiseOrNode.ts";
+import { BitwiseXorNode } from "../TreeNodes/BitwiseXorNode.ts";
+import { BitwiseAndNode } from "../TreeNodes/BitwiseAndNode.ts";
 
 
 
@@ -179,6 +182,29 @@ export class BinaryFormatCodeGenerator implements IVisitorAST {
     ];
   }
   visitBooleanAndNode(node: BooleanAndNode): number[] {
+    return [
+      ...node.operand1.visit(this),
+      ...node.operand2.visit(this),
+      Opcode.i32_and,
+    ];
+  }
+
+
+  visitBitwiseOrNode(node: BitwiseOrNode): number[] {
+    return [
+      ...node.operand1.visit(this),
+      ...node.operand2.visit(this),
+      Opcode.i32_or,
+    ];
+  }
+  visitBitwiseXorNode(node: BitwiseXorNode): number[] {
+    return [
+      ...node.operand1.visit(this),
+      ...node.operand2.visit(this),
+      Opcode.i32_xor,
+    ];
+  }
+  visitBitwiseAndNode(node: BitwiseAndNode): number[] {
     return [
       ...node.operand1.visit(this),
       ...node.operand2.visit(this),

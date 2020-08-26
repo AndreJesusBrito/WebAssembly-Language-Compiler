@@ -22,6 +22,10 @@ import { BooleanOrNode } from "../TreeNodes/BooleanOrNode.ts";
 import { BooleanXorNode } from "../TreeNodes/BooleanXorNode.ts";
 import { BooleanAndNode } from "../TreeNodes/BooleanAndNode.ts";
 
+import { BitwiseOrNode } from "../TreeNodes/BitwiseOrNode.ts";
+import { BitwiseXorNode } from "../TreeNodes/BitwiseXorNode.ts";
+import { BitwiseAndNode } from "../TreeNodes/BitwiseAndNode.ts";
+
 
 export class SemanticAnalyserPhase2 implements IVisitorAST {
   protected ast: BaseNode;
@@ -139,6 +143,20 @@ export class SemanticAnalyserPhase2 implements IVisitorAST {
   
   visitBooleanAndNode(node: BooleanAndNode) {
     this.checkBooleanBinOperator(node);
+  }
+
+
+
+  visitBitwiseOrNode(node: BitwiseOrNode) {
+    this.checkArithmeticBinOperator(node);
+  }
+
+  visitBitwiseXorNode(node: BitwiseXorNode) {
+    this.checkArithmeticBinOperator(node);
+  }
+  
+  visitBitwiseAndNode(node: BitwiseAndNode) {
+    this.checkArithmeticBinOperator(node);
   }
 
 

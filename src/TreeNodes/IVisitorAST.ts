@@ -19,6 +19,10 @@ import { BooleanOrNode } from "./BooleanOrNode.ts";
 import { BooleanXorNode } from "./BooleanXorNode.ts";
 import { BooleanAndNode } from "./BooleanAndNode.ts";
 
+import { BitwiseOrNode } from "./BitwiseOrNode.ts";
+import { BitwiseXorNode } from "./BitwiseXorNode.ts";
+import { BitwiseAndNode } from "./BitwiseAndNode.ts";
+
 import { VarReferenceNode } from "./VarReferenceNode.ts";
 import { AssignmentNode } from "./AssignmentNode.ts";
 import { BitwiseNegationNode } from "./BitwiseNegationNode.ts";
@@ -53,6 +57,10 @@ export interface IVisitorAST {
   visitBooleanOrNode(node: BooleanOrNode): any;
   visitBooleanXorNode(node: BooleanXorNode): any;
   visitBooleanAndNode(node: BooleanAndNode): any;
+
+  visitBitwiseOrNode(node: BitwiseOrNode): any;
+  visitBitwiseXorNode(node: BitwiseXorNode): any;
+  visitBitwiseAndNode(node: BitwiseAndNode): any;
 
   visitAssignmentNode(node: AssignmentNode): any;
 
