@@ -278,6 +278,18 @@ export class BinaryFormatCodeGenerator implements IVisitorAST {
       ]),
 
 
+      ...encodeSection(SectionTypeCode.export,
+        encodeVector([
+          [
+            ...encodeName("result"),
+            ExportTypeCode.func,
+            // ...encodeU32(0),
+            0
+          ]
+        ])
+      ),
+
+
       ...encodeSection(SectionTypeCode.code,
         encodeVector([
           encodeContainer([
@@ -287,17 +299,6 @@ export class BinaryFormatCodeGenerator implements IVisitorAST {
             // code expression
             ...code
           ])
-        ])
-      ),
-
-      ...encodeSection(SectionTypeCode.export,
-        encodeVector([
-          [
-            ...encodeName("result"),
-            ExportTypeCode.func,
-            // ...encodeU32(0),
-            0
-          ]
         ])
       ),
 
