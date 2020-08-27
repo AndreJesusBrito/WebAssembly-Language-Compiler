@@ -8,6 +8,8 @@ export abstract class StatementNode extends BaseNode {
     this._nextStatement = null;
   }
 
+  public abstract get returnsValue(): boolean;
+
   public get nextStatement(): StatementNode | null {
     return this._nextStatement;
   }

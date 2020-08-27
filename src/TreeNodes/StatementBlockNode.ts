@@ -9,6 +9,9 @@ export class StatementBlockNode extends StatementNode {
     this._innerStatement = innerStatement;
   }
 
+  public get returnsValue(): boolean {
+    return false;
+  }
 
   public get innerStatement() : StatementNode | null {
     return this._innerStatement;

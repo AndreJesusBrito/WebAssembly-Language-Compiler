@@ -21,6 +21,10 @@ export class VarDefinitionNode extends StatementNode {
     this.datatype = datatype;
   }
 
+  public get returnsValue(): boolean {
+    return false;
+  }
+
   public visit(visitor: IVisitorAST): any {
     return visitor.visitVarDefinitionNode(this);
   }

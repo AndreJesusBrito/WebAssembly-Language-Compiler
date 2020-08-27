@@ -10,6 +10,10 @@ export class StatementSingleNode extends StatementNode {
     this._innerExpression = innerExpression;
   }
 
+  public get returnsValue(): boolean {
+    return this._innerExpression.returnsValue;
+  }
+
   public get innerExpression(): ExpressionNode {
     return this._innerExpression;
   }

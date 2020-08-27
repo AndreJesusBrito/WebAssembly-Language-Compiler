@@ -4,7 +4,7 @@ import { ExpressionNode } from "./ExpressionNode.ts";
 
 export class IfStatementNode extends StatementNode {
   public condition: ExpressionNode;
-  public firstStatement: StatementNode | null;
+  public firstStatement: StatementNode;
   public elseStatement: StatementNode | null;
 
   constructor(condition: ExpressionNode, firstStatement: StatementNode, elseStatement: StatementNode | null) {
@@ -14,7 +14,9 @@ export class IfStatementNode extends StatementNode {
     this.elseStatement = elseStatement;
   }
 
-
+  public get returnsValue(): boolean {
+    return false;
+  }
 
   public visit(visitor: IVisitorAST): any {
     return visitor.visitIfStatementNode(this);

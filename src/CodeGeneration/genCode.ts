@@ -62,7 +62,7 @@ export class BinaryFormatCodeGenerator implements IVisitorAST {
     if (node.elseStatement) {
       elsePart.push(
         Opcode.else,
-        ...node.elseStatement.visit(this),
+        ...this.genStatements(node.elseStatement),
       );
     }
 
@@ -71,7 +71,7 @@ export class BinaryFormatCodeGenerator implements IVisitorAST {
 
       Opcode.if, 0x40,
 
-      ...node.firstStatement?.visit(this),
+      ...this.genStatements(node.firstStatement),
 
       ...elsePart,
 
@@ -111,7 +111,7 @@ export class BinaryFormatCodeGenerator implements IVisitorAST {
 
   visitStatementBlockNode(node: StatementBlockNode): number[] {
     const innerStmt = node.innerStatement;
-    
+
     if (innerStmt) {
       return this.genStatements(innerStmt);
     }
@@ -274,7 +274,7 @@ export class BinaryFormatCodeGenerator implements IVisitorAST {
       code.push(...currentStatement.visit(this));
 
       // TEMP while not removing redudant expressions
-      if (currentStatement.nextStatement && currentStatement instanceof StatementSingleNode) {
+      if (currentStatement.returnsValue) {
         code.push(Opcode.drop);
       }
 
@@ -286,10 +286,16 @@ export class BinaryFormatCodeGenerator implements IVisitorAST {
 
   public generate(): Uint8Array {
 
+    // @ts-ignore TEMP, only parsing statements directly
+    const generatedCode = this.genStatements(this.ast);
+
+    // TEMP remove last drop operation to allow function to return
+    generatedCode.pop();
+
+
     const code: number[] = [
 
-      // @ts-ignore TEMP, only parsing statements directly
-      this.genStatements(this.ast),
+      ...generatedCode,
 
       Opcode.end
     ];
