@@ -26,6 +26,7 @@ import { BitwiseOrNode } from "../TreeNodes/BitwiseOrNode.ts";
 import { BitwiseXorNode } from "../TreeNodes/BitwiseXorNode.ts";
 import { BitwiseAndNode } from "../TreeNodes/BitwiseAndNode.ts";
 import { ConditionalOperatorNode } from "../TreeNodes/ConditionalOperatorNode.ts";
+import { IfStatementNode } from "../TreeNodes/IfStatementNode.ts";
 
 
 export class SemanticAnalyserPhase2 implements IVisitorAST {
@@ -53,6 +54,16 @@ export class SemanticAnalyserPhase2 implements IVisitorAST {
     }
 
     this.frameStack.pop();
+  }
+
+  visitIfStatementNode(node: IfStatementNode) {
+    node.condition.visit(this);
+    if (node.condition.resultType !== "bool") {
+      throw Error("The If statement's condition must result in a boolean. Got '" + node.condition.resultType + "' instead.")
+    }
+
+    node.firstStatement?.visit(this);
+    node.elseStatement?.visit(this);
   }
 
   visitVarDefinitionNode(node: VarDefinitionNode): any {

@@ -33,6 +33,7 @@ import { ConditionalOperatorNode } from "../TreeNodes/ConditionalOperatorNode.ts
 import { Token, TokenType } from "../LexicalAnalysis/Token.ts";
 import { BinaryOperator } from "../TreeNodes/BinaryOperator.ts";
 import { BitwiseNegationNode } from "../TreeNodes/BitwiseNegationNode.ts";
+import { IfStatementNode } from "../TreeNodes/IfStatementNode.ts";
 
 
 export const rules: {
@@ -44,6 +45,9 @@ export const rules: {
   nextStatement: new SyntaxRule("nextStatement"),
   statementBlock: new SyntaxRule("statementBlock"),
   statementBlockPrime: new SyntaxRule("statementBlockPrime"),
+  conditionSection: new SyntaxRule("conditionSection"),
+  ifStatement: new SyntaxRule("ifStatement"),
+  ifStatementPrime: new SyntaxRule("ifStatementPrime"),
   varDefinition: new SyntaxRule("varDefinition"),
   varDefinitionAssign: new SyntaxRule("varDefinitionAssign"),
   expression: new SyntaxRule("exp"),
@@ -109,6 +113,44 @@ function createVarDefinitionNode(args: ActionArgs) {
 
   nodeStack.push(new VarDefinitionNode(varName.content, varType.content));
 }
+
+function createIfNode(args: ActionArgs) {
+  const {nodeStack} = args;
+
+  const firstExpression = nodeStack.pop();
+  if (!(firstExpression instanceof StatementNode)) {
+    throw Error("IfNode expect a statement");
+  }
+
+  const condition = nodeStack.pop();
+  if (!(condition instanceof ExpressionNode)) {
+    throw Error("IfNode expects the condition to be an Expression")
+  }
+
+  nodeStack.push(new IfStatementNode(condition, firstExpression, null));
+}
+
+function createIfElseNode(args: ActionArgs) {
+  const { nodeStack } = args;
+
+  const elseExpression = nodeStack.pop();
+  if (!(elseExpression instanceof StatementNode)) {
+    throw Error("IfNode expected an else statement");
+  }
+
+  const firstExpression = nodeStack.pop();
+  if (!(firstExpression instanceof StatementNode)) {
+    throw Error("IfNode expected an statement");
+  }
+
+  const condition = nodeStack.pop();
+  if (!(condition instanceof ExpressionNode)) {
+    throw Error("IfNode expects the condition to be an Expression")
+  }
+
+  nodeStack.push(new IfStatementNode(condition, firstExpression, elseExpression));
+}
+
 
 function assignToVarDefinitionNode(args: ActionArgs) {
   const {nodeStack} = args;
@@ -353,7 +395,7 @@ function createBitwiseNegationNode(args: ActionArgs) {
 
 
 
-rules.program.setDerivation([rules.statement], [], ";", "{", ...group.primitiveType, "id", "(", ...group.valuePrefixes, "number", "true", "false",);
+rules.program.setDerivation([rules.statement], [], "if", ";", "{", ...group.primitiveType, "id", "(", ...group.valuePrefixes, "number", "true", "false",);
 // rules.program.setDerivation([], "eot");
 
 rules.singleStatement.setDerivation(
@@ -372,21 +414,22 @@ rules.singleStatement.setDerivation(
   [],
   ...group.primitiveType
 );
+rules.singleStatement.setDerivation([rules.ifStatement], [], "if");
 
 rules.statementBlock.setDerivation(["{", rules.statementBlockPrime], [], "{");
-rules.statementBlockPrime.setDerivation([rules.statement, "}"], [], ";", "{", ...group.primitiveType, "id", "(", ...group.valuePrefixes, "number", "true", "false");
+rules.statementBlockPrime.setDerivation([rules.statement, "}"], [], "if", ";", "{", ...group.primitiveType, "id", "(", ...group.valuePrefixes, "number", "true", "false");
 rules.statementBlockPrime.setDerivation(["}"], [], "}");
 
 
 rules.statement.setDerivation(
   [rules.singleStatement, rules.nextStatement], [],
-  "{", "id", ...group.valuePrefixes, "(", "number", "true", "false", ...group.primitiveType
+  "if", "{", "id", ...group.valuePrefixes, "(", "number", "true", "false", ...group.primitiveType
 );
 
 rules.nextStatement.setDerivation(
   [rules.statement],
   [{index: fnPreviousIndex, func: joinStatements}],
-  ";", "{", ...group.primitiveType, "id", ...group.valuePrefixes, "(", "number", "true", "false"
+  "if", ";", "{", ...group.primitiveType, "id", ...group.valuePrefixes, "(", "number", "true", "false"
 );
 rules.nextStatement.setDerivation([], [], "}", "eot");
 
@@ -407,6 +450,28 @@ rules.varDefinitionAssign.setDerivation(
   [],
   ";"
 );
+
+
+
+
+rules.conditionSection.setDerivation(["(", rules.expression, ")"], [], "(");
+
+
+rules.ifStatement.setDerivation(["if", rules.conditionSection, rules.singleStatement, rules.ifStatementPrime], [], "if");
+
+rules.ifStatementPrime.setDerivation(
+  ["else", rules.singleStatement],
+  [{ index: fnPreviousIndex, func: createIfElseNode }],
+  "else"
+);
+rules.ifStatementPrime.setDerivation(
+  [],
+  [{ index: fnPreviousIndex, func: createIfNode }],
+  "if", ";", "{", ...group.primitiveType, "id", "(", ...group.valuePrefixes, "number", "true", "false"
+);
+
+
+
 
 
 rules.expression.setDerivation([rules.assignExpression], [], "id", ...group.valuePrefixes, "(", "number", "true", "false");

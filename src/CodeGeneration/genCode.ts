@@ -38,6 +38,7 @@ import { BitwiseOrNode } from "../TreeNodes/BitwiseOrNode.ts";
 import { BitwiseXorNode } from "../TreeNodes/BitwiseXorNode.ts";
 import { BitwiseAndNode } from "../TreeNodes/BitwiseAndNode.ts";
 import { ConditionalOperatorNode } from "../TreeNodes/ConditionalOperatorNode.ts";
+import { IfStatementNode } from "../TreeNodes/IfStatementNode.ts";
 
 
 
@@ -53,6 +54,29 @@ export class BinaryFormatCodeGenerator implements IVisitorAST {
 
   constructor (ast: BaseNode) {
     this.ast = ast;
+  }
+
+  visitIfStatementNode(node: IfStatementNode): number[] {
+    const elsePart: number[] = [];
+
+    if (node.elseStatement) {
+      elsePart.push(
+        Opcode.else,
+        ...node.elseStatement.visit(this),
+      );
+    }
+
+    return [
+      ...node.condition.visit(this),
+
+      Opcode.if, 0x40,
+
+      ...node.firstStatement?.visit(this),
+
+      ...elsePart,
+
+      Opcode.end,
+    ];
   }
 
   visitVarDefinitionNode(node: VarDefinitionNode): number[] {
