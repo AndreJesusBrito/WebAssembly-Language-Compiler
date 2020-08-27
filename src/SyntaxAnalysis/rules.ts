@@ -39,6 +39,7 @@ export const rules: {
   [key: string]: SyntaxRule
 } = {
   program: new SyntaxRule("program"),
+  singleStatement: new SyntaxRule("singleStatement"),
   statement: new SyntaxRule("statement"),
   nextStatement: new SyntaxRule("nextStatement"),
   statementBlock: new SyntaxRule("statementBlock"),
@@ -78,7 +79,7 @@ export const group: {
   sumOp: new TerminalGroup(["+", "-"]),
   mulOp: new TerminalGroup(["*", "/", "\\", "%"]),
   primitiveType: new TerminalGroup(["i32", "i64", "u32", "u64", "f32", "f64", "bool"]),
-  valuePrefixes: new TerminalGroup(["+", "-", "!", "~"])
+  valuePrefixes: new TerminalGroup(["+", "-", "!", "~"]),
 };
 
 // left to right associativity
@@ -355,19 +356,19 @@ function createBitwiseNegationNode(args: ActionArgs) {
 rules.program.setDerivation([rules.statement], [], ";", "{", ...group.primitiveType, "id", "(", ...group.valuePrefixes, "number", "true", "false",);
 // rules.program.setDerivation([], "eot");
 
-rules.statement.setDerivation(
-  [rules.statementBlock, rules.nextStatement],
+rules.singleStatement.setDerivation(
+  [rules.statementBlock],
   [{index: fnCurrentIndex, func: createStatementBlockNode}],
-  "{"
+  "{",
 );
-rules.statement.setDerivation([";", rules.nextStatement], [], ";");
-rules.statement.setDerivation(
-  [rules.expression, ";", rules.nextStatement],
+rules.singleStatement.setDerivation([";"], [], ";");
+rules.singleStatement.setDerivation(
+  [rules.expression, ";"],
   [{index: fnCurrentIndex, func: createStatementSingleNode}],
   "id", ...group.valuePrefixes, "(", "number", "true", "false"
 );
-rules.statement.setDerivation(
-  [rules.varDefinition, ";", rules.nextStatement],
+rules.singleStatement.setDerivation(
+  [rules.varDefinition, ";"],
   [],
   ...group.primitiveType
 );
@@ -376,6 +377,11 @@ rules.statementBlock.setDerivation(["{", rules.statementBlockPrime], [], "{");
 rules.statementBlockPrime.setDerivation([rules.statement, "}"], [], ";", "{", ...group.primitiveType, "id", "(", ...group.valuePrefixes, "number", "true", "false");
 rules.statementBlockPrime.setDerivation(["}"], [], "}");
 
+
+rules.statement.setDerivation(
+  [rules.singleStatement, rules.nextStatement], [],
+  "{", "id", ...group.valuePrefixes, "(", "number", "true", "false", ...group.primitiveType
+);
 
 rules.nextStatement.setDerivation(
   [rules.statement],
