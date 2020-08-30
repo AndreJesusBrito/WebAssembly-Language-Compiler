@@ -31,6 +31,8 @@ import { GreaterThanExpressionNode } from "../TreeNodes/GreaterThanExpressionNod
 import { GreaterOrEqualExpressionNode } from "../TreeNodes/GreaterOrEqualExpressionNode.ts";
 import { LessThanExpressionNode } from "../TreeNodes/LessThanExpressionNode.ts";
 import { LessOrEqualExpressionNode } from "../TreeNodes/LessOrEqualExpressionNode.ts";
+import { PreIncrementExpressionNode } from "../TreeNodes/PreIncrementExpressionNode.ts";
+import { PreDecrementExpressionNode } from "../TreeNodes/PreDecrementExpressionNode.ts";
 
 
 export class SemanticAnalyserPhase3 implements IVisitorAST {
@@ -183,6 +185,13 @@ export class SemanticAnalyserPhase3 implements IVisitorAST {
   visitLessOrEqualExpressionNode(node: LessOrEqualExpressionNode) {
     node.operand1.visit(this);
     node.operand2.visit(this);
+  }
+  
+  visitPreIncrementExpressionNode(node: PreIncrementExpressionNode) {
+    node.operand.visit(this);
+  }
+  visitPreDecrementExpressionNode(node: PreDecrementExpressionNode) {
+    node.operand.visit(this);
   }
 
 

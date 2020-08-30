@@ -46,6 +46,9 @@ import { GreaterThanExpressionNode } from "../TreeNodes/GreaterThanExpressionNod
 import { GreaterOrEqualExpressionNode } from "../TreeNodes/GreaterOrEqualExpressionNode.ts";
 import { LessThanExpressionNode } from "../TreeNodes/LessThanExpressionNode.ts";
 import { LessOrEqualExpressionNode } from "../TreeNodes/LessOrEqualExpressionNode.ts";
+import { PreIncrementExpressionNode } from "../TreeNodes/PreIncrementExpressionNode.ts";
+import { PreDecrementExpressionNode } from "../TreeNodes/PreDecrementExpressionNode.ts";
+import { ReferenceNode } from "../TreeNodes/ReferenceNode.ts";
 
 
 
@@ -335,6 +338,60 @@ export class BinaryFormatCodeGenerator implements IVisitorAST {
     ];
   }
 
+  visitPreIncrementExpressionNode(node: PreIncrementExpressionNode): number[] {
+    if (!(node.operand instanceof VarReferenceNode)) {
+      throw Error("Not implemented yet");
+    }
+
+    const index = node.operand.definitionNode?.index;
+
+    if (!index && index !== 0) {
+      throw Error("something went wrong at visitPreIncrementExpressionNode");
+    }
+
+    const encodedIndex = encodeU32(index);
+
+
+    return [
+      Opcode.local_get,
+      ...encodedIndex,
+      Opcode.i32_const, 1,
+      Opcode.i32_add,
+
+      Opcode.local_set,
+      ...encodedIndex,
+
+      Opcode.local_get,
+      ...encodedIndex,
+    ];
+  }
+  visitPreDecrementExpressionNode(node: PreDecrementExpressionNode): number[] {
+    if (!(node.operand instanceof VarReferenceNode)) {
+      throw Error("Not implemented yet");
+    }
+
+    const index = node.operand.definitionNode?.index;
+
+    if (!index && index !== 0) {
+      throw Error("something went wrong at visitPreIncrementExpressionNode");
+    }
+
+    const encodedIndex = encodeU32(index);
+
+
+    return [
+      Opcode.local_get,
+      ...encodedIndex,
+      Opcode.i32_const, 1,
+      Opcode.i32_sub,
+
+      Opcode.local_set,
+      ...encodedIndex,
+
+      Opcode.local_get,
+      ...encodedIndex,
+    ];
+  }
 
   private genStatements(firstStatement: StatementNode): number[] {
     const code: number[] = [];

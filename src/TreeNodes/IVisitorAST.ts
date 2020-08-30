@@ -27,6 +27,8 @@ import { VarReferenceNode } from "./VarReferenceNode.ts";
 import { AssignmentNode } from "./AssignmentNode.ts";
 import { ConditionalOperatorNode } from "./ConditionalOperatorNode.ts";
 import { BitwiseNegationNode } from "./BitwiseNegationNode.ts";
+import { PreIncrementExpressionNode } from "./PreIncrementExpressionNode.ts";
+import { PreDecrementExpressionNode } from "./PreDecrementExpressionNode.ts";
 import { IfStatementNode } from "./IfStatementNode.ts";
 
 import { WhileStatementNode } from "./WhileStatementNode.ts";
@@ -62,6 +64,8 @@ export interface IVisitorAST {
   visitNumberUnaryNegationNode(node: NumberUnaryNegationNode): any;
   visitBooleanNegationNode(node: BooleanNegationNode): any;
   visitBitwiseNegationNode(node: BitwiseNegationNode): any;
+  visitPreIncrementExpressionNode(node: PreIncrementExpressionNode): any;
+  visitPreDecrementExpressionNode(node: PreDecrementExpressionNode): any;
 
 
   // binary operators

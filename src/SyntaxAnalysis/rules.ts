@@ -33,6 +33,8 @@ import { ConditionalOperatorNode } from "../TreeNodes/ConditionalOperatorNode.ts
 import { Token, TokenType } from "../LexicalAnalysis/Token.ts";
 import { BinaryOperator } from "../TreeNodes/BinaryOperator.ts";
 import { BitwiseNegationNode } from "../TreeNodes/BitwiseNegationNode.ts";
+import { PreIncrementExpressionNode } from "../TreeNodes/PreIncrementExpressionNode.ts";
+import { PreDecrementExpressionNode } from "../TreeNodes/PreDecrementExpressionNode.ts";
 import { IfStatementNode } from "../TreeNodes/IfStatementNode.ts";
 import { WhileStatementNode } from "../TreeNodes/WhileStatementNode.ts";
 
@@ -98,7 +100,7 @@ export const group: {
   equalsOp: new TerminalGroup(["==", "!="]),
   comparisonOp: new TerminalGroup([">=", "<=", ">", "<"]),
   primitiveType: new TerminalGroup(["i32", "i64", "u32", "u64", "f32", "f64", "bool"]),
-  valuePrefixes: new TerminalGroup(["+", "-", "!", "~"]),
+  valuePrefixes: new TerminalGroup(["+", "-", "!", "~", "--", "++"]),
 };
 
 // left to right associativity
@@ -452,6 +454,28 @@ function createBitwiseNegationNode(args: ActionArgs) {
   nodeStack.push(new BitwiseNegationNode(booleanNode));
 }
 
+function createPreIncrementNode(args: ActionArgs) {
+  const { operatorStack, nodeStack } = args;
+
+  const reference = nodeStack.pop() || new EmptyExpression();
+
+  if (!(reference instanceof ReferenceNode)) {
+    throw Error("Syntax Error: Invalid left-hand side expression in prefix operation");
+  }
+
+  const operator = operatorStack.pop()?.content;
+
+
+  if (operator == "++") {
+    nodeStack.push(new PreIncrementExpressionNode(reference));
+  } else if (operator == "--") {
+    nodeStack.push(new PreDecrementExpressionNode(reference));
+  } else {
+    throw Error("something went wrong at createPreIncrement");
+  }
+
+}
+
 
 
 
@@ -689,6 +713,21 @@ rules.value.setDerivation(
   ["~", rules.value],
   [{ index: fnPreviousIndex, func: createBitwiseNegationNode }],
   "~"
+);
+rules.value.setDerivation(
+  ["~", rules.value],
+  [{ index: fnPreviousIndex, func: createBitwiseNegationNode }],
+  "~"
+);
+rules.value.setDerivation(
+  ["++", rules.value],
+  [{ index: fnPreviousIndex, func: createPreIncrementNode }],
+  "++"
+);
+rules.value.setDerivation(
+  ["--", rules.value],
+  [{ index: fnPreviousIndex, func: createPreIncrementNode }],
+  "--"
 );
 rules.value.setDerivation(["number"], [], "number");
 rules.value.setDerivation(["true"], [], "true");
