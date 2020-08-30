@@ -42,6 +42,10 @@ import { IfStatementNode } from "../TreeNodes/IfStatementNode.ts";
 import { WhileStatementNode } from "../TreeNodes/WhileStatementNode.ts";
 import { EqualsExpressionNode } from "../TreeNodes/EqualsExpressionNode.ts";
 import { NotEqualsExpressionNode } from "../TreeNodes/NotEqualsExpressionNode.ts";
+import { GreaterThanExpressionNode } from "../TreeNodes/GreaterThanExpressionNode.ts";
+import { GreaterOrEqualExpressionNode } from "../TreeNodes/GreaterOrEqualExpressionNode.ts";
+import { LessThanExpressionNode } from "../TreeNodes/LessThanExpressionNode.ts";
+import { LessOrEqualExpressionNode } from "../TreeNodes/LessOrEqualExpressionNode.ts";
 
 
 
@@ -298,6 +302,36 @@ export class BinaryFormatCodeGenerator implements IVisitorAST {
       ...node.operand1.visit(this),
       ...node.operand2.visit(this),
       Opcode.i32_ne
+    ];
+  }
+
+
+  visitGreaterThanExpressionNode(node: GreaterThanExpressionNode): number[] {
+    return [
+      ...node.operand1.visit(this),
+      ...node.operand2.visit(this),
+      Opcode.i32_gt_s
+    ];
+  }
+  visitGreaterOrEqualExpressionNode(node: GreaterOrEqualExpressionNode): number[] {
+    return [
+      ...node.operand1.visit(this),
+      ...node.operand2.visit(this),
+      Opcode.i32_ge_s
+    ];
+  }
+  visitLessThanExpressionNode(node: LessThanExpressionNode): number[] {
+    return [
+      ...node.operand1.visit(this),
+      ...node.operand2.visit(this),
+      Opcode.i32_lt_s
+    ];
+  }
+  visitLessOrEqualExpressionNode(node: LessOrEqualExpressionNode): number[] {
+    return [
+      ...node.operand1.visit(this),
+      ...node.operand2.visit(this),
+      Opcode.i32_le_s
     ];
   }
 

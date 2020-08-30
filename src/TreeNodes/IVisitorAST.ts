@@ -32,7 +32,12 @@ import { IfStatementNode } from "./IfStatementNode.ts";
 import { WhileStatementNode } from "./WhileStatementNode.ts";
 
 import { EqualsExpressionNode } from "./EqualsExpressionNode.ts";
-import { NotEqualsExpressionNode } from "./NotEqualsExpressionNode.ts";
+import { NotEqualsExpressionNode } from "./NotEqualsExpressionNode.ts";7
+
+import { GreaterThanExpressionNode } from "./GreaterThanExpressionNode.ts";
+import { GreaterOrEqualExpressionNode } from "./GreaterOrEqualExpressionNode.ts";
+import { LessThanExpressionNode } from "./LessThanExpressionNode.ts";
+import { LessOrEqualExpressionNode } from "./LessOrEqualExpressionNode.ts";
 
 
 
@@ -83,5 +88,10 @@ export interface IVisitorAST {
 
   visitEqualsExpressionNode(node: EqualsExpressionNode): any;
   visitNotEqualsExpressionNode(node: NotEqualsExpressionNode): any;
+
+  visitGreaterThanExpressionNode(node: GreaterThanExpressionNode): any;
+  visitGreaterOrEqualExpressionNode(node: GreaterOrEqualExpressionNode): any;
+  visitLessThanExpressionNode(node: LessThanExpressionNode): any;
+  visitLessOrEqualExpressionNode(node: LessOrEqualExpressionNode): any;
 
 }

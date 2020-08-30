@@ -27,6 +27,10 @@ import { IfStatementNode } from "../TreeNodes/IfStatementNode.ts";
 import { WhileStatementNode } from "../TreeNodes/WhileStatementNode.ts";
 import { EqualsExpressionNode } from "../TreeNodes/EqualsExpressionNode.ts";
 import { NotEqualsExpressionNode } from "../TreeNodes/NotEqualsExpressionNode.ts";
+import { GreaterThanExpressionNode } from "../TreeNodes/GreaterThanExpressionNode.ts";
+import { GreaterOrEqualExpressionNode } from "../TreeNodes/GreaterOrEqualExpressionNode.ts";
+import { LessThanExpressionNode } from "../TreeNodes/LessThanExpressionNode.ts";
+import { LessOrEqualExpressionNode } from "../TreeNodes/LessOrEqualExpressionNode.ts";
 
 
 export class SemanticAnalyserPhase3 implements IVisitorAST {
@@ -159,6 +163,24 @@ export class SemanticAnalyserPhase3 implements IVisitorAST {
   }
 
   visitNotEqualsExpressionNode(node: NotEqualsExpressionNode) {
+    node.operand1.visit(this);
+    node.operand2.visit(this);
+  }
+
+
+  visitGreaterThanExpressionNode(node: GreaterThanExpressionNode) {
+    node.operand1.visit(this);
+    node.operand2.visit(this);
+  }
+  visitGreaterOrEqualExpressionNode(node: GreaterOrEqualExpressionNode) {
+    node.operand1.visit(this);
+    node.operand2.visit(this);
+  }
+  visitLessThanExpressionNode(node: LessThanExpressionNode) {
+    node.operand1.visit(this);
+    node.operand2.visit(this);
+  }
+  visitLessOrEqualExpressionNode(node: LessOrEqualExpressionNode) {
     node.operand1.visit(this);
     node.operand2.visit(this);
   }

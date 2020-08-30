@@ -10,7 +10,7 @@ const matchers = new Map<TokenType, RegExp>();
   matchers.set(TokenType.BOOLEAN_LITERAL, /^(true|false)/);
   matchers.set(TokenType.IDENTIFIER, /^(\w+)/); //TODO add all chars
 
-  matchers.set(TokenType.OPERATOR, /^(==|!=|&&|\|\||\^\^|~|&|\||\^|\?|:|\+=|-=|\*\*=|\*=|\/=|\\=|%=|\+|-|\*\*|\*|\/|\\|%|=|!)/);
+  matchers.set(TokenType.OPERATOR, /^(==|!=|>=|<=|>|<|&&|\|\||\^\^|~|&|\||\^|\?|:|\+=|-=|\*\*=|\*=|\/=|\\=|%=|\+|-|\*\*|\*|\/|\\|%|=|!)/);
 
   matchers.set(TokenType.LEFT_PARENT, /^\(/);
   matchers.set(TokenType.RIGHT_PARENT, /^\)/);
