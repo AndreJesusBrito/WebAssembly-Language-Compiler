@@ -24,6 +24,8 @@ import { BitwiseXorNode } from "../TreeNodes/BitwiseXorNode.ts";
 import { BitwiseAndNode } from "../TreeNodes/BitwiseAndNode.ts";
 import { ConditionalOperatorNode } from "../TreeNodes/ConditionalOperatorNode.ts";
 import { IfStatementNode } from "../TreeNodes/IfStatementNode.ts";
+import { EqualsExpressionNode } from "../TreeNodes/EqualsExpressionNode.ts";
+import { NotEqualsExpressionNode } from "../TreeNodes/NotEqualsExpressionNode.ts";
 
 
 export class SemanticAnalyserPhase3 implements IVisitorAST {
@@ -32,7 +34,6 @@ export class SemanticAnalyserPhase3 implements IVisitorAST {
   constructor(ast: BaseNode) {
     this.ast = ast;
   }
-  
 
   visitNumberLiteralNode(node: NumberLiteralNode): any {}
 
@@ -139,6 +140,17 @@ export class SemanticAnalyserPhase3 implements IVisitorAST {
     node.condition.visit(this);
     node.firstExpression.visit(this);
     node.elseExpression.visit(this);
+  }
+
+
+  visitEqualsExpressionNode(node: EqualsExpressionNode) {
+    node.operand1.visit(this);
+    node.operand2.visit(this);
+  }
+
+  visitNotEqualsExpressionNode(node: NotEqualsExpressionNode) {
+    node.operand1.visit(this);
+    node.operand2.visit(this);
   }
 
 

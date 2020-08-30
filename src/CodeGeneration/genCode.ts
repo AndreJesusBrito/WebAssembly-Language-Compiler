@@ -39,6 +39,8 @@ import { BitwiseXorNode } from "../TreeNodes/BitwiseXorNode.ts";
 import { BitwiseAndNode } from "../TreeNodes/BitwiseAndNode.ts";
 import { ConditionalOperatorNode } from "../TreeNodes/ConditionalOperatorNode.ts";
 import { IfStatementNode } from "../TreeNodes/IfStatementNode.ts";
+import { EqualsExpressionNode } from "../TreeNodes/EqualsExpressionNode.ts";
+import { NotEqualsExpressionNode } from "../TreeNodes/NotEqualsExpressionNode.ts";
 
 
 
@@ -262,6 +264,22 @@ export class BinaryFormatCodeGenerator implements IVisitorAST {
         ...node.elseExpression.visit(this),
 
       Opcode.end,
+    ];
+  }
+
+  visitEqualsExpressionNode(node: EqualsExpressionNode): number[] {
+    return [
+      ...node.operand1.visit(this),
+      ...node.operand2.visit(this),
+      Opcode.i32_eq
+    ];
+  }
+
+  visitNotEqualsExpressionNode(node: NotEqualsExpressionNode): number[] {
+    return [
+      ...node.operand1.visit(this),
+      ...node.operand2.visit(this),
+      Opcode.i32_ne
     ];
   }
 

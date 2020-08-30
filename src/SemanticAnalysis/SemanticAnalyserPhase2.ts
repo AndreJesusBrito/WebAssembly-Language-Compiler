@@ -27,6 +27,8 @@ import { BitwiseXorNode } from "../TreeNodes/BitwiseXorNode.ts";
 import { BitwiseAndNode } from "../TreeNodes/BitwiseAndNode.ts";
 import { ConditionalOperatorNode } from "../TreeNodes/ConditionalOperatorNode.ts";
 import { IfStatementNode } from "../TreeNodes/IfStatementNode.ts";
+import { EqualsExpressionNode } from "../TreeNodes/EqualsExpressionNode.ts";
+import { NotEqualsExpressionNode } from "../TreeNodes/NotEqualsExpressionNode.ts";
 
 
 export class SemanticAnalyserPhase2 implements IVisitorAST {
@@ -193,6 +195,23 @@ export class SemanticAnalyserPhase2 implements IVisitorAST {
                  + node.firstExpression.resultType + "' and '" + node.elseExpression.resultType + "' are not compatible.");
     }
   }
+
+  visitEqualsExpressionNode(node: EqualsExpressionNode) {
+    node.operand1.visit(this);
+    node.operand2.visit(this);
+    if (node.operand1.resultType !== node.operand2.resultType) {
+      throw Error("Incompatible types");
+    }
+  }
+
+  visitNotEqualsExpressionNode(node: NotEqualsExpressionNode) {
+    node.operand1.visit(this);
+    node.operand2.visit(this);
+    if (node.operand1.resultType !== node.operand2.resultType) {
+      throw Error("Incompatible types");
+    }
+  }
+
 
   protected checkArithmeticBinOperator(node: BinaryOperator): void {
     node.operand1.visit(this);
