@@ -34,6 +34,7 @@ import { Token, TokenType } from "../LexicalAnalysis/Token.ts";
 import { BinaryOperator } from "../TreeNodes/BinaryOperator.ts";
 import { BitwiseNegationNode } from "../TreeNodes/BitwiseNegationNode.ts";
 import { IfStatementNode } from "../TreeNodes/IfStatementNode.ts";
+import { WhileStatementNode } from "../TreeNodes/WhileStatementNode.ts";
 
 import { EqualsExpressionNode } from "../TreeNodes/EqualsExpressionNode.ts";
 import { NotEqualsExpressionNode } from "../TreeNodes/NotEqualsExpressionNode.ts";
@@ -52,6 +53,7 @@ export const rules: {
   equalsExpressionPrime: new SyntaxRule("equalsExpressionPrime"),
   ifStatement: new SyntaxRule("ifStatement"),
   ifStatementPrime: new SyntaxRule("ifStatementPrime"),
+  whileStatement: new SyntaxRule("whileStatement"),
   varDefinition: new SyntaxRule("varDefinition"),
   varDefinitionAssign: new SyntaxRule("varDefinitionAssign"),
   expression: new SyntaxRule("exp"),
@@ -155,6 +157,25 @@ function createIfElseNode(args: ActionArgs) {
 
   nodeStack.push(new IfStatementNode(condition, firstExpression, elseExpression));
 }
+
+
+function createWhileNode(args: ActionArgs) {
+  const { nodeStack } = args;
+
+  const innerStatement = nodeStack.pop();
+  if (!(innerStatement instanceof StatementNode)) {
+    throw Error("WhileNode expected an statement");
+  }
+
+  const condition = nodeStack.pop();
+  if (!(condition instanceof ExpressionNode)) {
+    throw Error("WhileNode expects the condition to be an Expression");
+  }
+
+  nodeStack.push(new WhileStatementNode(condition, innerStatement));
+}
+
+
 
 
 function assignToVarDefinitionNode(args: ActionArgs) {
@@ -408,7 +429,7 @@ function createBitwiseNegationNode(args: ActionArgs) {
 
 
 
-rules.program.setDerivation([rules.statement], [], "if", ";", "{", ...group.primitiveType, "id", "(", ...group.valuePrefixes, "number", "true", "false",);
+rules.program.setDerivation([rules.statement], [], "if", "while", ";", "{", ...group.primitiveType, "id", "(", ...group.valuePrefixes, "number", "true", "false",);
 // rules.program.setDerivation([], "eot");
 
 rules.singleStatement.setDerivation(
@@ -428,21 +449,22 @@ rules.singleStatement.setDerivation(
   ...group.primitiveType
 );
 rules.singleStatement.setDerivation([rules.ifStatement], [], "if");
+rules.singleStatement.setDerivation([rules.whileStatement], [], "while");
 
 rules.statementBlock.setDerivation(["{", rules.statementBlockPrime], [], "{");
-rules.statementBlockPrime.setDerivation([rules.statement, "}"], [], "if", ";", "{", ...group.primitiveType, "id", "(", ...group.valuePrefixes, "number", "true", "false");
+rules.statementBlockPrime.setDerivation([rules.statement, "}"], [], "if", "while", ";", "{", ...group.primitiveType, "id", "(", ...group.valuePrefixes, "number", "true", "false");
 rules.statementBlockPrime.setDerivation(["}"], [], "}");
 
 
 rules.statement.setDerivation(
   [rules.singleStatement, rules.nextStatement], [],
-  "if", "{", "id", ...group.valuePrefixes, "(", "number", "true", "false", ...group.primitiveType
+  "if", "while", "{", "id", ...group.valuePrefixes, "(", "number", "true", "false", ...group.primitiveType
 );
 
 rules.nextStatement.setDerivation(
   [rules.statement],
   [{index: fnPreviousIndex, func: joinStatements}],
-  "if", ";", "{", ...group.primitiveType, "id", ...group.valuePrefixes, "(", "number", "true", "false"
+  "if", "while", ";", "{", ...group.primitiveType, "id", ...group.valuePrefixes, "(", "number", "true", "false"
 );
 rules.nextStatement.setDerivation([], [], "}", "eot");
 
@@ -480,10 +502,15 @@ rules.ifStatementPrime.setDerivation(
 rules.ifStatementPrime.setDerivation(
   [],
   [{ index: fnPreviousIndex, func: createIfNode }],
-  "if", ";", "{", ...group.primitiveType, "id", "(", ...group.valuePrefixes, "number", "true", "false"
+  "if", "while", ";", "{", ...group.primitiveType, "id", "(", ...group.valuePrefixes, "number", "true", "false"
 );
 
 
+rules.whileStatement.setDerivation(
+  ["while", rules.conditionSection, rules.singleStatement],
+  [{ index: fnPreviousIndex, func: createWhileNode }],
+  "while"
+);
 
 
 

@@ -29,6 +29,8 @@ import { ConditionalOperatorNode } from "./ConditionalOperatorNode.ts";
 import { BitwiseNegationNode } from "./BitwiseNegationNode.ts";
 import { IfStatementNode } from "./IfStatementNode.ts";
 
+import { WhileStatementNode } from "./WhileStatementNode.ts";
+
 import { EqualsExpressionNode } from "./EqualsExpressionNode.ts";
 import { NotEqualsExpressionNode } from "./NotEqualsExpressionNode.ts";
 
@@ -43,6 +45,9 @@ export interface IVisitorAST {
   visitStatementBlockNode(node: StatementBlockNode): any;
 
   visitIfStatementNode(node: IfStatementNode): any;
+
+  visitWhileStatementNode(node: WhileStatementNode): any;
+
 
   visitVarDefinitionNode(node: VarDefinitionNode): any;
   visitVarReferenceNode(node: VarReferenceNode): any;

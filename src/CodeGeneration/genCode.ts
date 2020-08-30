@@ -39,6 +39,7 @@ import { BitwiseXorNode } from "../TreeNodes/BitwiseXorNode.ts";
 import { BitwiseAndNode } from "../TreeNodes/BitwiseAndNode.ts";
 import { ConditionalOperatorNode } from "../TreeNodes/ConditionalOperatorNode.ts";
 import { IfStatementNode } from "../TreeNodes/IfStatementNode.ts";
+import { WhileStatementNode } from "../TreeNodes/WhileStatementNode.ts";
 import { EqualsExpressionNode } from "../TreeNodes/EqualsExpressionNode.ts";
 import { NotEqualsExpressionNode } from "../TreeNodes/NotEqualsExpressionNode.ts";
 
@@ -76,6 +77,23 @@ export class BinaryFormatCodeGenerator implements IVisitorAST {
       ...this.genStatements(node.firstStatement),
 
       ...elsePart,
+
+      Opcode.end,
+    ];
+  }
+
+  visitWhileStatementNode(node: WhileStatementNode): number[] {
+    return [
+      Opcode.loop, 0x40,
+        // while condition
+        ...node.condition.visit(this),
+        Opcode.if, 0x40,
+
+          // while block
+          ...this.genStatements(node.innerStatement),
+          Opcode.br, 1,
+
+        Opcode.end,
 
       Opcode.end,
     ];
