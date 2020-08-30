@@ -64,8 +64,12 @@ export class SemanticAnalyserPhase2 implements IVisitorAST {
       throw Error("The If statement's condition must result in a boolean. Got '" + node.condition.resultType + "' instead.")
     }
 
-    node.firstStatement?.visit(this);
-    node.elseStatement?.visit(this);
+    if (node.firstStatement) {
+      this.visitStatements(node.firstStatement);
+    }
+    if (node.elseStatement) {
+      this.visitStatements(node.elseStatement);
+    }
   }
 
   visitVarDefinitionNode(node: VarDefinitionNode): any {

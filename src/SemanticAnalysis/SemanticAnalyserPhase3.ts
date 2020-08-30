@@ -51,8 +51,13 @@ export class SemanticAnalyserPhase3 implements IVisitorAST {
 
   visitIfStatementNode(node: IfStatementNode) {
     node.condition.visit(this);
-    node.firstStatement?.visit(this);
-    node.elseStatement?.visit(this);
+
+    if (node.firstStatement) {
+      this.visitStatements(node.firstStatement);
+    }
+    if (node.elseStatement) {
+      this.visitStatements(node.elseStatement);
+    }
   }
 
   visitVarDefinitionNode(node: VarDefinitionNode): any {
