@@ -1,8 +1,8 @@
 import { ExpressionNode } from "./ExpressionNode.ts";
+import { IVisitorAST } from "./IVisitorAST.ts";
 
 export class EmptyExpression extends ExpressionNode {
   constructor() {
-    throw Error("EmptyExpression constructor evoked")
     super();
   }
 
@@ -11,7 +11,7 @@ export class EmptyExpression extends ExpressionNode {
     return "";
   }
 
-  visit() {
-    // do nothing
+  visit(visitor: IVisitorAST) {
+    return visitor.visitEmptyExpression(this);
   }
 }

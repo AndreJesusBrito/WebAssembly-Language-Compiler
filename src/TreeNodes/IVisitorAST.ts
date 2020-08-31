@@ -43,6 +43,8 @@ import { GreaterOrEqualExpressionNode } from "./GreaterOrEqualExpressionNode.ts"
 import { LessThanExpressionNode } from "./LessThanExpressionNode.ts";
 import { LessOrEqualExpressionNode } from "./LessOrEqualExpressionNode.ts";
 
+import { EmptyExpression } from "./EmptyExpression.ts";
+
 
 
 export interface IVisitorAST {
@@ -104,4 +106,6 @@ export interface IVisitorAST {
   visitLessThanExpressionNode(node: LessThanExpressionNode): any;
   visitLessOrEqualExpressionNode(node: LessOrEqualExpressionNode): any;
 
+
+  visitEmptyExpression(node: EmptyExpression): any;
 }

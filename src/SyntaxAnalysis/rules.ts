@@ -208,11 +208,12 @@ function assignToVarDefinitionNode(args: ActionArgs) {
 function createAssignmentNode(args: ActionArgs) {
   const { nodeStack, operatorStack } = args;
 
+  let expression = nodeStack.pop();
+  if (!expression) {
+    throw Error("something went wrong at createAssignmentNode, expression");
+  }
 
-  let expression = nodeStack.pop() || new EmptyExpression();
-
-  const identifier = nodeStack.pop() || new EmptyExpression();
-
+  const identifier = nodeStack.pop();
   if (!(identifier instanceof ReferenceNode)) {
     throw Error("Syntax Error: Invalid left-hand side in assignment");
   }
@@ -305,8 +306,7 @@ function createVarReferenceNode(token: Token | null, args: ActionArgs) {
 function createStatementSingleNode(args: ActionArgs): void {
   const {nodeStack} = args;
 
-  const expression = nodeStack.pop() || new EmptyExpression();
-
+  const expression = nodeStack.pop();
   if (!(expression instanceof ExpressionNode)) throw new Error("expecting a expression node here");
 
   nodeStack.push(new StatementSingleNode(expression));
@@ -340,8 +340,8 @@ function joinStatements(args: ActionArgs): void {
 function createBinOperatorNode(args: ActionArgs): void {
   const {operatorStack, nodeStack} = args;
 
-  const op2 = nodeStack.pop() || new EmptyExpression();
-  const op1 = nodeStack.pop() || new EmptyExpression();
+  const op2 = nodeStack.pop();
+  const op1 = nodeStack.pop();
 
   if (!(op1 instanceof ExpressionNode)
     || !(op2 instanceof ExpressionNode)
@@ -429,7 +429,7 @@ function createNumberUnaryNegationNode(args: ActionArgs) {
   const { operatorStack, nodeStack } = args
 
   console.assert(operatorStack.pop()?.content === '-', "createNumberUnaryNegationNode check");
-  const number = nodeStack.pop() || new EmptyExpression();
+  const number = nodeStack.pop();
 
   if (!(number instanceof ExpressionNode)) throw new Error("expecting a expression node here");
 
@@ -440,7 +440,7 @@ function createBooleanNegationNode(args: ActionArgs) {
   const { operatorStack, nodeStack } = args;
 
   console.assert(operatorStack.pop()?.content === '!', "createBooleanNegationNode check");
-  const booleanNode = nodeStack.pop() || new EmptyExpression();
+  const booleanNode = nodeStack.pop();
 
   if (!(booleanNode instanceof ExpressionNode)) throw new Error("expecting a expression node here");
 
@@ -451,7 +451,7 @@ function createBitwiseNegationNode(args: ActionArgs) {
   const { operatorStack, nodeStack } = args;
 
   console.assert(operatorStack.pop()?.content === '~', "createBitwiseNegationNode check");
-  const booleanNode = nodeStack.pop() || new EmptyExpression();
+  const booleanNode = nodeStack.pop();
 
   if (!(booleanNode instanceof ExpressionNode)) throw new Error("expecting a expression node here");
 
@@ -461,7 +461,7 @@ function createBitwiseNegationNode(args: ActionArgs) {
 function createPreIncrementNode(args: ActionArgs) {
   const { operatorStack, nodeStack } = args;
 
-  const reference = nodeStack.pop() || new EmptyExpression();
+  const reference = nodeStack.pop();
 
   if (!(reference instanceof ReferenceNode)) {
     throw Error("Syntax Error: Invalid left-hand side expression in prefix operation");
@@ -483,7 +483,7 @@ function createPreIncrementNode(args: ActionArgs) {
 function createPosIncrementNode(args: ActionArgs) {
   const { operatorStack, nodeStack } = args;
 
-  const reference = nodeStack.pop() || new EmptyExpression();
+  const reference = nodeStack.pop();
 
   if (!(reference instanceof ReferenceNode)) {
     throw Error("Syntax Error: Invalid left-hand side expression in prefix operation");

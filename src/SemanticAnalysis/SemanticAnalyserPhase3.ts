@@ -35,6 +35,7 @@ import { PreIncrementExpressionNode } from "../TreeNodes/PreIncrementExpressionN
 import { PreDecrementExpressionNode } from "../TreeNodes/PreDecrementExpressionNode.ts";
 import { PosIncrementExpressionNode } from "../TreeNodes/PosIncrementExpressionNode.ts";
 import { PosDecrementExpressionNode } from "../TreeNodes/PosDecrementExpressionNode.ts";
+import { EmptyExpression } from "../TreeNodes/EmptyExpression.ts";
 
 
 export class SemanticAnalyserPhase3 implements IVisitorAST {
@@ -43,6 +44,9 @@ export class SemanticAnalyserPhase3 implements IVisitorAST {
   constructor(ast: BaseNode) {
     this.ast = ast;
   }
+
+
+  visitEmptyExpression(node: EmptyExpression): any {}
 
   visitNumberLiteralNode(node: NumberLiteralNode): any {}
 
