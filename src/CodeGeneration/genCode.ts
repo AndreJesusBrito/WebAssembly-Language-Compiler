@@ -408,17 +408,17 @@ export class BinaryFormatCodeGenerator implements IVisitorAST {
 
     const encodedIndex = encodeU32(index);
 
-
     return [
+      Opcode.local_get,
+      ...encodedIndex,
+
+      Opcode.local_get,
+      ...encodedIndex,
+
       Opcode.i32_const, 1,
       Opcode.i32_add,
 
       Opcode.local_set,
-      ...encodedIndex,
-
-      Opcode.local_get,
-      ...encodedIndex,
-      Opcode.local_get,
       ...encodedIndex,
     ];
   }
