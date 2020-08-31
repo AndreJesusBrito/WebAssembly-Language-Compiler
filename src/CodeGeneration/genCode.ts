@@ -49,6 +49,8 @@ import { LessOrEqualExpressionNode } from "../TreeNodes/LessOrEqualExpressionNod
 import { PreIncrementExpressionNode } from "../TreeNodes/PreIncrementExpressionNode.ts";
 import { PreDecrementExpressionNode } from "../TreeNodes/PreDecrementExpressionNode.ts";
 import { ReferenceNode } from "../TreeNodes/ReferenceNode.ts";
+import { PosIncrementExpressionNode } from "../TreeNodes/PosIncrementExpressionNode.ts";
+import { PosDecrementExpressionNode } from "../TreeNodes/PosDecrementExpressionNode.ts";
 
 
 
@@ -392,6 +394,63 @@ export class BinaryFormatCodeGenerator implements IVisitorAST {
       ...encodedIndex,
     ];
   }
+
+  visitPosIncrementExpressionNode(node: PosIncrementExpressionNode) {
+    if (!(node.operand instanceof VarReferenceNode)) {
+      throw Error("Not implemented yet");
+    }
+
+    const index = node.operand.definitionNode?.index;
+
+    if (!index && index !== 0) {
+      throw Error("something went wrong at visitPosIncrementExpressionNode");
+    }
+
+    const encodedIndex = encodeU32(index);
+
+
+    return [
+      Opcode.i32_const, 1,
+      Opcode.i32_add,
+
+      Opcode.local_set,
+      ...encodedIndex,
+
+      Opcode.local_get,
+      ...encodedIndex,
+      Opcode.local_get,
+      ...encodedIndex,
+    ];
+  }
+  visitPosDecrementExpressionNode(node: PosDecrementExpressionNode) {
+    if (!(node.operand instanceof VarReferenceNode)) {
+      throw Error("Not implemented yet");
+    }
+
+    const index = node.operand.definitionNode?.index;
+
+    if (!index && index !== 0) {
+      throw Error("something went wrong at visitPosDecrementExpressionNode");
+    }
+
+    const encodedIndex = encodeU32(index);
+
+
+    return [
+      Opcode.local_get,
+      ...encodedIndex,
+
+      Opcode.local_get,
+      ...encodedIndex,
+
+      Opcode.i32_const, 1,
+      Opcode.i32_sub,
+
+      Opcode.local_set,
+      ...encodedIndex,
+    ];
+  }
+
 
   private genStatements(firstStatement: StatementNode): number[] {
     const code: number[] = [];

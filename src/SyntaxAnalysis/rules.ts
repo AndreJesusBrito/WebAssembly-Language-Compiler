@@ -35,6 +35,8 @@ import { BinaryOperator } from "../TreeNodes/BinaryOperator.ts";
 import { BitwiseNegationNode } from "../TreeNodes/BitwiseNegationNode.ts";
 import { PreIncrementExpressionNode } from "../TreeNodes/PreIncrementExpressionNode.ts";
 import { PreDecrementExpressionNode } from "../TreeNodes/PreDecrementExpressionNode.ts";
+import { PosIncrementExpressionNode } from "../TreeNodes/PosIncrementExpressionNode.ts";
+import { PosDecrementExpressionNode } from "../TreeNodes/PosDecrementExpressionNode.ts";
 import { IfStatementNode } from "../TreeNodes/IfStatementNode.ts";
 import { WhileStatementNode } from "../TreeNodes/WhileStatementNode.ts";
 
@@ -88,6 +90,8 @@ export const rules: {
   mulExpPrime: new SyntaxRule("mulExpPrime"),
   addExp: new SyntaxRule("addExp"),
   addExpPrime: new SyntaxRule("addExpPrime"),
+  valuePrefix: new SyntaxRule("valuePrefix"),
+  valueSuffix: new SyntaxRule("valueSuffix"),
   value: new SyntaxRule("value"),
 };
 
@@ -476,6 +480,28 @@ function createPreIncrementNode(args: ActionArgs) {
 
 }
 
+function createPosIncrementNode(args: ActionArgs) {
+  const { operatorStack, nodeStack } = args;
+
+  const reference = nodeStack.pop() || new EmptyExpression();
+
+  if (!(reference instanceof ReferenceNode)) {
+    throw Error("Syntax Error: Invalid left-hand side expression in prefix operation");
+  }
+
+  const operator = operatorStack.pop()?.content;
+
+
+  if (operator == "++") {
+    nodeStack.push(new PosIncrementExpressionNode(reference));
+  } else if (operator == "--") {
+    nodeStack.push(new PosDecrementExpressionNode(reference));
+  } else {
+    throw Error("something went wrong at createPreIncrement");
+  }
+
+}
+
 
 
 
@@ -687,48 +713,68 @@ rules.mulExpPrime.setDerivation(
 rules.mulExpPrime.setDerivation([], [], ...group.equalsOp, ...group.comparisonOp, ";", ...group.assignOp, "||", "^^", "&&", "|", "^", "&", ...group.sumOp, ")", "?", ":");
 
 
-rules.exponencialExp.setDerivation([rules.value, rules.exponencialExpPrime], [], "id", ...group.valuePrefixes, "(", "number", "true", "false");
+rules.exponencialExp.setDerivation([rules.valuePrefix, rules.exponencialExpPrime], [], "id", ...group.valuePrefixes, "(", "number", "true", "false");
 
 rules.exponencialExpPrime.setDerivation(
-  ["**", rules.value, rules.exponencialExpPrime],
+  ["**", rules.valuePrefix, rules.exponencialExpPrime],
   [{ index: fnPreviousIndex, func: createBinOperatorNode }],
   "**",
 );
 rules.exponencialExpPrime.setDerivation([], [], ...group.equalsOp, ...group.comparisonOp, ";", ...group.assignOp, "||", "^^", "&&", "|", "^", "&", ...group.sumOp, ...group.mulOp, ")", "?", ":");
 
 
-rules.value.setDerivation(["(", rules.expression, ")"], [], "(");
-rules.value.setDerivation(["+", rules.value], [], "+");
-rules.value.setDerivation(
-  ["-", rules.value],
+rules.valuePrefix.setDerivation(["+", rules.valuePrefix], [], "+");
+rules.valuePrefix.setDerivation(
+  ["-", rules.valuePrefix],
   [{ index: fnPreviousIndex, func: createNumberUnaryNegationNode }],
   "-"
 );
-rules.value.setDerivation(
-  ["!", rules.value],
+rules.valuePrefix.setDerivation(
+  ["!", rules.valuePrefix],
   [{ index: fnPreviousIndex, func: createBooleanNegationNode }],
   "!"
 );
-rules.value.setDerivation(
-  ["~", rules.value],
+rules.valuePrefix.setDerivation(
+  ["~", rules.valuePrefix],
   [{ index: fnPreviousIndex, func: createBitwiseNegationNode }],
   "~"
 );
-rules.value.setDerivation(
-  ["~", rules.value],
+rules.valuePrefix.setDerivation(
+  ["~", rules.valuePrefix],
   [{ index: fnPreviousIndex, func: createBitwiseNegationNode }],
   "~"
 );
-rules.value.setDerivation(
-  ["++", rules.value],
+rules.valuePrefix.setDerivation(
+  ["++", rules.valuePrefix],
   [{ index: fnPreviousIndex, func: createPreIncrementNode }],
   "++"
 );
-rules.value.setDerivation(
-  ["--", rules.value],
+rules.valuePrefix.setDerivation(
+  ["--", rules.valuePrefix],
   [{ index: fnPreviousIndex, func: createPreIncrementNode }],
   "--"
 );
+rules.valuePrefix.setDerivation(
+  [rules.value, rules.valueSuffix], [], "(", "number", "true", "false", "id"
+);
+
+
+rules.valueSuffix.setDerivation(
+  ["++", rules.valueSuffix],
+  [{ index: fnPreviousIndex, func: createPosIncrementNode }],
+  "++"
+);
+rules.valueSuffix.setDerivation(
+  ["--", rules.valueSuffix],
+  [{ index: fnPreviousIndex, func: createPosIncrementNode }],
+  "--"
+);
+rules.valueSuffix.setDerivation(
+  [], [], ...group.equalsOp, ...group.comparisonOp, ";", ...group.assignOp, "||", "^^", "&&", "|", "^", "&", ...group.sumOp, ...group.mulOp, ")", "?", ":"
+);
+
+
+rules.value.setDerivation(["(", rules.expression, ")"], [], "(");
 rules.value.setDerivation(["number"], [], "number");
 rules.value.setDerivation(["true"], [], "true");
 rules.value.setDerivation(["false"], [], "false");

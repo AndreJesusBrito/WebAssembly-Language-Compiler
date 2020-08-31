@@ -33,6 +33,8 @@ import { LessThanExpressionNode } from "../TreeNodes/LessThanExpressionNode.ts";
 import { LessOrEqualExpressionNode } from "../TreeNodes/LessOrEqualExpressionNode.ts";
 import { PreIncrementExpressionNode } from "../TreeNodes/PreIncrementExpressionNode.ts";
 import { PreDecrementExpressionNode } from "../TreeNodes/PreDecrementExpressionNode.ts";
+import { PosIncrementExpressionNode } from "../TreeNodes/PosIncrementExpressionNode.ts";
+import { PosDecrementExpressionNode } from "../TreeNodes/PosDecrementExpressionNode.ts";
 
 
 export class SemanticAnalyserPhase3 implements IVisitorAST {
@@ -193,6 +195,14 @@ export class SemanticAnalyserPhase3 implements IVisitorAST {
   visitPreDecrementExpressionNode(node: PreDecrementExpressionNode) {
     node.operand.visit(this);
   }
+
+  visitPosIncrementExpressionNode(node: PosIncrementExpressionNode) {
+    node.operand.visit(this);
+  }
+  visitPosDecrementExpressionNode(node: PosDecrementExpressionNode) {
+    node.operand.visit(this);
+  }
+
 
 
   protected declareVariable(node: VarDefinitionNode): void {
