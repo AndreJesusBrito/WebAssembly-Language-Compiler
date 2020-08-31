@@ -25,7 +25,6 @@ export class SyntaxRule {
       throw SyntaxError("Unexpected token '" + terminal + "' at rule " + this._name);
     }
   }
-
   public setDerivation(rule: SyntaxSymbol[], actions: ActionObj[], ...terminals: string[]): void {
     for (const terminal of terminals) {
       if (this.derivations.get(terminal) instanceof Array) {

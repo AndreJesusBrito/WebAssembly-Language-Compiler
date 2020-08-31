@@ -28,6 +28,7 @@ import { BitwiseAndNode } from "../TreeNodes/BitwiseAndNode.ts";
 import { ConditionalOperatorNode } from "../TreeNodes/ConditionalOperatorNode.ts";
 import { IfStatementNode } from "../TreeNodes/IfStatementNode.ts";
 import { WhileStatementNode } from "../TreeNodes/WhileStatementNode.ts";
+import { StandardForStatementNode } from "../TreeNodes/StandardForStatementNode.ts";
 import { EqualsExpressionNode } from "../TreeNodes/EqualsExpressionNode.ts";
 import { NotEqualsExpressionNode } from "../TreeNodes/NotEqualsExpressionNode.ts";
 import { GreaterThanExpressionNode } from "../TreeNodes/GreaterThanExpressionNode.ts";
@@ -93,6 +94,30 @@ export class SemanticAnalyserPhase2 implements IVisitorAST {
 
     this.visitStatements(node.innerStatement);
   }
+
+  visitStandardForStatementNode(node: StandardForStatementNode) {
+    this.frameStack.push(new Map());
+
+    if (node.definitionSection) {
+      node.definitionSection.visit(this);
+    }
+
+    if (!(node.conditionSection instanceof EmptyExpression)) {
+      node.conditionSection.visit(this);
+      if (node.conditionSection.resultType !== "bool") {
+        throw Error("The for statement's Condition section must result in a boolean. Got '" + node.conditionSection.resultType + "' instead.")
+      }
+    }
+
+    if (!(node.nextStepSection instanceof EmptyExpression)) {
+      node.nextStepSection.visit(this);
+    }
+
+    this.visitStatements(node.innerStatement);
+
+    this.frameStack.pop();
+  }
+
 
   visitVarDefinitionNode(node: VarDefinitionNode): any {
     if (node.assignment) {

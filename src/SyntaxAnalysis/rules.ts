@@ -39,6 +39,7 @@ import { PosIncrementExpressionNode } from "../TreeNodes/PosIncrementExpressionN
 import { PosDecrementExpressionNode } from "../TreeNodes/PosDecrementExpressionNode.ts";
 import { IfStatementNode } from "../TreeNodes/IfStatementNode.ts";
 import { WhileStatementNode } from "../TreeNodes/WhileStatementNode.ts";
+import { StandardForStatementNode } from "../TreeNodes/StandardForStatementNode.ts";
 
 import { EqualsExpressionNode } from "../TreeNodes/EqualsExpressionNode.ts";
 import { NotEqualsExpressionNode } from "../TreeNodes/NotEqualsExpressionNode.ts";
@@ -64,6 +65,11 @@ export const rules: {
   comparisonExpPrime: new SyntaxRule("comparisonExpPrime"),
   ifStatement: new SyntaxRule("ifStatement"),
   ifStatementPrime: new SyntaxRule("ifStatementPrime"),
+  forStatement: new SyntaxRule("forStatement"),
+  forControl: new SyntaxRule("forControl"),
+  forDefinitionSection: new SyntaxRule("forDefinitionSection"),
+  forConditionSection: new SyntaxRule("forConditionSection"),
+  forNextStepSection: new SyntaxRule("forNextStepSection"),
   whileStatement: new SyntaxRule("whileStatement"),
   varDefinition: new SyntaxRule("varDefinition"),
   varDefinitionAssign: new SyntaxRule("varDefinitionAssign"),
@@ -126,6 +132,10 @@ function fnRunNow(currentIndex: number): number {
 
 
 
+function createEmptyExpression(args: ActionArgs) {
+  args.nodeStack.push(new EmptyExpression());
+}
+
 function createVarDefinitionNode(args: ActionArgs) {
   const {nodeStack, tokens, currentTokenPos} = args;
 
@@ -187,6 +197,45 @@ function createWhileNode(args: ActionArgs) {
   }
 
   nodeStack.push(new WhileStatementNode(condition, innerStatement));
+}
+
+
+function createForNode(args: ActionArgs) {
+  const { nodeStack } = args;
+
+  
+  const innerStatement = nodeStack.pop();
+  if (!(innerStatement instanceof StatementNode)) {
+    throw Error("ForNode expected an statement");
+  }
+
+
+  if (false) {
+    // TODO: for future "for" formats.
+  }
+  else {
+    let nextStepSection = nodeStack.pop();
+    if (!(nextStepSection instanceof ExpressionNode)) {
+      throw Error("ForNode expects the nextStepSection to be an Expression");
+    }
+
+    let conditionSection = nodeStack.pop();
+    if (!(conditionSection instanceof ExpressionNode)) {
+      throw Error("ForNode expects the conditionSection to be an Expression");
+    }
+
+    let definitionSection: any = nodeStack.pop();
+    if (definitionSection instanceof EmptyExpression) {
+      definitionSection = null;
+    } else if (!(definitionSection instanceof VarDefinitionNode)) {
+      throw Error("ForNode expects the definitionSection to be an Expression");
+    }
+
+
+
+    nodeStack.push(new StandardForStatementNode(definitionSection, conditionSection, nextStepSection, innerStatement));
+  }
+
 }
 
 
@@ -506,7 +555,7 @@ function createPosIncrementNode(args: ActionArgs) {
 
 
 
-rules.program.setDerivation([rules.statement], [], "if", "while", ";", "{", ...group.primitiveType, "id", "(", ...group.valuePrefixes, "number", "true", "false",);
+rules.program.setDerivation([rules.statement], [], "if", "while", "for", ";", "{", ...group.primitiveType, "id", "(", ...group.valuePrefixes, "number", "true", "false",);
 // rules.program.setDerivation([], "eot");
 
 rules.singleStatement.setDerivation(
@@ -527,21 +576,22 @@ rules.singleStatement.setDerivation(
 );
 rules.singleStatement.setDerivation([rules.ifStatement], [], "if");
 rules.singleStatement.setDerivation([rules.whileStatement], [], "while");
+rules.singleStatement.setDerivation([rules.forStatement], [], "for");
 
 rules.statementBlock.setDerivation(["{", rules.statementBlockPrime], [], "{");
-rules.statementBlockPrime.setDerivation([rules.statement, "}"], [], "if", "while", ";", "{", ...group.primitiveType, "id", "(", ...group.valuePrefixes, "number", "true", "false");
+rules.statementBlockPrime.setDerivation([rules.statement, "}"], [], "if", "while", "for", ";", "{", ...group.primitiveType, "id", "(", ...group.valuePrefixes, "number", "true", "false");
 rules.statementBlockPrime.setDerivation(["}"], [], "}");
 
 
 rules.statement.setDerivation(
   [rules.singleStatement, rules.nextStatement], [],
-  "if", "while", "{", "id", ...group.valuePrefixes, "(", "number", "true", "false", ...group.primitiveType
+  "if", "while", "for", "{", "id", ...group.valuePrefixes, "(", "number", "true", "false", ...group.primitiveType
 );
 
 rules.nextStatement.setDerivation(
   [rules.statement],
   [{index: fnPreviousIndex, func: joinStatements}],
-  "if", "while", ";", "{", ...group.primitiveType, "id", ...group.valuePrefixes, "(", "number", "true", "false"
+  "if", "while", "for", ";", "{", ...group.primitiveType, "id", ...group.valuePrefixes, "(", "number", "true", "false"
 );
 rules.nextStatement.setDerivation([], [], "}", "eot");
 
@@ -579,8 +629,9 @@ rules.ifStatementPrime.setDerivation(
 rules.ifStatementPrime.setDerivation(
   [],
   [{ index: fnPreviousIndex, func: createIfNode }],
-  "if", "while", ";", "{", ...group.primitiveType, "id", "(", ...group.valuePrefixes, "number", "true", "false"
+  "if", "while", "for", ";", "{", ...group.primitiveType, "id", "(", ...group.valuePrefixes, "number", "true", "false"
 );
+
 
 
 rules.whileStatement.setDerivation(
@@ -588,6 +639,49 @@ rules.whileStatement.setDerivation(
   [{ index: fnPreviousIndex, func: createWhileNode }],
   "while"
 );
+
+
+rules.forStatement.setDerivation(
+  ["for", rules.forControl, rules.singleStatement],
+  [{ index: fnPreviousIndex, func: createForNode }],
+  "for"
+);
+
+rules.forControl.setDerivation(
+  ["(", rules.forDefinitionSection, ";", rules.forConditionSection , ";", rules.forNextStepSection, ")"],
+  [],
+  "("
+);
+
+rules.forDefinitionSection.setDerivation(
+  [rules.varDefinition],
+  [],
+  ...group.primitiveType,
+);
+rules.forDefinitionSection.setDerivation(
+  [], [{ index: fnRunNow, func: createEmptyExpression }], ";"
+);
+
+rules.forConditionSection.setDerivation(
+  [rules.expression],
+  [],
+  "id", ...group.valuePrefixes, "(", "number", "true", "false"
+);
+rules.forConditionSection.setDerivation(
+  [], [{ index: fnRunNow, func: createEmptyExpression }], ";"
+);
+
+rules.forNextStepSection.setDerivation(
+  [rules.expression],
+  [],
+  "id", ...group.valuePrefixes, "(", "number", "true", "false"
+);
+rules.forNextStepSection.setDerivation(
+  [], [{ index: fnRunNow, func: createEmptyExpression }], ")"
+);
+
+
+
 
 
 

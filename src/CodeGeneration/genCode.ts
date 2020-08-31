@@ -40,6 +40,7 @@ import { BitwiseAndNode } from "../TreeNodes/BitwiseAndNode.ts";
 import { ConditionalOperatorNode } from "../TreeNodes/ConditionalOperatorNode.ts";
 import { IfStatementNode } from "../TreeNodes/IfStatementNode.ts";
 import { WhileStatementNode } from "../TreeNodes/WhileStatementNode.ts";
+import { StandardForStatementNode } from "../TreeNodes/StandardForStatementNode.ts";
 import { EqualsExpressionNode } from "../TreeNodes/EqualsExpressionNode.ts";
 import { NotEqualsExpressionNode } from "../TreeNodes/NotEqualsExpressionNode.ts";
 import { GreaterThanExpressionNode } from "../TreeNodes/GreaterThanExpressionNode.ts";
@@ -73,6 +74,7 @@ export class BinaryFormatCodeGenerator implements IVisitorAST {
   visitEmptyExpression(node: EmptyExpression): number[] {
     return [
       Opcode.nop
+      // good for debug
     ];
   }
 
@@ -115,6 +117,40 @@ export class BinaryFormatCodeGenerator implements IVisitorAST {
       Opcode.end,
     ];
   }
+
+  visitStandardForStatementNode(node: StandardForStatementNode): number[] {
+    const definitionSection = node?.definitionSection?.visit(this) || [];
+
+    let conditionSection;
+    if (node.conditionSection instanceof EmptyExpression) {
+      conditionSection = [
+        Opcode.i32_const, 1
+      ]
+    } else {
+      conditionSection = node.conditionSection.visit(this);
+    }
+
+    const nextStepSection = node.nextStepSection.visit(this);
+
+    const innerStatement = this.genStatements(node.innerStatement);
+
+    return [
+      ...definitionSection,
+
+      Opcode.loop, 0x40,
+
+        ...conditionSection,
+        Opcode.if, 0x40,
+          ...innerStatement,
+          ...nextStepSection,
+        Opcode.br, 1,
+
+        Opcode.end,
+
+      Opcode.end,
+    ];;
+  }
+
 
   visitVarDefinitionNode(node: VarDefinitionNode): number[] {
     const code: number[] = [];

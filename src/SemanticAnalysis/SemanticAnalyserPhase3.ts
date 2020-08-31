@@ -25,6 +25,7 @@ import { BitwiseAndNode } from "../TreeNodes/BitwiseAndNode.ts";
 import { ConditionalOperatorNode } from "../TreeNodes/ConditionalOperatorNode.ts";
 import { IfStatementNode } from "../TreeNodes/IfStatementNode.ts";
 import { WhileStatementNode } from "../TreeNodes/WhileStatementNode.ts";
+import { StandardForStatementNode } from "../TreeNodes/StandardForStatementNode.ts";
 import { EqualsExpressionNode } from "../TreeNodes/EqualsExpressionNode.ts";
 import { NotEqualsExpressionNode } from "../TreeNodes/NotEqualsExpressionNode.ts";
 import { GreaterThanExpressionNode } from "../TreeNodes/GreaterThanExpressionNode.ts";
@@ -72,10 +73,29 @@ export class SemanticAnalyserPhase3 implements IVisitorAST {
       this.visitStatements(node.elseStatement);
     }
   }
+
+
   visitWhileStatementNode(node: WhileStatementNode) {
     node.condition.visit(this);
     this.visitStatements(node.innerStatement);
   }
+
+  visitStandardForStatementNode(node: StandardForStatementNode) {
+    if (node.definitionSection) {
+      node.definitionSection.visit(this);
+    }
+
+    if (!(node.conditionSection instanceof EmptyExpression)) {
+      node.conditionSection.visit(this);
+    }
+
+    if (!(node.nextStepSection instanceof EmptyExpression)) {
+      node.nextStepSection.visit(this);
+    }
+
+    this.visitStatements(node.innerStatement);
+  }
+
 
   visitVarDefinitionNode(node: VarDefinitionNode): any {
     if (node.assignment) {

@@ -34,6 +34,7 @@ import { PosDecrementExpressionNode } from "./PosDecrementExpressionNode.ts";
 import { IfStatementNode } from "./IfStatementNode.ts";
 
 import { WhileStatementNode } from "./WhileStatementNode.ts";
+import { StandardForStatementNode } from "./StandardForStatementNode.ts";
 
 import { EqualsExpressionNode } from "./EqualsExpressionNode.ts";
 import { NotEqualsExpressionNode } from "./NotEqualsExpressionNode.ts";7
@@ -58,6 +59,7 @@ export interface IVisitorAST {
   visitIfStatementNode(node: IfStatementNode): any;
 
   visitWhileStatementNode(node: WhileStatementNode): any;
+  visitStandardForStatementNode(node: StandardForStatementNode): any;
 
 
   visitVarDefinitionNode(node: VarDefinitionNode): any;
