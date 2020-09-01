@@ -48,6 +48,7 @@ import { GreaterThanExpressionNode } from "../TreeNodes/GreaterThanExpressionNod
 import { GreaterOrEqualExpressionNode } from "../TreeNodes/GreaterOrEqualExpressionNode.ts";
 import { LessThanExpressionNode } from "../TreeNodes/LessThanExpressionNode.ts";
 import { LessOrEqualExpressionNode } from "../TreeNodes/LessOrEqualExpressionNode.ts";
+import { EmptyStatement } from "../TreeNodes/EmptyStatement.ts";
 
 export const rules: {
   [key: string]: SyntaxRule
@@ -134,6 +135,9 @@ function fnRunNow(currentIndex: number): number {
 
 function createEmptyExpression(args: ActionArgs) {
   args.nodeStack.push(new EmptyExpression());
+}
+function createEmptyStatement(args: ActionArgs) {
+  args.nodeStack.push(new EmptyStatement());
 }
 
 function createVarDefinitionNode(args: ActionArgs) {
@@ -563,7 +567,11 @@ rules.singleStatement.setDerivation(
   [{index: fnCurrentIndex, func: createStatementBlockNode}],
   "{",
 );
-rules.singleStatement.setDerivation([";"], [], ";");
+rules.singleStatement.setDerivation(
+  [";"],
+  [{ index: fnPreviousIndex, func: createEmptyStatement }],
+  ";"
+);
 rules.singleStatement.setDerivation(
   [rules.expression, ";"],
   [{index: fnCurrentIndex, func: createStatementSingleNode}],
@@ -580,12 +588,16 @@ rules.singleStatement.setDerivation([rules.forStatement], [], "for");
 
 rules.statementBlock.setDerivation(["{", rules.statementBlockPrime], [], "{");
 rules.statementBlockPrime.setDerivation([rules.statement, "}"], [], "if", "while", "for", ";", "{", ...group.primitiveType, "id", "(", ...group.valuePrefixes, "number", "true", "false");
-rules.statementBlockPrime.setDerivation(["}"], [], "}");
+rules.statementBlockPrime.setDerivation(
+  ["}"],
+  [{ index: fnPreviousIndex, func: createEmptyStatement }],
+  "}"
+);
 
 
 rules.statement.setDerivation(
   [rules.singleStatement, rules.nextStatement], [],
-  "if", "while", "for", "{", "id", ...group.valuePrefixes, "(", "number", "true", "false", ...group.primitiveType
+  "if", "while", "for", ";", "{", "id", ...group.valuePrefixes, "(", "number", "true", "false", ...group.primitiveType
 );
 
 rules.nextStatement.setDerivation(
