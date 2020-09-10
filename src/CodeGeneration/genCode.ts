@@ -53,6 +53,7 @@ import { ReferenceNode } from "../TreeNodes/ReferenceNode.ts";
 import { PosIncrementExpressionNode } from "../TreeNodes/PosIncrementExpressionNode.ts";
 import { PosDecrementExpressionNode } from "../TreeNodes/PosDecrementExpressionNode.ts";
 import { EmptyExpression } from "../TreeNodes/EmptyExpression.ts";
+import { EmptyStatement } from "../TreeNodes/EmptyStatement.ts";
 
 
 
@@ -71,10 +72,16 @@ export class BinaryFormatCodeGenerator implements IVisitorAST {
   }
 
 
+  visitEmptyStatement(node: EmptyStatement) {
+    return [
+      // good for debug
+      Opcode.nop
+    ];
+  }
   visitEmptyExpression(node: EmptyExpression): number[] {
     return [
-      Opcode.nop
       // good for debug
+      Opcode.nop
     ];
   }
 
