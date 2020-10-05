@@ -1,15 +1,16 @@
-import { SyntaxRule } from "./SyntaxRule.ts";
-import { TerminalGroup } from "./TerminalGroup.ts";
-import { Token } from "../LexicalAnalysis/Token.ts";
-import { TokenType } from "../LexicalAnalysis/Token.ts";
-import { SyntaxSymbol, RuleDerivation, ActionObj } from "./types.ts";
+import { SyntaxRule } from "./SyntaxRule";
+import { TerminalGroup } from "./TerminalGroup";
+import { Token } from "../LexicalAnalysis/Token";
+import { TokenType } from "../LexicalAnalysis/Token";
+import { SyntaxSymbol, RuleDerivation, ActionObj } from "./types";
 
-import { BaseNode } from "../TreeNodes/BaseNode.ts";
-import { NumberLiteralNode } from "../TreeNodes/NumberLiteralNode.ts";
-import { BooleanLiteralNode } from "../TreeNodes/BooleanLiteralNode.ts";
-import { EmptyProgramNode } from "../TreeNodes/EmptyProgramNode.ts";
+import { BaseNode } from "../TreeNodes/BaseNode";
+import { NumberLiteralNode } from "../TreeNodes/NumberLiteralNode";
+import { BooleanLiteralNode } from "../TreeNodes/BooleanLiteralNode";
+import { EmptyProgramNode } from "../TreeNodes/EmptyProgramNode";
 
-import { rules } from "./rules.ts";
+import { rules } from "./rules";
+
 
 export function parse(tokens: Token[]): BaseNode {
   const actionScheduler = new Map<number, ActionObj[]>();
@@ -20,6 +21,17 @@ export function parse(tokens: Token[]): BaseNode {
   let currentPos = 0;
 
   while (grammarStack.length > 0 && currentPos < tokens.length) {
+    // console.log("---" + nodeStack.map(n => n.constructor.name).join("  ") + "---\n");
+
+
+    // console.log(grammarStack.map(r => {
+    //   if (r instanceof SyntaxRule) {
+    //     return r.name;
+    //   }
+    //   return r;
+    // }).join(" "),
+    // // "\n" + tokens.slice(currentPos).map(t => t.content).join("  ")
+    // );
 
 
     // run actions
@@ -51,6 +63,8 @@ export function parse(tokens: Token[]): BaseNode {
 
         // index to schedule (implicit -1 by previous pop)
         const index = action.index(grammarStack.length);
+        // console.log("action added for " + currentSymbol.name + " at index = " + index);
+        // console.log(grammarStack );
 
         if (index === -1) {
           action.func({
@@ -63,14 +77,14 @@ export function parse(tokens: Token[]): BaseNode {
         } else {
           // get previous scheduled actions at index
           let actionsAtIndex = actionScheduler.get(index);
-  
+
           // create a new one array if no actions
           // have been added yet
           if (!actionsAtIndex) {
             actionsAtIndex = [];
             actionScheduler.set(index, actionsAtIndex);
           }
-  
+
           // adds the new action
           actionsAtIndex.push(action);
         }
@@ -110,13 +124,13 @@ export function parse(tokens: Token[]): BaseNode {
       );
 
     } else {
-      console.log("in loop");
-      return new EmptyProgramNode(); // Unexpected token
+      console.log(Error("Unexpected token '" + currentToken.content + "'"));;
+      throw Error("Unexpected token '" + currentToken.content + "'");
     }
   }
 
-  console.log("out of loop");
-  return new EmptyProgramNode();
+  console.log(Error("out of loop error"));
+  throw Error("out of loop error")
 }
 
 export function getTokenSymbol(token: Token): string {

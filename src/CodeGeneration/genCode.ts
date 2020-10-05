@@ -1,4 +1,4 @@
-import {SectionTypeCode, ValueType, Opcode, ExportTypeCode} from "./codes.ts";
+import {SectionTypeCode, ValueType, Opcode, ExportTypeCode} from "./codes";
 import {
   encodeU32,
   encodeI32,
@@ -7,53 +7,53 @@ import {
   encodeContainer,
   encodeSection,
   encodeFuncType,
-} from "./encoders.ts";
+} from "./encoders";
 
-import { IVisitorAST } from "../TreeNodes/IVisitorAST.ts";
-import { BaseNode } from "../TreeNodes/BaseNode.ts";
+import { IVisitorAST } from "../TreeNodes/IVisitorAST";
+import { BaseNode } from "../TreeNodes/BaseNode";
 
-import { StatementNode } from "../TreeNodes/StatementNode.ts";
-import { StatementBlockNode } from "../TreeNodes/StatementBlockNode.ts";
-import { StatementSingleNode } from "../TreeNodes/StatementSingleNode.ts";
+import { StatementNode } from "../TreeNodes/StatementNode";
+import { StatementBlockNode } from "../TreeNodes/StatementBlockNode";
+import { StatementSingleNode } from "../TreeNodes/StatementSingleNode";
 
-import { NumberLiteralNode } from "../TreeNodes/NumberLiteralNode.ts";
-import { BooleanLiteralNode } from "../TreeNodes/BooleanLiteralNode.ts";
+import { NumberLiteralNode } from "../TreeNodes/NumberLiteralNode";
+import { BooleanLiteralNode } from "../TreeNodes/BooleanLiteralNode";
 
-import { NumberUnaryNegationNode } from "../TreeNodes/NumberUnaryNegationNode.ts";
-import { BooleanNegationNode } from "../TreeNodes/BooleanNegationNode.ts";
-import { BitwiseNegationNode } from "../TreeNodes/BitwiseNegationNode.ts";
+import { NumberUnaryNegationNode } from "../TreeNodes/NumberUnaryNegationNode";
+import { BooleanNegationNode } from "../TreeNodes/BooleanNegationNode";
+import { BitwiseNegationNode } from "../TreeNodes/BitwiseNegationNode";
 
-import { AddOperationNode } from "../TreeNodes/AddOperationNode.ts";
-import { SubtractOperationNode } from "../TreeNodes/SubtractOperationNode.ts";
-import { MultiplyOperationNode } from "../TreeNodes/MultiplyOperationNode.ts";
-import { IntDivisionOperationNode } from "../TreeNodes/IntDivisionOperationNode.ts";
-import { PowerOperationNode } from "../TreeNodes/PowerOperationNode.ts";
-import { VarDefinitionNode } from "../TreeNodes/VarDefinitionNode.ts";
-import { VarReferenceNode } from "../TreeNodes/VarReferenceNode.ts";
-import { AssignmentNode } from "../TreeNodes/AssignmentNode.ts";
-import { BooleanOrNode } from "../TreeNodes/BooleanOrNode.ts";
-import { BooleanXorNode } from "../TreeNodes/BooleanXorNode.ts";
-import { BooleanAndNode } from "../TreeNodes/BooleanAndNode.ts";
-import { BitwiseOrNode } from "../TreeNodes/BitwiseOrNode.ts";
-import { BitwiseXorNode } from "../TreeNodes/BitwiseXorNode.ts";
-import { BitwiseAndNode } from "../TreeNodes/BitwiseAndNode.ts";
-import { ConditionalOperatorNode } from "../TreeNodes/ConditionalOperatorNode.ts";
-import { IfStatementNode } from "../TreeNodes/IfStatementNode.ts";
-import { WhileStatementNode } from "../TreeNodes/WhileStatementNode.ts";
-import { StandardForStatementNode } from "../TreeNodes/StandardForStatementNode.ts";
-import { EqualsExpressionNode } from "../TreeNodes/EqualsExpressionNode.ts";
-import { NotEqualsExpressionNode } from "../TreeNodes/NotEqualsExpressionNode.ts";
-import { GreaterThanExpressionNode } from "../TreeNodes/GreaterThanExpressionNode.ts";
-import { GreaterOrEqualExpressionNode } from "../TreeNodes/GreaterOrEqualExpressionNode.ts";
-import { LessThanExpressionNode } from "../TreeNodes/LessThanExpressionNode.ts";
-import { LessOrEqualExpressionNode } from "../TreeNodes/LessOrEqualExpressionNode.ts";
-import { PreIncrementExpressionNode } from "../TreeNodes/PreIncrementExpressionNode.ts";
-import { PreDecrementExpressionNode } from "../TreeNodes/PreDecrementExpressionNode.ts";
-import { ReferenceNode } from "../TreeNodes/ReferenceNode.ts";
-import { PosIncrementExpressionNode } from "../TreeNodes/PosIncrementExpressionNode.ts";
-import { PosDecrementExpressionNode } from "../TreeNodes/PosDecrementExpressionNode.ts";
-import { EmptyExpression } from "../TreeNodes/EmptyExpression.ts";
-import { EmptyStatement } from "../TreeNodes/EmptyStatement.ts";
+import { AddOperationNode } from "../TreeNodes/AddOperationNode";
+import { SubtractOperationNode } from "../TreeNodes/SubtractOperationNode";
+import { MultiplyOperationNode } from "../TreeNodes/MultiplyOperationNode";
+import { IntDivisionOperationNode } from "../TreeNodes/IntDivisionOperationNode";
+import { PowerOperationNode } from "../TreeNodes/PowerOperationNode";
+import { VarDefinitionNode } from "../TreeNodes/VarDefinitionNode";
+import { VarReferenceNode } from "../TreeNodes/VarReferenceNode";
+import { AssignmentNode } from "../TreeNodes/AssignmentNode";
+import { BooleanOrNode } from "../TreeNodes/BooleanOrNode";
+import { BooleanXorNode } from "../TreeNodes/BooleanXorNode";
+import { BooleanAndNode } from "../TreeNodes/BooleanAndNode";
+import { BitwiseOrNode } from "../TreeNodes/BitwiseOrNode";
+import { BitwiseXorNode } from "../TreeNodes/BitwiseXorNode";
+import { BitwiseAndNode } from "../TreeNodes/BitwiseAndNode";
+import { ConditionalOperatorNode } from "../TreeNodes/ConditionalOperatorNode";
+import { IfStatementNode } from "../TreeNodes/IfStatementNode";
+import { WhileStatementNode } from "../TreeNodes/WhileStatementNode";
+import { StandardForStatementNode } from "../TreeNodes/StandardForStatementNode";
+import { EqualsExpressionNode } from "../TreeNodes/EqualsExpressionNode";
+import { NotEqualsExpressionNode } from "../TreeNodes/NotEqualsExpressionNode";
+import { GreaterThanExpressionNode } from "../TreeNodes/GreaterThanExpressionNode";
+import { GreaterOrEqualExpressionNode } from "../TreeNodes/GreaterOrEqualExpressionNode";
+import { LessThanExpressionNode } from "../TreeNodes/LessThanExpressionNode";
+import { LessOrEqualExpressionNode } from "../TreeNodes/LessOrEqualExpressionNode";
+import { PreIncrementExpressionNode } from "../TreeNodes/PreIncrementExpressionNode";
+import { PreDecrementExpressionNode } from "../TreeNodes/PreDecrementExpressionNode";
+import { ReferenceNode } from "../TreeNodes/ReferenceNode";
+import { PosIncrementExpressionNode } from "../TreeNodes/PosIncrementExpressionNode";
+import { PosDecrementExpressionNode } from "../TreeNodes/PosDecrementExpressionNode";
+import { EmptyExpression } from "../TreeNodes/EmptyExpression";
+import { EmptyStatement } from "../TreeNodes/EmptyStatement";
 
 
 

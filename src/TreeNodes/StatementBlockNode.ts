@@ -1,5 +1,5 @@
-import { StatementNode } from "./StatementNode.ts"
-import { IVisitorAST } from "./IVisitorAST.ts";
+import { StatementNode } from "./StatementNode"
+import { IVisitorAST } from "./IVisitorAST";
 
 export class StatementBlockNode extends StatementNode {
   private _innerStatement: StatementNode | null;

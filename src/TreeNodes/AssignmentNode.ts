@@ -1,7 +1,7 @@
-import { IVisitorAST } from "./IVisitorAST.ts";
-import { ExpressionNode } from "./ExpressionNode.ts";
-import { ReferenceNode } from "./ReferenceNode.ts";
-import { BinaryOperator } from "./BinaryOperator.ts";
+import { IVisitorAST } from "./IVisitorAST";
+import { ExpressionNode } from "./ExpressionNode";
+import { ReferenceNode } from "./ReferenceNode";
+import { BinaryOperator } from "./BinaryOperator";
 
 export class AssignmentNode extends BinaryOperator {
 

@@ -1,4 +1,4 @@
-import { ExpressionNode } from "./ExpressionNode.ts"
+import { ExpressionNode } from "./ExpressionNode"
 
 export abstract class BinaryOperator extends ExpressionNode {
   private _operand1: ExpressionNode;

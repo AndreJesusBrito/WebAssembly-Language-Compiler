@@ -1,4 +1,4 @@
-import { Token, TokenType } from "./Token.ts";
+import { Token, TokenType } from "./Token";
 
 
 const matchers = new Map<TokenType, RegExp>();

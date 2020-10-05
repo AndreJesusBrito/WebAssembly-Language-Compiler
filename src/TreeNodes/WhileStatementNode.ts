@@ -1,7 +1,7 @@
-import { StatementNode } from "./StatementNode.ts"
-import { IVisitorAST } from "./IVisitorAST.ts";
-import { ExpressionNode } from "./ExpressionNode.ts";
-import { LoopBaseNode } from "./LoopBaseNode.ts";
+import { StatementNode } from "./StatementNode"
+import { IVisitorAST } from "./IVisitorAST";
+import { ExpressionNode } from "./ExpressionNode";
+import { LoopBaseNode } from "./LoopBaseNode";
 
 export class WhileStatementNode extends LoopBaseNode {
   public condition: ExpressionNode;

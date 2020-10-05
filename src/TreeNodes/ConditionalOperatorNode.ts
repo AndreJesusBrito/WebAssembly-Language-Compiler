@@ -1,5 +1,5 @@
-import { ExpressionNode } from "./ExpressionNode.ts"
-import { IVisitorAST } from "./IVisitorAST.ts";
+import { ExpressionNode } from "./ExpressionNode"
+import { IVisitorAST } from "./IVisitorAST";
 
 export class ConditionalOperatorNode extends ExpressionNode {
   public condition : ExpressionNode;

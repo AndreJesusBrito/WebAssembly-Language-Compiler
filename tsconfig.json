@@ -1,0 +1,9 @@
+{
+    "compilerOptions": {
+        "target": "ES2018",
+        "lib": [
+            "esnext",
+        ],
+        "downlevelIteration": true
+    }
+}

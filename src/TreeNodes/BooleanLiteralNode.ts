@@ -1,6 +1,6 @@
-import { ExpressionNode } from "./ExpressionNode.ts";
-import { Token, TokenType } from "../LexicalAnalysis/Token.ts";
-import { IVisitorAST } from "./IVisitorAST.ts";
+import { ExpressionNode } from "./ExpressionNode";
+import { Token, TokenType } from "../LexicalAnalysis/Token";
+import { IVisitorAST } from "./IVisitorAST";
 
 export class BooleanLiteralNode extends ExpressionNode {
   public token: Token;

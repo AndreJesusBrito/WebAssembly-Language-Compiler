@@ -1,4 +1,4 @@
-import { BaseNode } from "./BaseNode.ts";
+import { BaseNode } from "./BaseNode";
 
 export class EmptyProgramNode extends BaseNode {
 

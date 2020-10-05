@@ -1,7 +1,7 @@
-import { IVisitorAST } from "./IVisitorAST.ts";
-import { ExpressionNode } from "./ExpressionNode.ts";
-import { VarDefinitionNode } from "./VarDefinitionNode.ts";
-import { ReferenceNode } from "./ReferenceNode.ts";
+import { IVisitorAST } from "./IVisitorAST";
+import { ExpressionNode } from "./ExpressionNode";
+import { VarDefinitionNode } from "./VarDefinitionNode";
+import { ReferenceNode } from "./ReferenceNode";
 
 export class VarReferenceNode extends ReferenceNode {
   public variableName: string;

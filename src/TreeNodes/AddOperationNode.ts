@@ -1,5 +1,5 @@
-import { BinaryOperator } from "./BinaryOperator.ts";
-import { IVisitorAST } from "./IVisitorAST.ts";
+import { BinaryOperator } from "./BinaryOperator";
+import { IVisitorAST } from "./IVisitorAST";
 
 
 export class AddOperationNode extends BinaryOperator {

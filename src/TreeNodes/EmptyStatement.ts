@@ -1,5 +1,5 @@
-import { IVisitorAST } from "./IVisitorAST.ts";
-import { StatementNode } from "./StatementNode.ts";
+import { IVisitorAST } from "./IVisitorAST";
+import { StatementNode } from "./StatementNode";
 
 export class EmptyStatement extends StatementNode {
   constructor() {

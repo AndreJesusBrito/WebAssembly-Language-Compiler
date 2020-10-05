@@ -1,6 +1,6 @@
-import { UnaryOperator } from "./UnaryOperator.ts";
-import { IVisitorAST } from "./IVisitorAST.ts";
-import { ReferenceNode } from "./ReferenceNode.ts";
+import { UnaryOperator } from "./UnaryOperator";
+import { IVisitorAST } from "./IVisitorAST";
+import { ReferenceNode } from "./ReferenceNode";
 
 
 export class PreIncrementExpressionNode extends UnaryOperator {

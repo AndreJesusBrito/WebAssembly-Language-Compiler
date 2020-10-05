@@ -1,4 +1,4 @@
-import { BaseNode } from "./BaseNode.ts"
+import { BaseNode } from "./BaseNode"
 
 export abstract class StatementNode extends BaseNode {
   protected _nextStatement: StatementNode | null;

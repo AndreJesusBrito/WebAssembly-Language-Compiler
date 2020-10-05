@@ -1,4 +1,4 @@
-import { SyntaxRule } from "./SyntaxRule.ts";
+import { SyntaxRule } from "./SyntaxRule";
 
 export class TerminalGroup {
   private terminals: Set<string>;

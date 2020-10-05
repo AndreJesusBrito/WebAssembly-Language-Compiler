@@ -1,40 +1,56 @@
-import { parse as parseArgs } from "https://deno.land/std/flags/mod.ts";
-import { getTokens } from "./LexicalAnalysis/Tokenizer.ts";
-import { Token } from "./LexicalAnalysis/Token.ts";
-import { parse } from "./SyntaxAnalysis/Parser.ts";
-import { BinaryFormatCodeGenerator } from "./CodeGeneration/genCode.ts";
-import { SemanticAnalyserPhase2 } from "./SemanticAnalysis/SemanticAnalyserPhase2.ts";
-import { SemanticAnalyserPhase3 } from "./SemanticAnalysis/SemanticAnalyserPhase3.ts";
+import { getTokens } from "./LexicalAnalysis/Tokenizer";
+import { Token } from "./LexicalAnalysis/Token";
+import { parse } from "./SyntaxAnalysis/Parser";
+import { BinaryFormatCodeGenerator } from "./CodeGeneration/genCode";
+import { SemanticAnalyserPhase2 } from "./SemanticAnalysis/SemanticAnalyserPhase2";
+import { SemanticAnalyserPhase3 } from "./SemanticAnalysis/SemanticAnalyserPhase3";
 
-const { args } = Deno;
-const parsedArgs = parseArgs(args);
+const fs = require("fs");
+const yargs = require("yargs");
 
-if (!parsedArgs._[0]) {
-  console.log("Error: No input file");
-  Deno.exit(1);
+const argv = yargs
+  .command('compile <input path>', 'Compiles input file')
+  .option('output', {
+    alias: 'o',
+    description: 'Choose the output file path. Default is wasm.out in the current directory',
+    type: 'string',
+  })
+  .help()
+  .alias('help', 'h')
+  .argv;
+
+if (argv._[0] === "compile") {
+  compile(argv);
+} else {
+  throw TypeError("Invalid command");
 }
 
-const decoder = new TextDecoder('utf-8');
-const file = await Deno.open(parsedArgs._[0].toString());
+function compile(argv) {
+  fs.readFile(argv.inputpath, "utf8", (err, text) => {
+    if (err) {
+      console.error("Error: Input file not found.");
+    } else {
+      const tokens: Token[] = getTokens(text);
 
+      const ast = parse(tokens);
 
-const bytes = await Deno.readAll(file);
-const text = decoder.decode(bytes);
+      const semanticAnalyzer2 = new SemanticAnalyserPhase2(ast);
+      semanticAnalyzer2.analyze();
 
+      const semanticAnalyzer3 = new SemanticAnalyserPhase3(ast);
+      semanticAnalyzer3.analyze();
 
-const tokens: Token[] = getTokens(text);
+      const outputFilename: string = /* parsedArgs.o || */ "out.wasm";
 
-const ast = parse(tokens);
+      const generator = new BinaryFormatCodeGenerator(ast);
+      const code: Uint8Array = generator.generate();
 
-const semanticAnalyzer2 = new SemanticAnalyserPhase2(ast);
-semanticAnalyzer2.analyze();
-
-const semanticAnalyzer3 = new SemanticAnalyserPhase3(ast);
-semanticAnalyzer3.analyze();
-
-const outputFilename: string = parsedArgs.o || "out.wasm";
-
-const generator = new BinaryFormatCodeGenerator(ast);
-const code: Uint8Array = generator.generate();
-
-await Deno.writeFile(outputFilename, code);
+      // await Deno.writeFile(outputFilename, code);
+      fs.writeFile("out.wasm", Buffer.from(code), (err, ) => {
+        if (err) {
+          throw err;
+        }
+      });
+    }
+  });
+}

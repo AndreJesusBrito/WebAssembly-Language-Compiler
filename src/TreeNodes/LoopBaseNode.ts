@@ -1,4 +1,4 @@
-import { StatementNode } from "./StatementNode.ts"
+import { StatementNode } from "./StatementNode"
 
 export abstract class LoopBaseNode extends StatementNode {
 

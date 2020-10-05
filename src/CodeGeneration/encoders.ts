@@ -1,3 +1,5 @@
+const {TextEncoder} = require("util");
+
 export function encodeVector(elements: any[]): number[] {
   // const buffer = new ArrayBuffer(4 + elements.length);
 

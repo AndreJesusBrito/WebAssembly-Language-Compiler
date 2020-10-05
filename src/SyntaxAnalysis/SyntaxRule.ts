@@ -1,4 +1,4 @@
-import { SyntaxSymbol, RuleDerivation, ActionObj } from "./types.ts";
+import { SyntaxSymbol, RuleDerivation, ActionObj } from "./types";
 
 export class SyntaxRule {
   private derivations: Map<string, RuleDerivation>;

@@ -2,4 +2,6 @@
 
 *.wasm
 
+node_modules
+
 temp tests

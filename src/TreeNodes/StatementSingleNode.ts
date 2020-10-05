@@ -1,6 +1,6 @@
-import { StatementNode } from "./StatementNode.ts"
-import { IVisitorAST } from "./IVisitorAST.ts";
-import { ExpressionNode } from "./ExpressionNode.ts";
+import { StatementNode } from "./StatementNode"
+import { IVisitorAST } from "./IVisitorAST";
+import { ExpressionNode } from "./ExpressionNode";
 
 export class StatementSingleNode extends StatementNode {
   protected _innerExpression: ExpressionNode;

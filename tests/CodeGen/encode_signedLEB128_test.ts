@@ -1,6 +1,6 @@
-import { assertEquals } from "https://deno.land/std/testing/asserts.ts";
+import { assertEquals } from "https://deno.land/std/testing/asserts";
 
-import { encodeI32 } from "../../src/CodeGeneration/encoders.ts";
+import { encodeI32 } from "../../src/CodeGeneration/encoders";
 
 
 Deno.test({

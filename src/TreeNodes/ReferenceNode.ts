@@ -1,4 +1,4 @@
-import { ExpressionNode } from "./ExpressionNode.ts";
+import { ExpressionNode } from "./ExpressionNode";
 
 export abstract class ReferenceNode extends ExpressionNode {
   public returnsValue: boolean = true;

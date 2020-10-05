@@ -1,5 +1,5 @@
-import { UnaryOperator } from "./UnaryOperator.ts";
-import { IVisitorAST } from "./IVisitorAST.ts";
+import { UnaryOperator } from "./UnaryOperator";
+import { IVisitorAST } from "./IVisitorAST";
 
 
 export class PosIncrementExpressionNode extends UnaryOperator {

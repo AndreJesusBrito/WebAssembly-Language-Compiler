@@ -1,0 +1,31 @@
+{
+  "name": "webassembly-language-compiler",
+  "version": "1.0.0",
+  "description": "A WebAssembly High Level Language Compiler",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "ts-node": "ts-node src\\main.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AndreJesusBrito/WebAssembly-Language-Compiler.git"
+  },
+  "author": "André Jesus Brito",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/AndreJesusBrito/WebAssembly-Language-Compiler/issues"
+  },
+  "homepage": "https://github.com/AndreJesusBrito/WebAssembly-Language-Compiler#readme",
+  "dependencies": {
+    "@types/node": "^14.11.2",
+    "yargs": "^16.0.3"
+  },
+  "devDependencies": {
+    "ts-node": "^9.0.0",
+    "typescript": "^4.0.3"
+  }
+}

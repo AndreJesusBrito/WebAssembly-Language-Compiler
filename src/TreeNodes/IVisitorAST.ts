@@ -1,51 +1,51 @@
-import { NumberLiteralNode } from "./NumberLiteralNode.ts";
-import { BooleanLiteralNode } from "./BooleanLiteralNode.ts";
+import { NumberLiteralNode } from "./NumberLiteralNode";
+import { BooleanLiteralNode } from "./BooleanLiteralNode";
 
-import { StatementSingleNode } from "./StatementSingleNode.ts";
-import { StatementBlockNode } from "./StatementBlockNode.ts";
+import { StatementSingleNode } from "./StatementSingleNode";
+import { StatementBlockNode } from "./StatementBlockNode";
 
-import { VarDefinitionNode } from "./VarDefinitionNode.ts";
+import { VarDefinitionNode } from "./VarDefinitionNode";
 
-import { NumberUnaryNegationNode } from "./NumberUnaryNegationNode.ts";
-import { BooleanNegationNode } from "./BooleanNegationNode.ts";
+import { NumberUnaryNegationNode } from "./NumberUnaryNegationNode";
+import { BooleanNegationNode } from "./BooleanNegationNode";
 
-import { AddOperationNode } from "./AddOperationNode.ts";
-import { SubtractOperationNode } from "./SubtractOperationNode.ts";
-import { MultiplyOperationNode } from "./MultiplyOperationNode.ts";
-import { IntDivisionOperationNode } from "./IntDivisionOperationNode.ts";
-import { PowerOperationNode } from "./PowerOperationNode.ts";
+import { AddOperationNode } from "./AddOperationNode";
+import { SubtractOperationNode } from "./SubtractOperationNode";
+import { MultiplyOperationNode } from "./MultiplyOperationNode";
+import { IntDivisionOperationNode } from "./IntDivisionOperationNode";
+import { PowerOperationNode } from "./PowerOperationNode";
 
-import { BooleanOrNode } from "./BooleanOrNode.ts";
-import { BooleanXorNode } from "./BooleanXorNode.ts";
-import { BooleanAndNode } from "./BooleanAndNode.ts";
+import { BooleanOrNode } from "./BooleanOrNode";
+import { BooleanXorNode } from "./BooleanXorNode";
+import { BooleanAndNode } from "./BooleanAndNode";
 
-import { BitwiseOrNode } from "./BitwiseOrNode.ts";
-import { BitwiseXorNode } from "./BitwiseXorNode.ts";
-import { BitwiseAndNode } from "./BitwiseAndNode.ts";
+import { BitwiseOrNode } from "./BitwiseOrNode";
+import { BitwiseXorNode } from "./BitwiseXorNode";
+import { BitwiseAndNode } from "./BitwiseAndNode";
 
-import { VarReferenceNode } from "./VarReferenceNode.ts";
-import { AssignmentNode } from "./AssignmentNode.ts";
-import { ConditionalOperatorNode } from "./ConditionalOperatorNode.ts";
-import { BitwiseNegationNode } from "./BitwiseNegationNode.ts";
-import { PreIncrementExpressionNode } from "./PreIncrementExpressionNode.ts";
-import { PreDecrementExpressionNode } from "./PreDecrementExpressionNode.ts";
-import { PosIncrementExpressionNode } from "./PosIncrementExpressionNode.ts";
-import { PosDecrementExpressionNode } from "./PosDecrementExpressionNode.ts";
-import { IfStatementNode } from "./IfStatementNode.ts";
+import { VarReferenceNode } from "./VarReferenceNode";
+import { AssignmentNode } from "./AssignmentNode";
+import { ConditionalOperatorNode } from "./ConditionalOperatorNode";
+import { BitwiseNegationNode } from "./BitwiseNegationNode";
+import { PreIncrementExpressionNode } from "./PreIncrementExpressionNode";
+import { PreDecrementExpressionNode } from "./PreDecrementExpressionNode";
+import { PosIncrementExpressionNode } from "./PosIncrementExpressionNode";
+import { PosDecrementExpressionNode } from "./PosDecrementExpressionNode";
+import { IfStatementNode } from "./IfStatementNode";
 
-import { WhileStatementNode } from "./WhileStatementNode.ts";
-import { StandardForStatementNode } from "./StandardForStatementNode.ts";
+import { WhileStatementNode } from "./WhileStatementNode";
+import { StandardForStatementNode } from "./StandardForStatementNode";
 
-import { EqualsExpressionNode } from "./EqualsExpressionNode.ts";
-import { NotEqualsExpressionNode } from "./NotEqualsExpressionNode.ts";7
+import { EqualsExpressionNode } from "./EqualsExpressionNode";
+import { NotEqualsExpressionNode } from "./NotEqualsExpressionNode";7
 
-import { GreaterThanExpressionNode } from "./GreaterThanExpressionNode.ts";
-import { GreaterOrEqualExpressionNode } from "./GreaterOrEqualExpressionNode.ts";
-import { LessThanExpressionNode } from "./LessThanExpressionNode.ts";
-import { LessOrEqualExpressionNode } from "./LessOrEqualExpressionNode.ts";
+import { GreaterThanExpressionNode } from "./GreaterThanExpressionNode";
+import { GreaterOrEqualExpressionNode } from "./GreaterOrEqualExpressionNode";
+import { LessThanExpressionNode } from "./LessThanExpressionNode";
+import { LessOrEqualExpressionNode } from "./LessOrEqualExpressionNode";
 
-import { EmptyExpression } from "./EmptyExpression.ts";
-import { EmptyStatement } from "./EmptyStatement.ts";
+import { EmptyExpression } from "./EmptyExpression";
+import { EmptyStatement } from "./EmptyStatement";
 
 
 

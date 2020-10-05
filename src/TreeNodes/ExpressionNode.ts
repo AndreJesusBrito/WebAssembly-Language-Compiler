@@ -1,4 +1,4 @@
-import {BaseNode} from "./BaseNode.ts"
+import {BaseNode} from "./BaseNode"
 
 export abstract class ExpressionNode extends BaseNode {
   public abstract resultType: string;
