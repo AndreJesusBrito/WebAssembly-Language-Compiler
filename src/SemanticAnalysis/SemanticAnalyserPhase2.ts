@@ -41,6 +41,7 @@ import { PosIncrementExpressionNode } from "../TreeNodes/PosIncrementExpressionN
 import { PosDecrementExpressionNode } from "../TreeNodes/PosDecrementExpressionNode";
 import { EmptyExpression } from "../TreeNodes/EmptyExpression";
 import { EmptyStatement } from "../TreeNodes/EmptyStatement";
+import { TrapStatementNode } from "../TreeNodes/TrapStatementNode";
 
 
 export class SemanticAnalyserPhase2 implements IVisitorAST {
@@ -52,9 +53,13 @@ export class SemanticAnalyserPhase2 implements IVisitorAST {
     this.ast = ast;
   }
 
-
   visitEmptyStatement(node: EmptyStatement) {}
   visitEmptyExpression(node: EmptyExpression) {}
+  visitTrapStatementNode(node: TrapStatementNode) {
+    if (node.condition && node.condition.resultType !== "bool") {
+      throw new Error("trap unexpected boolean expression");
+    }
+  }
 
   visitNumberLiteralNode(node: NumberLiteralNode): any {}
 

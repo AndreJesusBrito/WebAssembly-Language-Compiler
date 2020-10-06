@@ -38,6 +38,7 @@ import { PosIncrementExpressionNode } from "../TreeNodes/PosIncrementExpressionN
 import { PosDecrementExpressionNode } from "../TreeNodes/PosDecrementExpressionNode";
 import { EmptyExpression } from "../TreeNodes/EmptyExpression";
 import { EmptyStatement } from "../TreeNodes/EmptyStatement";
+import { TrapStatementNode } from "../TreeNodes/TrapStatementNode";
 
 
 export class SemanticAnalyserPhase3 implements IVisitorAST {
@@ -50,6 +51,8 @@ export class SemanticAnalyserPhase3 implements IVisitorAST {
 
   visitEmptyStatement(node: EmptyStatement): any {}
   visitEmptyExpression(node: EmptyExpression): any {}
+
+  visitTrapStatementNode(node: TrapStatementNode): any {}
 
   visitNumberLiteralNode(node: NumberLiteralNode): any {}
 

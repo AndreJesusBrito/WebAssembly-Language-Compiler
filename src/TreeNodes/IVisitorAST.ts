@@ -47,6 +47,7 @@ import { LessOrEqualExpressionNode } from "./LessOrEqualExpressionNode";
 import { EmptyExpression } from "./EmptyExpression";
 import { EmptyStatement } from "./EmptyStatement";
 
+import { TrapStatementNode } from "./TrapStatementNode";
 
 
 export interface IVisitorAST {
@@ -112,4 +113,7 @@ export interface IVisitorAST {
 
   visitEmptyStatement(node: EmptyStatement): any;
   visitEmptyExpression(node: EmptyExpression): any;
+
+  visitTrapStatementNode(node: TrapStatementNode): any;
+
 }

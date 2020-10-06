@@ -54,6 +54,8 @@ import { PosIncrementExpressionNode } from "../TreeNodes/PosIncrementExpressionN
 import { PosDecrementExpressionNode } from "../TreeNodes/PosDecrementExpressionNode";
 import { EmptyExpression } from "../TreeNodes/EmptyExpression";
 import { EmptyStatement } from "../TreeNodes/EmptyStatement";
+import { TrapStatementNode } from "../TreeNodes/TrapStatementNode";
+import { open } from "fs/promises";
 
 
 
@@ -71,7 +73,6 @@ export class BinaryFormatCodeGenerator implements IVisitorAST {
     this.ast = ast;
   }
 
-
   visitEmptyStatement(node: EmptyStatement) {
     return [
       // good for debug
@@ -83,6 +84,20 @@ export class BinaryFormatCodeGenerator implements IVisitorAST {
       // good for debug
       Opcode.nop
     ];
+  }
+
+  visitTrapStatementNode(node: TrapStatementNode) {
+    if (node.condition) {
+      return [
+        Opcode.i32_const, 1,
+        ...node.condition.visit(this),
+        Opcode.i32_sub,
+        Opcode.if, 0x40,
+          Opcode.unreachable,
+        Opcode.end,
+      ]
+    }
+    return [Opcode.unreachable];
   }
 
   visitIfStatementNode(node: IfStatementNode): number[] {
