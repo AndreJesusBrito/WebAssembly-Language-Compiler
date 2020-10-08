@@ -34,20 +34,6 @@ export function parse(tokens: Token[]): BaseNode {
     // );
 
 
-    // run actions
-    const actions = actionScheduler.get(grammarStack.length - 1);
-    if (actions) {
-      while (actions.length > 0) {
-        actions.pop()?.func({
-          grammarStack: grammarStack,
-          operatorStack: operatorStack,
-          nodeStack: nodeStack,
-          currentTokenPos: currentPos,
-          tokens: tokens,
-        });
-      }
-    }
-
 
     let currentSymbol: SyntaxSymbol = grammarStack[grammarStack.length-1];
     let currentToken: Token = tokens[currentPos];
@@ -126,6 +112,20 @@ export function parse(tokens: Token[]): BaseNode {
     } else {
       console.log(Error("Unexpected token '" + currentToken.content + "'"));;
       throw Error("Unexpected token '" + currentToken.content + "'");
+    }
+
+    // run scheduled actions
+    const actions = actionScheduler.get(grammarStack.length - 1);
+    if (actions) {
+      while (actions.length > 0) {
+        actions.pop()?.func({
+          grammarStack: grammarStack,
+          operatorStack: operatorStack,
+          nodeStack: nodeStack,
+          currentTokenPos: currentPos,
+          tokens: tokens,
+        });
+      }
     }
   }
 
