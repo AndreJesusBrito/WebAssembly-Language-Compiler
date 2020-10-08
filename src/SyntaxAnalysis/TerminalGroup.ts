@@ -16,4 +16,8 @@ export class TerminalGroup {
     return this.terminals.has(terminal);
   }
 
+  toString() {
+    return "[" + [...this.terminals].join("|") + "]";
+  }
+
 }
