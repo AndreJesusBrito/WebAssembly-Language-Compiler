@@ -16,6 +16,7 @@ export function parse(tokens: Token[]): BaseNode {
   const actionScheduler = new Map<number, ActionObj[]>();
   const grammarStack: SyntaxSymbol[] = ["eot", rules.program];
   const operatorStack: Token[] = [];
+  const identifierStack: Token[] = [];
   const nodeStack: BaseNode[] = [];
 
   let currentPos = 0;
@@ -57,6 +58,7 @@ export function parse(tokens: Token[]): BaseNode {
             grammarStack: grammarStack,
             operatorStack: operatorStack,
             nodeStack: nodeStack,
+            identifierStack: identifierStack,
             currentTokenPos: currentPos,
             tokens: tokens,
           });
@@ -94,6 +96,11 @@ export function parse(tokens: Token[]): BaseNode {
           nodeStack.push(new NumberLiteralNode(currentToken));
           break;
 
+        case TokenType.IDENTIFIER:
+        case TokenType.PRIMITIVE_TYPE:
+          identifierStack.push(currentToken);
+          break;
+
         case TokenType.BOOLEAN_LITERAL:
           nodeStack.push(new BooleanLiteralNode(currentToken));
           break;
@@ -122,6 +129,7 @@ export function parse(tokens: Token[]): BaseNode {
           grammarStack: grammarStack,
           operatorStack: operatorStack,
           nodeStack: nodeStack,
+          identifierStack: identifierStack,
           currentTokenPos: currentPos,
           tokens: tokens,
         });

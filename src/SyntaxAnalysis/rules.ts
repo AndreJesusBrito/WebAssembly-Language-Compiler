@@ -158,10 +158,10 @@ function createConditionalTrap(args: ActionArgs) {
 }
 
 function createVarDefinitionNode(args: ActionArgs) {
-  const {nodeStack, tokens, currentTokenPos} = args;
+  const {nodeStack, identifierStack} = args;
 
-  const varType = tokens[currentTokenPos-2];
-  const varName = tokens[currentTokenPos-1];
+  const varName = identifierStack.pop();
+  const varType = identifierStack.pop();
 
   nodeStack.push(new VarDefinitionNode(varName.content, varType.content));
 }
@@ -356,14 +356,10 @@ function createConditionalOperatorNode(args: ActionArgs) {
 
 
 function createVarReferenceNodeFromCurrentToken(args: ActionArgs) {
-  const token = args.tokens[args.currentTokenPos];
+  const token = args.identifierStack.pop();
   createVarReferenceNode(token, args);
 }
 
-function createVarReferenceNodeFromPreviousToken(args: ActionArgs) {
-  const token = args.tokens[args.currentTokenPos - 1];
-  createVarReferenceNode(token, args);
-}
 
 function createVarReferenceNode(token: Token | null, args: ActionArgs) {
   if (token) {
@@ -916,6 +912,6 @@ rules.value.setDerivation(["true"], [], "true");
 rules.value.setDerivation(["false"], [], "false");
 rules.value.setDerivation(
   ["id"],
-  [{ index: fnCurrentIndex, func: createVarReferenceNodeFromCurrentToken}],
+  [{ index: fnPreviousIndex, func: createVarReferenceNodeFromCurrentToken}],
   "id"
 );

@@ -9,6 +9,7 @@ export type ActionArgs = {
   grammarStack: SyntaxSymbol[],
   operatorStack: Token[],
   nodeStack: BaseNode[],
+  identifierStack: Token[],
   currentTokenPos: number,
   tokens: Token[],
 }
