@@ -55,6 +55,8 @@ export const rules: {
   [key: string]: SyntaxRule
 } = {
   program: new SyntaxRule("program"),
+  highOrderDeclaration: new SyntaxRule("highOrderDeclaration"),
+  functionDeclaration: new SyntaxRule("functionDeclaration"),
   singleStatement: new SyntaxRule("singleStatement"),
   statement: new SyntaxRule("statement"),
   nextStatement: new SyntaxRule("nextStatement"),
@@ -572,8 +574,13 @@ function createPosIncrementNode(args: ActionArgs) {
 
 
 
-rules.program.setDerivation([rules.statement], [], "if", "while", "for", "trap", ";", "{", ...group.primitiveType, "id", "(", ...group.valuePrefixes, "number", "true", "false",);
+rules.program.setDerivation([rules.highOrderDeclaration], [], "func", "if", "while", "for", "trap", ";", "{", ...group.primitiveType, "id", "(", ...group.valuePrefixes, "number", "true", "false",);
 // rules.program.setDerivation([], "eot");
+
+rules.highOrderDeclaration.setDerivation([rules.functionDeclaration], [], "func");
+rules.highOrderDeclaration.setDerivation([], [], "eot");
+
+rules.functionDeclaration.setDerivation(["func", "id", "{", rules.statement, "}"], [], "func");
 
 rules.singleStatement.setDerivation(
   [rules.statementBlock],
