@@ -1,9 +1,12 @@
+import { ProgramNode } from "./ProgramNode";
+
 import { NumberLiteralNode } from "./NumberLiteralNode";
 import { BooleanLiteralNode } from "./BooleanLiteralNode";
 
 import { StatementSingleNode } from "./StatementSingleNode";
 import { StatementBlockNode } from "./StatementBlockNode";
 
+import { FunctionDefinitionNode } from "./FunctionDeclarationNode";
 import { VarDefinitionNode } from "./VarDefinitionNode";
 
 import { NumberUnaryNegationNode } from "./NumberUnaryNegationNode";
@@ -51,6 +54,9 @@ import { TrapStatementNode } from "./TrapStatementNode";
 
 
 export interface IVisitorAST {
+
+  visitProgramNode(node: ProgramNode): any;
+
   // literals
   visitNumberLiteralNode(node: NumberLiteralNode): any;
   visitBooleanLiteralNode(node: BooleanLiteralNode): any;
@@ -63,6 +69,8 @@ export interface IVisitorAST {
   visitWhileStatementNode(node: WhileStatementNode): any;
   visitStandardForStatementNode(node: StandardForStatementNode): any;
 
+
+  visitFunctionDefinitionNode(node: FunctionDefinitionNode): any;
 
   visitVarDefinitionNode(node: VarDefinitionNode): any;
   visitVarReferenceNode(node: VarReferenceNode): any;

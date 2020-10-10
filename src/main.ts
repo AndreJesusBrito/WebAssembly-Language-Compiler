@@ -4,6 +4,7 @@ import { parse } from "./SyntaxAnalysis/Parser";
 import { BinaryFormatCodeGenerator } from "./CodeGeneration/genCode";
 import { SemanticAnalyserPhase2 } from "./SemanticAnalysis/SemanticAnalyserPhase2";
 import { SemanticAnalyserPhase3 } from "./SemanticAnalysis/SemanticAnalyserPhase3";
+import { ProgramNode } from "./TreeNodes/ProgramNode";
 
 const fs = require("fs");
 const yargs = require("yargs");
@@ -32,7 +33,7 @@ function compile(argv) {
     } else {
       const tokens: Token[] = getTokens(text);
 
-      const ast = parse(tokens);
+      const ast: ProgramNode = parse(tokens);
 
       const semanticAnalyzer2 = new SemanticAnalyserPhase2(ast);
       semanticAnalyzer2.analyze();

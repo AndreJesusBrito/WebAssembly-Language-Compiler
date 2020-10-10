@@ -4,6 +4,7 @@ import { Token } from "../LexicalAnalysis/Token";
 import { TokenType } from "../LexicalAnalysis/Token";
 import { SyntaxSymbol, RuleDerivation, ActionObj } from "./types";
 
+import { ProgramNode } from "../TreeNodes/ProgramNode";
 import { BaseNode } from "../TreeNodes/BaseNode";
 import { NumberLiteralNode } from "../TreeNodes/NumberLiteralNode";
 import { BooleanLiteralNode } from "../TreeNodes/BooleanLiteralNode";
@@ -12,7 +13,7 @@ import { EmptyProgramNode } from "../TreeNodes/EmptyProgramNode";
 import { rules } from "./rules";
 
 
-export function parse(tokens: Token[]): BaseNode {
+export function parse(tokens: Token[]): ProgramNode {
   const actionScheduler = new Map<number, ActionObj[]>();
   const grammarStack: SyntaxSymbol[] = ["eot", rules.program];
   const operatorStack: Token[] = [];
@@ -83,7 +84,12 @@ export function parse(tokens: Token[]): BaseNode {
     else if (currentSymbol === getTokenSymbol(currentToken) || currentSymbol instanceof TerminalGroup) {
       // parsing successfull, returns ast
       if (currentToken.type === TokenType.EOT) {
-        return nodeStack.pop() || new EmptyProgramNode();
+        const programAst = nodeStack.pop();
+
+        if (!(programAst instanceof ProgramNode))
+          throw Error("The ast root node must be a ProgramNode");
+
+        return programAst;
       }
 
 

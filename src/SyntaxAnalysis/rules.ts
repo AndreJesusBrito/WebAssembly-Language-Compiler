@@ -50,6 +50,8 @@ import { LessThanExpressionNode } from "../TreeNodes/LessThanExpressionNode";
 import { LessOrEqualExpressionNode } from "../TreeNodes/LessOrEqualExpressionNode";
 import { EmptyStatement } from "../TreeNodes/EmptyStatement";
 import { TrapStatementNode } from "../TreeNodes/TrapStatementNode";
+import { FunctionDefinitionNode } from "../TreeNodes/FunctionDeclarationNode";
+import { ProgramNode } from "../TreeNodes/ProgramNode";
 
 export const rules: {
   [key: string]: SyntaxRule
@@ -137,6 +139,20 @@ function fnRunNow(currentIndex: number): number {
 
 
 
+
+function createProgram(args: ActionArgs) {
+  const {nodeStack} = args;
+
+  // the remaining elements in the nodeStack
+  // are the high order definitions.
+  const elements = [];
+  while (nodeStack.length > 0) {
+    elements.push(nodeStack.pop());
+  }
+
+  nodeStack.push(new ProgramNode(elements));
+
+}
 
 function createEmptyExpression(args: ActionArgs) {
   args.nodeStack.push(new EmptyExpression());
@@ -226,7 +242,6 @@ function createWhileNode(args: ActionArgs) {
 function createForNode(args: ActionArgs) {
   const { nodeStack } = args;
 
-  
   const innerStatement = nodeStack.pop();
   if (!(innerStatement instanceof StatementNode)) {
     throw Error("ForNode expected an statement");
@@ -378,6 +393,23 @@ function createStatementSingleNode(args: ActionArgs): void {
   if (!(expression instanceof ExpressionNode)) throw new Error("expecting a expression node here");
 
   nodeStack.push(new StatementSingleNode(expression));
+}
+
+function createFunctionDefinition(args: ActionArgs) {
+  const {nodeStack, identifierStack} = args;
+
+  // pops function body code
+  // @ts-ignore typescript bug https://github.com/microsoft/TypeScript/issues/29197
+  const body: StatementNode = nodeStack.pop();
+  const name: string = identifierStack.pop()?.content;
+
+  if (!(body instanceof StatementNode))
+    throw new Error("expected function body to be a statement");
+
+  if (name === null)
+    throw new Error("missing function definition name");
+
+  nodeStack.push(new FunctionDefinitionNode(name, body));
 }
 
 function createStatementBlockNode(args: ActionArgs): void {
@@ -574,13 +606,20 @@ function createPosIncrementNode(args: ActionArgs) {
 
 
 
-rules.program.setDerivation([rules.highOrderDefinition], [], "func", "if", "while", "for", "trap", ";", "{", ...group.primitiveType, "id", "(", ...group.valuePrefixes, "number", "true", "false",);
+rules.program.setDerivation(
+  [rules.highOrderDefinition],
+  [{index: fnPreviousIndex, func: createProgram}],
+  "func", "if", "while", "for", "trap", ";", "{", ...group.primitiveType, "id", "(", ...group.valuePrefixes, "number", "true", "false"
+);
 // rules.program.setDerivation([], "eot");
 
-rules.highOrderDefinition.setDerivation([rules.functionDefinition], [], "func");
+rules.highOrderDefinition.setDerivation([rules.functionDefinition, rules.highOrderDefinition], [], "func");
 rules.highOrderDefinition.setDerivation([], [], "eot");
 
-rules.functionDefinition.setDerivation(["func", "id", "{", rules.statement, "}"], [], "func");
+rules.functionDefinition.setDerivation(["func", "id", "{", rules.statement, "}"],
+  [{index: fnCurrentIndex, func: createFunctionDefinition}],
+  "func"
+);
 
 rules.singleStatement.setDerivation(
   [rules.statementBlock],

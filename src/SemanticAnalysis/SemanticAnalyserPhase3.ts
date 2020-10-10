@@ -1,4 +1,8 @@
 import { IVisitorAST } from "../TreeNodes/IVisitorAST";
+
+import { ProgramNode } from "../TreeNodes/ProgramNode";
+import { FunctionDefinitionNode } from "../TreeNodes/FunctionDeclarationNode";
+
 import { NumberLiteralNode } from "../TreeNodes/NumberLiteralNode";
 import { BooleanLiteralNode } from "../TreeNodes/BooleanLiteralNode";
 import { NumberUnaryNegationNode } from "../TreeNodes/NumberUnaryNegationNode";
@@ -48,6 +52,15 @@ export class SemanticAnalyserPhase3 implements IVisitorAST {
     this.ast = ast;
   }
 
+  visitProgramNode(node: ProgramNode) {
+    for (const [funcName,func] of node.functions) {
+      func.visit(this);
+    }
+  }
+
+  visitFunctionDefinitionNode(node: FunctionDefinitionNode) {
+    this.visitStatements(node.body);
+  }
 
   visitEmptyStatement(node: EmptyStatement): any {}
   visitEmptyExpression(node: EmptyExpression): any {}
@@ -250,8 +263,7 @@ export class SemanticAnalyserPhase3 implements IVisitorAST {
   }
 
   public analyze(): void {
-    // @ts-ignore TEMP only passing statements for now.
-    this.visitStatements(this.ast);
+    this.ast.visit(this);
   }
 
 }

@@ -1,4 +1,8 @@
 import { IVisitorAST } from "../TreeNodes/IVisitorAST";
+
+import { ProgramNode } from "../TreeNodes/ProgramNode";
+import { FunctionDefinitionNode } from "../TreeNodes/FunctionDeclarationNode";
+
 import { NumberLiteralNode } from "../TreeNodes/NumberLiteralNode";
 import { BooleanLiteralNode } from "../TreeNodes/BooleanLiteralNode";
 import { NumberUnaryNegationNode } from "../TreeNodes/NumberUnaryNegationNode";
@@ -51,6 +55,19 @@ export class SemanticAnalyserPhase2 implements IVisitorAST {
 
   constructor(ast: BaseNode) {
     this.ast = ast;
+  }
+
+
+  visitProgramNode(node: ProgramNode) {
+    for (const [funcName,func] of node.functions) {
+      func.visit(this);
+    }
+  }
+
+  visitFunctionDefinitionNode(node: FunctionDefinitionNode) {
+    this.frameStack.push(new Map());
+      this.visitStatements(node.body);
+    this.frameStack.pop();
   }
 
   visitEmptyStatement(node: EmptyStatement) {}
@@ -364,12 +381,8 @@ export class SemanticAnalyserPhase2 implements IVisitorAST {
   }
 
   public analyze(): void {
-
-    // TEMP while working only with one function (no globals)
     this.frameStack.push(new Map());
-
-    // @ts-ignore TEMP only passing statements for now.
-    this.visitStatements(this.ast);
+    this.ast.visit(this);
   }
 
 }

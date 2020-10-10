@@ -12,6 +12,9 @@ import {
 import { IVisitorAST } from "../TreeNodes/IVisitorAST";
 import { BaseNode } from "../TreeNodes/BaseNode";
 
+import { ProgramNode } from "../TreeNodes/ProgramNode";
+import { FunctionDefinitionNode } from "../TreeNodes/FunctionDeclarationNode";
+
 import { StatementNode } from "../TreeNodes/StatementNode";
 import { StatementBlockNode } from "../TreeNodes/StatementBlockNode";
 import { StatementSingleNode } from "../TreeNodes/StatementSingleNode";
@@ -60,7 +63,7 @@ import { open } from "fs/promises";
 
 
 export class BinaryFormatCodeGenerator implements IVisitorAST {
-  protected ast: BaseNode;
+  protected ast: ProgramNode;
 
   protected magicModuleHeader: number[] = [0x00, 0x61, 0x73, 0x6d];
   protected moduleVersion: number[] = [0x01, 0x00, 0x00, 0x00];
@@ -69,8 +72,16 @@ export class BinaryFormatCodeGenerator implements IVisitorAST {
   protected localsCount: number = 0;
   protected varDefinitions: VarDefinitionNode[] = [];
 
-  constructor (ast: BaseNode) {
+  constructor (ast: ProgramNode) {
     this.ast = ast;
+  }
+
+
+  visitProgramNode(node: ProgramNode) {
+    
+  }
+  visitFunctionDefinitionNode(node: FunctionDefinitionNode) {
+    throw new Error("Method not implemented.");
   }
 
   visitEmptyStatement(node: EmptyStatement) {
@@ -536,25 +547,65 @@ export class BinaryFormatCodeGenerator implements IVisitorAST {
     return code;
   }
 
+  private genFunctions(exports, code) {
+    let index = 0;
+    for (const [funcName, func] of this.ast.functions) {
+
+      exports.push([
+        ...encodeName(funcName),
+        ExportTypeCode.func,
+        ...encodeU32(index),
+      ]);
+
+
+
+      // TEMP init localsCount for current function;
+      this.localsCount = 0;
+
+      const generatedCode = this.genStatements(func.body);
+
+      const locals = encodeVector([
+        [this.localsCount, ValueType.i32]
+      ]);
+
+      // TEMP remove last drop operation to allow function to return
+      generatedCode.pop();
+
+      code.push([
+        encodeContainer([
+          ...locals,
+
+          // code expression
+          ...generatedCode,
+          Opcode.end
+        ]),
+      ]);
+
+      index++;
+    }
+  }
+
   public generate(): Uint8Array {
 
-    // @ts-ignore TEMP, only parsing statements directly
-    const generatedCode = this.genStatements(this.ast);
+    // TEMP for now all functions are exported implicitly
+    const exports = [];
 
-    // TEMP remove last drop operation to allow function to return
-    generatedCode.pop();
+    const code = [];
+
+    const types = [];
+
+    const funcTypeMap = [];
 
 
-    const code: number[] = [
+    // TEMP only one type for all functions
+    const defaultType = encodeFuncType([], [ValueType.i32]);
+    const defaultFuncTypeMap = encodeU32(0);
+    for (let i = 0; i < this.ast.functions.size; i++) {
+      types.push(defaultType);
+      funcTypeMap.push(defaultFuncTypeMap);
+    }
 
-      ...generatedCode,
-
-      Opcode.end
-    ];
-
-    const locals = encodeVector([
-      [this.localsCount, ValueType.i32]
-    ]);
+    this.genFunctions(exports, code);
 
 
     return Uint8Array.from([
@@ -562,42 +613,22 @@ export class BinaryFormatCodeGenerator implements IVisitorAST {
       ...this.moduleVersion,
 
       ...encodeSection(SectionTypeCode.type,
-        encodeVector([
-          encodeFuncType([], [ValueType.i32]),
-          // encodeFuncType([ValueType.i32, ValueType.i32], [ValueType.i32]),
-        ])
+        encodeVector(types)
       ),
 
 
       ...encodeSection(SectionTypeCode.function, [
-        encodeVector([
-          encodeU32(0)
-        ])
+        encodeVector(funcTypeMap)
       ]),
 
 
       ...encodeSection(SectionTypeCode.export,
-        encodeVector([
-          [
-            ...encodeName("result"),
-            ExportTypeCode.func,
-            // ...encodeU32(0),
-            0
-          ]
-        ])
+        encodeVector(exports)
       ),
 
 
       ...encodeSection(SectionTypeCode.code,
-        encodeVector([
-          encodeContainer([
-            // no locals for now
-            ...locals,
-
-            // code expression
-            ...code
-          ])
-        ])
+        encodeVector(code)
       ),
 
     ]);
