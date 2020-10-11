@@ -46,14 +46,15 @@ import { PosDecrementExpressionNode } from "../TreeNodes/PosDecrementExpressionN
 import { EmptyExpression } from "../TreeNodes/EmptyExpression";
 import { EmptyStatement } from "../TreeNodes/EmptyStatement";
 import { TrapStatementNode } from "../TreeNodes/TrapStatementNode";
+import { FunctionCallNode } from "../TreeNodes/FunctionCallNode";
 
 
 export class SemanticAnalyserPhase2 implements IVisitorAST {
-  protected ast: BaseNode;
+  protected ast: ProgramNode;
 
   protected frameStack: Map<String, VarDefinitionNode>[] = [new Map()];
 
-  constructor(ast: BaseNode) {
+  constructor(ast: ProgramNode) {
     this.ast = ast;
   }
 
@@ -68,6 +69,15 @@ export class SemanticAnalyserPhase2 implements IVisitorAST {
     this.frameStack.push(new Map());
       this.visitStatements(node.body);
     this.frameStack.pop();
+  }
+
+  visitFunctionCallNode(node: FunctionCallNode) {
+    const func = this.ast.functions.get(node.funcName);
+
+    if (!func) {
+      throw Error("Function '" + node.funcName + "' its not defined.");
+    }
+    node.funcRef = func;
   }
 
   visitEmptyStatement(node: EmptyStatement) {}

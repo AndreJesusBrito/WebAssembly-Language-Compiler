@@ -51,6 +51,7 @@ import { LessOrEqualExpressionNode } from "../TreeNodes/LessOrEqualExpressionNod
 import { EmptyStatement } from "../TreeNodes/EmptyStatement";
 import { TrapStatementNode } from "../TreeNodes/TrapStatementNode";
 import { FunctionDefinitionNode } from "../TreeNodes/FunctionDeclarationNode";
+import { FunctionCallNode } from "../TreeNodes/FunctionCallNode";
 import { ProgramNode } from "../TreeNodes/ProgramNode";
 
 export const rules: {
@@ -106,6 +107,10 @@ export const rules: {
   addExpPrime: new SyntaxRule("addExpPrime"),
   valuePrefix: new SyntaxRule("valuePrefix"),
   valueSuffix: new SyntaxRule("valueSuffix"),
+  highOrderOperations: new SyntaxRule("highOrderOperations"),
+  highOrderOperationsLeft: new SyntaxRule("highOrderOperationsLeft"),
+  highOrderOperationsRight: new SyntaxRule("highOrderOperationsRight"),
+  functionCall: new SyntaxRule("functionCall"),
   value: new SyntaxRule("value"),
 };
 
@@ -602,6 +607,19 @@ function createPosIncrementNode(args: ActionArgs) {
 
 }
 
+function createFunctionCallNode(args: ActionArgs) {
+  const { nodeStack } = args;
+
+  const func = nodeStack.pop();
+
+  if (!(func instanceof VarReferenceNode)) {
+    throw Error("Expected a VarReferenceNode in the function call");
+  }
+
+  nodeStack.push(new FunctionCallNode(func.variableName));
+
+}
+
 
 
 
@@ -933,7 +951,7 @@ rules.valuePrefix.setDerivation(
   "--"
 );
 rules.valuePrefix.setDerivation(
-  [rules.value, rules.valueSuffix], [], "(", "number", "true", "false", "id"
+  [rules.highOrderOperations, rules.valueSuffix], [], "(", "number", "true", "false", "id"
 );
 
 
@@ -950,6 +968,35 @@ rules.valueSuffix.setDerivation(
 rules.valueSuffix.setDerivation(
   [], [], ...group.equalsOp, ...group.comparisonOp, ";", ...group.assignOp, "||", "^^", "&&", "|", "^", "&", ...group.sumOp, ...group.mulOp, ")", "?", ":"
 );
+
+
+rules.highOrderOperations.setDerivation(
+  [rules.highOrderOperationsLeft, rules.value, rules.highOrderOperationsRight ],
+  [],
+  "(", "number", "true", "false", "id"
+);
+
+
+rules.highOrderOperationsLeft.setDerivation(
+  [], [],
+  "(", "number", "true", "false", "id"
+);
+
+
+rules.highOrderOperationsRight.setDerivation(
+  [], [],
+  ...group.equalsOp, ...group.comparisonOp, ";", ...group.assignOp, "||", "^^", "&&", "|", "^", "&", ...group.sumOp, ...group.mulOp, ")", "?", ":"
+);
+rules.highOrderOperationsRight.setDerivation(
+  [rules.functionCall], [], "("
+);
+
+rules.functionCall.setDerivation(
+  ["(", ")", rules.functionCall],
+  [{index: fnCurrentIndex, func: createFunctionCallNode}],
+  "("
+);
+rules.functionCall.setDerivation([], [], ...group.equalsOp, ...group.comparisonOp, ";", ...group.assignOp, "||", "^^", "&&", "|", "^", "&", ...group.sumOp, ...group.mulOp, ")", "?", ":");
 
 
 rules.value.setDerivation(["(", rules.expression, ")"], [], "(");

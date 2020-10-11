@@ -5,6 +5,7 @@ import { BaseNode } from "./BaseNode";
 export class FunctionDefinitionNode extends BaseNode {
   name: string;
   body: StatementNode;
+  index: number;
 
   constructor(name: string, body: StatementNode) {
     super();

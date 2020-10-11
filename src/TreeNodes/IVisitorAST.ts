@@ -7,6 +7,7 @@ import { StatementSingleNode } from "./StatementSingleNode";
 import { StatementBlockNode } from "./StatementBlockNode";
 
 import { FunctionDefinitionNode } from "./FunctionDeclarationNode";
+import { FunctionCallNode } from "./FunctionCallNode";
 import { VarDefinitionNode } from "./VarDefinitionNode";
 
 import { NumberUnaryNegationNode } from "./NumberUnaryNegationNode";
@@ -71,6 +72,7 @@ export interface IVisitorAST {
 
 
   visitFunctionDefinitionNode(node: FunctionDefinitionNode): any;
+  visitFunctionCallNode(node: FunctionCallNode): any;
 
   visitVarDefinitionNode(node: VarDefinitionNode): any;
   visitVarReferenceNode(node: VarReferenceNode): any;

@@ -59,6 +59,7 @@ import { EmptyExpression } from "../TreeNodes/EmptyExpression";
 import { EmptyStatement } from "../TreeNodes/EmptyStatement";
 import { TrapStatementNode } from "../TreeNodes/TrapStatementNode";
 import { open } from "fs/promises";
+import { FunctionCallNode } from "../TreeNodes/FunctionCallNode";
 
 
 
@@ -80,8 +81,13 @@ export class BinaryFormatCodeGenerator implements IVisitorAST {
   visitProgramNode(node: ProgramNode) {
     
   }
-  visitFunctionDefinitionNode(node: FunctionDefinitionNode) {
-    throw new Error("Method not implemented.");
+  visitFunctionDefinitionNode(node: FunctionDefinitionNode) {}
+
+  visitFunctionCallNode(node: FunctionCallNode): number[] {
+    return [
+      Opcode.call,
+      ...encodeU32(node.funcRef.index)
+    ];
   }
 
   visitEmptyStatement(node: EmptyStatement) {
@@ -548,13 +554,12 @@ export class BinaryFormatCodeGenerator implements IVisitorAST {
   }
 
   private genFunctions(exports, code) {
-    let index = 0;
     for (const [funcName, func] of this.ast.functions) {
 
       exports.push([
         ...encodeName(funcName),
         ExportTypeCode.func,
-        ...encodeU32(index),
+        ...encodeU32(func.index),
       ]);
 
 
@@ -581,7 +586,6 @@ export class BinaryFormatCodeGenerator implements IVisitorAST {
         ]),
       ]);
 
-      index++;
     }
   }
 

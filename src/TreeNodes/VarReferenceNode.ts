@@ -2,6 +2,7 @@ import { IVisitorAST } from "./IVisitorAST";
 import { ExpressionNode } from "./ExpressionNode";
 import { VarDefinitionNode } from "./VarDefinitionNode";
 import { ReferenceNode } from "./ReferenceNode";
+import { FunctionDefinitionNode } from "./FunctionDeclarationNode";
 
 export class VarReferenceNode extends ReferenceNode {
   public variableName: string;

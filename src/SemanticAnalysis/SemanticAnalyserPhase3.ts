@@ -43,6 +43,7 @@ import { PosDecrementExpressionNode } from "../TreeNodes/PosDecrementExpressionN
 import { EmptyExpression } from "../TreeNodes/EmptyExpression";
 import { EmptyStatement } from "../TreeNodes/EmptyStatement";
 import { TrapStatementNode } from "../TreeNodes/TrapStatementNode";
+import { FunctionCallNode } from "../TreeNodes/FunctionCallNode";
 
 
 export class SemanticAnalyserPhase3 implements IVisitorAST {
@@ -61,6 +62,7 @@ export class SemanticAnalyserPhase3 implements IVisitorAST {
   visitFunctionDefinitionNode(node: FunctionDefinitionNode) {
     this.visitStatements(node.body);
   }
+  visitFunctionCallNode(node: FunctionCallNode) {}
 
   visitEmptyStatement(node: EmptyStatement): any {}
   visitEmptyExpression(node: EmptyExpression): any {}
