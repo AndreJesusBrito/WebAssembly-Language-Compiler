@@ -53,6 +53,8 @@ import { TrapStatementNode } from "../TreeNodes/TrapStatementNode";
 import { FunctionDefinitionNode } from "../TreeNodes/FunctionDeclarationNode";
 import { FunctionCallNode } from "../TreeNodes/FunctionCallNode";
 import { ProgramNode } from "../TreeNodes/ProgramNode";
+import { FunctionDefinitionArgument } from "../TreeNodes/FunctionDeclarationArgument";
+import { NodeList } from "../TreeNodes/NodeList";
 
 export const rules: {
   [key: string]: SyntaxRule
@@ -60,6 +62,10 @@ export const rules: {
   program: new SyntaxRule("program"),
   highOrderDefinition: new SyntaxRule("highOrderDefinition"),
   functionDefinition: new SyntaxRule("functionDefinition"),
+  functionDefinitionArgument: new SyntaxRule("functionDefinitionArgument"),
+  functionDefinitionArgumentPrime: new SyntaxRule("functionDefinitionArgumentPrime"),
+  functionDefinitionArgumentSeparator: new SyntaxRule("functionDefinitionArgumentSeparator"),
+  functionDefinitionArgumentList: new SyntaxRule("functionDefinitionArgumentList"),
   singleStatement: new SyntaxRule("singleStatement"),
   statement: new SyntaxRule("statement"),
   nextStatement: new SyntaxRule("nextStatement"),
@@ -111,6 +117,9 @@ export const rules: {
   highOrderOperationsLeft: new SyntaxRule("highOrderOperationsLeft"),
   highOrderOperationsRight: new SyntaxRule("highOrderOperationsRight"),
   functionCall: new SyntaxRule("functionCall"),
+  functionCallArgument: new SyntaxRule("functionCallArgument"),
+  functionCallArgumentPrime: new SyntaxRule("functionCallArgumentPrime"),
+  functionCallArgumentSeparator: new SyntaxRule("functionCallArgumentSeparator"),
   value: new SyntaxRule("value"),
 };
 
@@ -406,6 +415,14 @@ function createFunctionDefinition(args: ActionArgs) {
   // pops function body code
   // @ts-ignore typescript bug https://github.com/microsoft/TypeScript/issues/29197
   const body: StatementNode = nodeStack.pop();
+
+  let argsNodeList = nodeStack.pop();
+
+  if (!(argsNodeList instanceof NodeList))
+    throw Error("expected args list here");
+
+  const argsList: FunctionDefinitionArgument[] = argsNodeList.nodes;
+
   const name: string = identifierStack.pop()?.content;
 
   if (!(body instanceof StatementNode))
@@ -414,7 +431,26 @@ function createFunctionDefinition(args: ActionArgs) {
   if (name === null)
     throw new Error("missing function definition name");
 
-  nodeStack.push(new FunctionDefinitionNode(name, body));
+  nodeStack.push(new FunctionDefinitionNode(name, argsList, body));
+}
+
+function createFunctionDefinitionArgumentList(args: ActionArgs) {
+  const argsList = new NodeList<FunctionDefinitionArgument>();
+  args.nodeStack.push(argsList);
+}
+
+function addFunctionDeclarationArgument(args: ActionArgs) {
+  const argName = args.identifierStack.pop();
+  const argType = args.identifierStack.pop();
+
+  const nodeList = args.nodeStack[args.nodeStack.length - 1];
+
+  if (!(nodeList instanceof NodeList)) {
+    throw Error("expected a list here");
+  }
+
+  const funcDefArg = new FunctionDefinitionArgument(argName, argType);
+  nodeList.nodes.push(funcDefArg);
 }
 
 function createStatementBlockNode(args: ActionArgs): void {
@@ -610,15 +646,36 @@ function createPosIncrementNode(args: ActionArgs) {
 function createFunctionCallNode(args: ActionArgs) {
   const { nodeStack } = args;
 
-  const func = nodeStack.pop();
+  const argsNodeList = nodeStack.pop();
+  if (!(argsNodeList instanceof NodeList))
+    throw Error("expected nodelist here");
 
+  const func = nodeStack.pop();
   if (!(func instanceof VarReferenceNode)) {
     throw Error("Expected a VarReferenceNode in the function call");
   }
 
-  nodeStack.push(new FunctionCallNode(func.variableName));
-
+  nodeStack.push(new FunctionCallNode(func.variableName, argsNodeList ));
 }
+
+function createFunctionCallArgumentList(args: ActionArgs) {
+  const argsList = new NodeList<ExpressionNode>();
+  args.nodeStack.push(argsList);
+}
+
+function addFunctionCallArgument(args: ActionArgs) {
+  const argValue = args.nodeStack.pop();
+  if (!(argValue instanceof ExpressionNode))
+    throw Error("expected expression here");
+
+  const nodeList = args.nodeStack[args.nodeStack.length - 1];
+  if (!(nodeList instanceof NodeList))
+    throw Error("expected a list here");
+
+  nodeList.nodes.push(argValue);
+}
+
+
 
 
 
@@ -634,9 +691,46 @@ rules.program.setDerivation(
 rules.highOrderDefinition.setDerivation([rules.functionDefinition, rules.highOrderDefinition], [], "func");
 rules.highOrderDefinition.setDerivation([], [], "eot");
 
-rules.functionDefinition.setDerivation(["func", "id", "{", rules.statement, "}"],
+rules.functionDefinition.setDerivation(
+  ["func", "id", rules.functionDefinitionArgumentList, "{", rules.statement, "}"],
   [{index: fnCurrentIndex, func: createFunctionDefinition}],
   "func"
+);
+
+rules.functionDefinitionArgumentList.setDerivation(
+  ["(", rules.functionDefinitionArgument, ")"],
+  [{index: fnRunNow, func: createFunctionDefinitionArgumentList}],
+  "("
+);
+rules.functionDefinitionArgumentList.setDerivation(
+  [],
+  [{index: fnRunNow, func: createFunctionDefinitionArgumentList}],
+  "{"
+);
+
+rules.functionDefinitionArgument.setDerivation(
+  [rules.functionDefinitionArgumentPrime, rules.functionDefinitionArgumentSeparator],
+  [],
+  ...group.primitiveType
+);
+rules.functionDefinitionArgument.setDerivation(
+  [], [], ")"
+);
+rules.functionDefinitionArgumentPrime.setDerivation(
+  [group.primitiveType, "id"],
+  [{index: fnPreviousIndex, func: addFunctionDeclarationArgument}],
+  ...group.primitiveType
+);
+
+rules.functionDefinitionArgumentSeparator.setDerivation(
+  [",", rules.functionDefinitionArgument],
+  [],
+  ","
+);
+rules.functionDefinitionArgumentSeparator.setDerivation(
+  [],
+  [],
+  ")"
 );
 
 rules.singleStatement.setDerivation(
@@ -797,7 +891,7 @@ rules.assignExpressionPrime.setDerivation(
   [{ index: fnPreviousIndex, func: createAssignmentNode }],
   ...group.assignOp
 );
-rules.assignExpressionPrime.setDerivation([], [], ";", ")", "?", ":");
+rules.assignExpressionPrime.setDerivation([], [], ";", ")", ",", "?", ":");
 
 
 
@@ -810,7 +904,7 @@ rules.conditionalPrime.setDerivation(
   [{ index: fnPreviousIndex, func: createConditionalOperatorNode }],
   "?"
 );
-rules.conditionalPrime.setDerivation([], [], ";", ...group.assignOp, "||", ")", ":");
+rules.conditionalPrime.setDerivation([], [], ";", ...group.assignOp, "||", ")", ",", ":");
 
 
 
@@ -822,7 +916,7 @@ rules.booleanOrExpPrime.setDerivation(
   [{ index: fnCurrentIndex, func: createBinOperatorNode }],
   "||"
 );
-rules.booleanOrExpPrime.setDerivation([], [], ";", ...group.assignOp, ")", "?", ":");
+rules.booleanOrExpPrime.setDerivation([], [], ";", ...group.assignOp, ")", ",", "?", ":");
 
 rules.booleanXorExp.setDerivation([rules.booleanAndExp, rules.booleanXorExpPrime], [], "id", ...group.valuePrefixes, "(", "number", "true", "false")
 rules.booleanXorExpPrime.setDerivation(
@@ -830,7 +924,7 @@ rules.booleanXorExpPrime.setDerivation(
   [{ index: fnCurrentIndex, func: createBinOperatorNode }],
   "^^"
 );
-rules.booleanXorExpPrime.setDerivation([], [], ";", ...group.assignOp, "||", ")", "?", ":");
+rules.booleanXorExpPrime.setDerivation([], [], ";", ...group.assignOp, "||", ")", ",", "?", ":");
 
 rules.booleanAndExp.setDerivation([rules.bitwiseOrExp, rules.booleanAndExpPrime], [], "id", ...group.valuePrefixes, "(", "number", "true", "false")
 rules.booleanAndExpPrime.setDerivation(
@@ -838,7 +932,7 @@ rules.booleanAndExpPrime.setDerivation(
   [{ index: fnCurrentIndex, func: createBinOperatorNode }],
   "&&"
 );
-rules.booleanAndExpPrime.setDerivation([], [], ";", ...group.assignOp, "||", "^^", ")", "?", ":");
+rules.booleanAndExpPrime.setDerivation([], [], ";", ...group.assignOp, "||", "^^", ")", ",", "?", ":");
 
 
 
@@ -849,7 +943,7 @@ rules.bitwiseOrExpPrime.setDerivation(
   [{ index: fnCurrentIndex, func: createBinOperatorNode }],
   "|"
 );
-rules.bitwiseOrExpPrime.setDerivation([], [], ";", ...group.assignOp, "||", "^^", "&&", ")", "?", ":");
+rules.bitwiseOrExpPrime.setDerivation([], [], ";", ...group.assignOp, "||", "^^", "&&", ")", ",", "?", ":");
 
 rules.bitwiseXorExp.setDerivation([rules.bitwiseAndExp, rules.bitwiseXorExpPrime], [], "id", ...group.valuePrefixes, "(", "number", "true", "false")
 rules.bitwiseXorExpPrime.setDerivation(
@@ -857,7 +951,7 @@ rules.bitwiseXorExpPrime.setDerivation(
   [{ index: fnCurrentIndex, func: createBinOperatorNode }],
   "^"
 );
-rules.bitwiseXorExpPrime.setDerivation([], [], ";", ...group.assignOp, "||", "^^", "&&", "|", ")", "?", ":");
+rules.bitwiseXorExpPrime.setDerivation([], [], ";", ...group.assignOp, "||", "^^", "&&", "|", ")", ",", "?", ":");
 
 rules.bitwiseAndExp.setDerivation([rules.equalsExpression, rules.bitwiseAndExpPrime], [], "id", ...group.valuePrefixes, "(", "number", "true", "false")
 rules.bitwiseAndExpPrime.setDerivation(
@@ -865,7 +959,7 @@ rules.bitwiseAndExpPrime.setDerivation(
   [{ index: fnCurrentIndex, func: createBinOperatorNode }],
   "&"
 );
-rules.bitwiseAndExpPrime.setDerivation([], [], ";", ...group.assignOp, "||", "^^", "&&", "|", "^", ")", "?", ":");
+rules.bitwiseAndExpPrime.setDerivation([], [], ";", ...group.assignOp, "||", "^^", "&&", "|", "^", ")", ",", "?", ":");
 
 
 
@@ -876,7 +970,7 @@ rules.equalsExpressionPrime.setDerivation(
   [{ index: fnCurrentIndex, func: createBinOperatorNode }],
   ...group.equalsOp
 );
-rules.equalsExpressionPrime.setDerivation([], [], ";", ...group.assignOp, "||", "^^", "&&", "|", "^", "&", ")", "?", ":");
+rules.equalsExpressionPrime.setDerivation([], [], ";", ...group.assignOp, "||", "^^", "&&", "|", "^", "&", ")", ",", "?", ":");
 
 
 rules.comparisonExp.setDerivation([rules.addExp, rules.comparisonExpPrime], [], "id", ...group.valuePrefixes, "(", "number", "true", "false")
@@ -885,7 +979,7 @@ rules.comparisonExpPrime.setDerivation(
   [{ index: fnCurrentIndex, func: createBinOperatorNode }],
   ...group.comparisonOp
 );
-rules.comparisonExpPrime.setDerivation([], [], ";", ...group.assignOp, ...group.equalsOp, "||", "^^", "&&", "|", "^", "&", ")", "?", ":");
+rules.comparisonExpPrime.setDerivation([], [], ";", ...group.assignOp, ...group.equalsOp, "||", "^^", "&&", "|", "^", "&", ")", ",", "?", ":");
 
 
 
@@ -896,7 +990,7 @@ rules.addExpPrime.setDerivation(
   [{ index: fnCurrentIndex, func: createBinOperatorNode }],
   ...group.sumOp,
 );
-rules.addExpPrime.setDerivation([], [], ...group.equalsOp, ...group.comparisonOp, ";", ...group.assignOp, "||", "^^", "&&", "|", "^", "&", ")", "?", ":");
+rules.addExpPrime.setDerivation([], [], ...group.equalsOp, ...group.comparisonOp, ";", ...group.assignOp, "||", "^^", "&&", "|", "^", "&", ")", ",", "?", ":");
 
 
 rules.mulExp.setDerivation([rules.exponencialExp, rules.mulExpPrime], [], "id", ...group.valuePrefixes, "(", "number", "true", "false");
@@ -906,7 +1000,7 @@ rules.mulExpPrime.setDerivation(
   [{ index: fnCurrentIndex, func: createBinOperatorNode }],
   ...group.mulOp,
 );
-rules.mulExpPrime.setDerivation([], [], ...group.equalsOp, ...group.comparisonOp, ";", ...group.assignOp, "||", "^^", "&&", "|", "^", "&", ...group.sumOp, ")", "?", ":");
+rules.mulExpPrime.setDerivation([], [], ...group.equalsOp, ...group.comparisonOp, ";", ...group.assignOp, "||", "^^", "&&", "|", "^", "&", ...group.sumOp, ")", ",", "?", ":");
 
 
 rules.exponencialExp.setDerivation([rules.valuePrefix, rules.exponencialExpPrime], [], "id", ...group.valuePrefixes, "(", "number", "true", "false");
@@ -916,7 +1010,7 @@ rules.exponencialExpPrime.setDerivation(
   [{ index: fnPreviousIndex, func: createBinOperatorNode }],
   "**",
 );
-rules.exponencialExpPrime.setDerivation([], [], ...group.equalsOp, ...group.comparisonOp, ";", ...group.assignOp, "||", "^^", "&&", "|", "^", "&", ...group.sumOp, ...group.mulOp, ")", "?", ":");
+rules.exponencialExpPrime.setDerivation([], [], ...group.equalsOp, ...group.comparisonOp, ";", ...group.assignOp, "||", "^^", "&&", "|", "^", "&", ...group.sumOp, ...group.mulOp, ")", ",", "?", ":");
 
 
 rules.valuePrefix.setDerivation(["+", rules.valuePrefix], [], "+");
@@ -966,7 +1060,7 @@ rules.valueSuffix.setDerivation(
   "--"
 );
 rules.valueSuffix.setDerivation(
-  [], [], ...group.equalsOp, ...group.comparisonOp, ";", ...group.assignOp, "||", "^^", "&&", "|", "^", "&", ...group.sumOp, ...group.mulOp, ")", "?", ":"
+  [], [], ...group.equalsOp, ...group.comparisonOp, ";", ...group.assignOp, "||", "^^", "&&", "|", "^", "&", ...group.sumOp, ...group.mulOp, ")", ",", "?", ":"
 );
 
 
@@ -985,18 +1079,49 @@ rules.highOrderOperationsLeft.setDerivation(
 
 rules.highOrderOperationsRight.setDerivation(
   [], [],
-  ...group.equalsOp, ...group.comparisonOp, ";", ...group.assignOp, "||", "^^", "&&", "|", "^", "&", ...group.sumOp, ...group.mulOp, ")", "?", ":"
+  ...group.equalsOp, ...group.comparisonOp, ";", ...group.assignOp, "||", "^^", "&&", "|", "^", "&", ...group.sumOp, ...group.mulOp, ")", ",", "?", ":"
 );
 rules.highOrderOperationsRight.setDerivation(
   [rules.functionCall], [], "("
 );
 
+
 rules.functionCall.setDerivation(
-  ["(", ")", rules.functionCall],
-  [{index: fnCurrentIndex, func: createFunctionCallNode}],
+  ["(", rules.functionCallArgument, ")", rules.functionCall],
+  [
+    {index: fnCurrentIndex, func: createFunctionCallNode},
+    {index: fnRunNow, func: createFunctionCallArgumentList},
+  ],
   "("
 );
-rules.functionCall.setDerivation([], [], ...group.equalsOp, ...group.comparisonOp, ";", ...group.assignOp, "||", "^^", "&&", "|", "^", "&", ...group.sumOp, ...group.mulOp, ")", "?", ":");
+rules.functionCall.setDerivation(
+  [], [], ...group.equalsOp, ...group.comparisonOp, ";", ...group.assignOp, "||", "^^", "&&", "|", "^", "&", ...group.sumOp, ...group.mulOp, ")", ",", "?", ":"
+);
+
+rules.functionCallArgument.setDerivation(
+  [rules.functionCallArgumentPrime, rules.functionCallArgumentSeparator],
+  [],
+  "id", ...group.valuePrefixes, "(", "number", "true", "false"
+);
+rules.functionCallArgument.setDerivation(
+  [], [], ")"
+);
+rules.functionCallArgumentPrime.setDerivation(
+  [rules.expression],
+  [{index: fnPreviousIndex, func: addFunctionCallArgument}],
+  "id", ...group.valuePrefixes, "(", "number", "true", "false"
+);
+
+rules.functionCallArgumentSeparator.setDerivation(
+  [",", rules.functionCallArgument],
+  [],
+  ","
+);
+rules.functionCallArgumentSeparator.setDerivation(
+  [],
+  [],
+  ")"
+);
 
 
 rules.value.setDerivation(["(", rules.expression, ")"], [], "(");

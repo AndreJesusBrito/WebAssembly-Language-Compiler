@@ -1,12 +1,12 @@
 import { IVisitorAST } from "./IVisitorAST";
 import { ExpressionNode } from "./ExpressionNode";
-import { VarDefinitionNode } from "./VarDefinitionNode";
+import { IVarDefinition } from "./IVarDefinition";
 import { ReferenceNode } from "./ReferenceNode";
 import { FunctionDefinitionNode } from "./FunctionDeclarationNode";
 
 export class VarReferenceNode extends ReferenceNode {
   public variableName: string;
-  public definitionNode: VarDefinitionNode | null = null;
+  public definitionNode: IVarDefinition | null = null;
 
   constructor(variableName: string) {
     super();

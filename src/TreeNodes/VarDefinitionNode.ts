@@ -1,8 +1,9 @@
 import { StatementNode } from "./StatementNode"
 import { IVisitorAST } from "./IVisitorAST";
 import { ExpressionNode } from "./ExpressionNode";
+import { IVarDefinition } from "./IVarDefinition";
 
-export class VarDefinitionNode extends StatementNode {
+export class VarDefinitionNode extends StatementNode implements IVarDefinition {
   public assignment: ExpressionNode | null = null;
 
   public variableName: string;

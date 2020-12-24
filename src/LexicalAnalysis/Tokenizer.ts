@@ -19,6 +19,7 @@ const matchers = new Map<TokenType, RegExp>();
   matchers.set(TokenType.RIGHT_CURLY_BRAQUET, /^}/);
 
   matchers.set(TokenType.SEMICOLON, /^;/);
+  matchers.set(TokenType.COMMA, /^,/);
 }
 
 function escapeComment(env: EnvStruct): boolean {

@@ -85,6 +85,7 @@ export class BinaryFormatCodeGenerator implements IVisitorAST {
 
   visitFunctionCallNode(node: FunctionCallNode): number[] {
     return [
+      ...node.args.map(arg => arg.visit(this)),
       Opcode.call,
       ...encodeU32(node.funcRef.index)
     ];
@@ -563,14 +564,19 @@ export class BinaryFormatCodeGenerator implements IVisitorAST {
       ]);
 
 
+      // init variable indexes
+      func.args.forEach(function(arg, index) {
+        arg.index = index;
+      });
+      this.localsCount = func.args.length;
 
-      // TEMP init localsCount for current function;
-      this.localsCount = 0;
+
 
       const generatedCode = this.genStatements(func.body);
 
+      // TEMP allow support for more types
       const locals = encodeVector([
-        [this.localsCount, ValueType.i32]
+        [...encodeU32(this.localsCount), ValueType.i32]
       ]);
 
       // TEMP remove last drop operation to allow function to return
@@ -600,13 +606,16 @@ export class BinaryFormatCodeGenerator implements IVisitorAST {
 
     const funcTypeMap = [];
 
+    // TEMP make support for more types
+    let i = 0;
+    for (const [funcName, func] of this.ast.functions) {
+      const argsVector = [];
+      for (let j = 0; j < func.args.length; j++) {
+        argsVector.push(ValueType.i32);
+      }
 
-    // TEMP only one type for all functions
-    const defaultType = encodeFuncType([], [ValueType.i32]);
-    const defaultFuncTypeMap = encodeU32(0);
-    for (let i = 0; i < this.ast.functions.size; i++) {
-      types.push(defaultType);
-      funcTypeMap.push(defaultFuncTypeMap);
+      types.push(encodeFuncType(argsVector, [ValueType.i32]));
+      funcTypeMap.push(...encodeU32(i++));
     }
 
     this.genFunctions(exports, code);

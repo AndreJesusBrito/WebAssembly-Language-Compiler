@@ -47,12 +47,13 @@ import { EmptyExpression } from "../TreeNodes/EmptyExpression";
 import { EmptyStatement } from "../TreeNodes/EmptyStatement";
 import { TrapStatementNode } from "../TreeNodes/TrapStatementNode";
 import { FunctionCallNode } from "../TreeNodes/FunctionCallNode";
+import { IVarDefinition } from "../TreeNodes/IVarDefinition";
 
 
 export class SemanticAnalyserPhase2 implements IVisitorAST {
   protected ast: ProgramNode;
 
-  protected frameStack: Map<String, VarDefinitionNode>[] = [new Map()];
+  protected frameStack: Map<String, IVarDefinition>[] = [new Map()];
 
   constructor(ast: ProgramNode) {
     this.ast = ast;
@@ -67,6 +68,12 @@ export class SemanticAnalyserPhase2 implements IVisitorAST {
 
   visitFunctionDefinitionNode(node: FunctionDefinitionNode) {
     this.frameStack.push(new Map());
+
+      // declare function arguments
+      for (const arg of node.args) {
+        this.declareVariable(arg);
+      }
+
       this.visitStatements(node.body);
     this.frameStack.pop();
   }
@@ -77,6 +84,22 @@ export class SemanticAnalyserPhase2 implements IVisitorAST {
     if (!func) {
       throw Error("Function '" + node.funcName + "' its not defined.");
     }
+
+    // check arguments count
+    if (node.args.length != func.args.length) {
+      throw TypeError("Called function with " + node.args.length + " arguments but expected " + func.args.length);
+    }
+
+    // visit arguments and check them type
+    for (let i = 0; i < node.args.length; i++) {
+      node.args[i].visit(this);
+
+      if (node.args[i].resultType !== func.args[i].datatype) {
+        throw TypeError("Error: '" + func.args[i].variableName +
+        "' argument type is '" + func.args[i].datatype + "' but '" + node.args[i].resultType + "' was passed");
+      }
+    }
+
     node.funcRef = func;
   }
 
@@ -362,7 +385,7 @@ export class SemanticAnalyserPhase2 implements IVisitorAST {
   }
 
 
-  protected declareVariable(node: VarDefinitionNode): void {
+  protected declareVariable(node: IVarDefinition): void {
     const varName: string = node.variableName;
 
     if (this.frameStack[this.frameStack.length - 1].get(varName)) {

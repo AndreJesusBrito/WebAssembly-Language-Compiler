@@ -12,6 +12,7 @@ export enum TokenType {
   OPERATOR,
 
   SEMICOLON,
+  COMMA,
 
   KEYWORD,
   PRIMITIVE_TYPE,

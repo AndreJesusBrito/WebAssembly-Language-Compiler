@@ -1,15 +1,18 @@
 import { StatementNode } from "./StatementNode"
 import { IVisitorAST } from "./IVisitorAST";
 import { BaseNode } from "./BaseNode";
+import { FunctionDefinitionArgument } from "./FunctionDeclarationArgument";
 
 export class FunctionDefinitionNode extends BaseNode {
   name: string;
+  args: FunctionDefinitionArgument[];
   body: StatementNode;
   index: number;
 
-  constructor(name: string, body: StatementNode) {
+  constructor(name: string, args: FunctionDefinitionArgument[], body: StatementNode) {
     super();
 
+    this.args = args;
     this.name = name;
     this.body = body;
   }
