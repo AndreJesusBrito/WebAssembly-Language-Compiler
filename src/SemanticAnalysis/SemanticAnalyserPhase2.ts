@@ -46,6 +46,7 @@ import { PosDecrementExpressionNode } from "../TreeNodes/PosDecrementExpressionN
 import { EmptyExpression } from "../TreeNodes/EmptyExpression";
 import { EmptyStatement } from "../TreeNodes/EmptyStatement";
 import { TrapStatementNode } from "../TreeNodes/TrapStatementNode";
+import { ReturnStatementNode } from "../TreeNodes/ReturnStatementNode";
 import { FunctionCallNode } from "../TreeNodes/FunctionCallNode";
 import { IVarDefinition } from "../TreeNodes/IVarDefinition";
 
@@ -58,6 +59,7 @@ export class SemanticAnalyserPhase2 implements IVisitorAST {
   constructor(ast: ProgramNode) {
     this.ast = ast;
   }
+  
 
 
   visitProgramNode(node: ProgramNode) {
@@ -108,6 +110,13 @@ export class SemanticAnalyserPhase2 implements IVisitorAST {
   visitTrapStatementNode(node: TrapStatementNode) {
     if (node.condition && node.condition.resultType !== "bool") {
       throw new Error("trap unexpected boolean expression");
+    }
+  }
+
+  visitReturnStatementNode(node: ReturnStatementNode) {
+    // TODO: check if return matches return type from function
+    if (node.expression) {
+      node.expression.visit(this);
     }
   }
 

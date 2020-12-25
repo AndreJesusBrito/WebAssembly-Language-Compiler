@@ -43,6 +43,7 @@ import { PosDecrementExpressionNode } from "../TreeNodes/PosDecrementExpressionN
 import { EmptyExpression } from "../TreeNodes/EmptyExpression";
 import { EmptyStatement } from "../TreeNodes/EmptyStatement";
 import { TrapStatementNode } from "../TreeNodes/TrapStatementNode";
+import { ReturnStatementNode } from "../TreeNodes/ReturnStatementNode";
 import { FunctionCallNode } from "../TreeNodes/FunctionCallNode";
 
 
@@ -68,6 +69,8 @@ export class SemanticAnalyserPhase3 implements IVisitorAST {
   visitEmptyExpression(node: EmptyExpression): any {}
 
   visitTrapStatementNode(node: TrapStatementNode): any {}
+
+  visitReturnStatementNode(node: ReturnStatementNode): any {}
 
   visitNumberLiteralNode(node: NumberLiteralNode): any {}
 

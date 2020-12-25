@@ -55,6 +55,7 @@ import { FunctionCallNode } from "../TreeNodes/FunctionCallNode";
 import { ProgramNode } from "../TreeNodes/ProgramNode";
 import { FunctionDefinitionArgument } from "../TreeNodes/FunctionDeclarationArgument";
 import { NodeList } from "../TreeNodes/NodeList";
+import { ReturnStatementNode } from "../TreeNodes/ReturnStatementNode";
 
 export const rules: {
   [key: string]: SyntaxRule
@@ -72,6 +73,8 @@ export const rules: {
   statementBlock: new SyntaxRule("statementBlock"),
   trapStatement: new SyntaxRule("trapStatement"),
   trapStatementPrime: new SyntaxRule("trapStatementPrime"),
+  returnStatement: new SyntaxRule("returnStatement"),
+  returnStatementPrime: new SyntaxRule("returnStatementPrime"),
   statementBlockPrime: new SyntaxRule("statementBlockPrime"),
   conditionSection: new SyntaxRule("conditionSection"),
   equalsExpression: new SyntaxRule("equalsExpression"),
@@ -173,6 +176,20 @@ function createEmptyExpression(args: ActionArgs) {
 }
 function createEmptyStatement(args: ActionArgs) {
   args.nodeStack.push(new EmptyStatement());
+}
+
+function createNullReturn(args: ActionArgs) {
+  args.nodeStack.push(new ReturnStatementNode(null));
+}
+function createReturn(args: ActionArgs) {
+  const {nodeStack} = args;
+
+  const expression = nodeStack.pop();
+  if (!(expression instanceof ExpressionNode)) {
+    throw Error("Return must receive an ExpressionNode");
+  }
+
+  nodeStack.push(new ReturnStatementNode(expression));
 }
 
 function createUnconditionalTrap(args: ActionArgs) {
@@ -684,7 +701,7 @@ function addFunctionCallArgument(args: ActionArgs) {
 rules.program.setDerivation(
   [rules.highOrderDefinition],
   [{index: fnPreviousIndex, func: createProgram}],
-  "func", "if", "while", "for", "trap", ";", "{", ...group.primitiveType, "id", "(", ...group.valuePrefixes, "number", "true", "false"
+  "func", "if", "while", "for", "trap", "return", ";", "{", ...group.primitiveType, "id", "(", ...group.valuePrefixes, "number", "true", "false"
 );
 // rules.program.setDerivation([], "eot");
 
@@ -757,9 +774,10 @@ rules.singleStatement.setDerivation([rules.ifStatement], [], "if");
 rules.singleStatement.setDerivation([rules.whileStatement], [], "while");
 rules.singleStatement.setDerivation([rules.forStatement], [], "for");
 rules.singleStatement.setDerivation([rules.trapStatement], [], "trap");
+rules.singleStatement.setDerivation([rules.returnStatement, ";"], [], "return");
 
 rules.statementBlock.setDerivation(["{", rules.statementBlockPrime], [], "{");
-rules.statementBlockPrime.setDerivation([rules.statement, "}"], [], "if", "while", "for", "trap", ";", "{", ...group.primitiveType, "id", "(", ...group.valuePrefixes, "number", "true", "false");
+rules.statementBlockPrime.setDerivation([rules.statement, "}"], [], "if", "while", "for", "trap", "return", ";", "{", ...group.primitiveType, "id", "(", ...group.valuePrefixes, "number", "true", "false");
 rules.statementBlockPrime.setDerivation(
   ["}"],
   [{ index: fnPreviousIndex, func: createEmptyStatement }],
@@ -769,13 +787,13 @@ rules.statementBlockPrime.setDerivation(
 
 rules.statement.setDerivation(
   [rules.singleStatement, rules.nextStatement], [],
-  "if", "while", "for", "trap", ";", "{", "id", ...group.valuePrefixes, "(", "number", "true", "false", ...group.primitiveType
+  "if", "while", "for", "trap", "return", ";", "{", "id", ...group.valuePrefixes, "(", "number", "true", "false", ...group.primitiveType
 );
 
 rules.nextStatement.setDerivation(
   [rules.statement],
   [{index: fnPreviousIndex, func: joinStatements}],
-  "if", "while", "for", "trap", ";", "{", ...group.primitiveType, "id", ...group.valuePrefixes, "(", "number", "true", "false"
+  "if", "while", "for", "trap", "return", ";", "{", ...group.primitiveType, "id", ...group.valuePrefixes, "(", "number", "true", "false"
 );
 rules.nextStatement.setDerivation([], [], "}", "eot");
 
@@ -813,7 +831,7 @@ rules.ifStatementPrime.setDerivation(
 rules.ifStatementPrime.setDerivation(
   [],
   [{ index: fnPreviousIndex, func: createIfNode }],
-  "if", "while", "for", "trap", ";", "{", ...group.primitiveType, "id", "(", ...group.valuePrefixes, "number", "true", "false"
+  "if", "while", "for", "trap", "return", ";", "{", ...group.primitiveType, "id", "(", ...group.valuePrefixes, "number", "true", "false"
 );
 
 
@@ -873,6 +891,16 @@ rules.trapStatementPrime.setDerivation([";"], [
 
 rules.trapStatementPrime.setDerivation([rules.expression], [
   { index: fnPreviousIndex, func: createConditionalTrap }
+], "id", ...group.valuePrefixes, "(", "number", "true", "false");
+
+rules.returnStatement.setDerivation(["return", rules.returnStatementPrime], [], "return");
+
+rules.returnStatementPrime.setDerivation([";"], [
+  { index: fnRunNow, func: createNullReturn }
+], ";");
+
+rules.returnStatementPrime.setDerivation([rules.expression], [
+  { index: fnPreviousIndex, func: createReturn }
 ], "id", ...group.valuePrefixes, "(", "number", "true", "false");
 
 

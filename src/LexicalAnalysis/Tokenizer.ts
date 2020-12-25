@@ -6,7 +6,7 @@ const matchers = new Map<TokenType, RegExp>();
   matchers.set(TokenType.NUMBER_LITERAL, /^(0b[01]+|0o[0-7]+|0x[\da-fA-F]+|(\d+\.|\.\d+|\d+)\d*(E(\+|-)?\d+)?)/);
 
   matchers.set(TokenType.PRIMITIVE_TYPE, /^(i32|i64|u32|u64|f32|f64|bool)/);
-  matchers.set(TokenType.KEYWORD, /^(if|else|while|for|trap|func)/);
+  matchers.set(TokenType.KEYWORD, /^(if|else|while|for|trap|return|func)/);
   matchers.set(TokenType.BOOLEAN_LITERAL, /^(true|false)/);
   matchers.set(TokenType.IDENTIFIER, /^(\w+)/); //TODO add all chars
 

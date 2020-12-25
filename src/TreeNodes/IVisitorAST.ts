@@ -52,6 +52,7 @@ import { EmptyExpression } from "./EmptyExpression";
 import { EmptyStatement } from "./EmptyStatement";
 
 import { TrapStatementNode } from "./TrapStatementNode";
+import { ReturnStatementNode } from "./ReturnStatementNode";
 
 
 export interface IVisitorAST {
@@ -125,5 +126,6 @@ export interface IVisitorAST {
   visitEmptyExpression(node: EmptyExpression): any;
 
   visitTrapStatementNode(node: TrapStatementNode): any;
+  visitReturnStatementNode(node: ReturnStatementNode): any;
 
 }

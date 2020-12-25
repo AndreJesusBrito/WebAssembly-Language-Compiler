@@ -58,6 +58,7 @@ import { PosDecrementExpressionNode } from "../TreeNodes/PosDecrementExpressionN
 import { EmptyExpression } from "../TreeNodes/EmptyExpression";
 import { EmptyStatement } from "../TreeNodes/EmptyStatement";
 import { TrapStatementNode } from "../TreeNodes/TrapStatementNode";
+import { ReturnStatementNode } from "../TreeNodes/ReturnStatementNode";
 import { open } from "fs/promises";
 import { FunctionCallNode } from "../TreeNodes/FunctionCallNode";
 
@@ -116,6 +117,17 @@ export class BinaryFormatCodeGenerator implements IVisitorAST {
       ]
     }
     return [Opcode.unreachable];
+  }
+
+  visitReturnStatementNode(node: ReturnStatementNode) {
+    const result = [];
+    if (node.expression) {
+      result.push(...node.expression.visit(this));
+    }
+
+    // TODO otimization: remove return when not required
+    result.push(Opcode.return);
+    return result;
   }
 
   visitIfStatementNode(node: IfStatementNode): number[] {
